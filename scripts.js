@@ -1,13 +1,37 @@
 const pages = document.querySelectorAll('.page');
 const navLinks = document.querySelectorAll('[data-nav]');
+const highlightNavLinks = Array.from(navLinks).filter((link) =>
+  Boolean(link.closest('nav, .auth-links, .footer__links'))
+);
 const navList = document.getElementById('nav-links');
 const menuToggle = document.querySelector('.menu-toggle');
-const revealEls = document.querySelectorAll('.reveal');
+const revealEls = Array.from(document.querySelectorAll('.reveal'));
 const yearEl = document.getElementById('year');
-const parallaxEls = document.querySelectorAll('[data-parallax]');
+const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
+const bodyPageId = document.body?.dataset.page || '';
+const defaultPageId = 'home';
+
+const isSpaExperience = pages.length > 1 && !bodyPageId;
 const scrollProgressBar = document.querySelector('.scroll-progress__bar');
 
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const parallaxQuery = window.matchMedia('(min-width: 768px)');
+const mobileNavQuery = window.matchMedia('(max-width: 940px)');
+
+let prefersReducedMotion = motionQuery.matches;
+let parallaxAllowed = parallaxQuery.matches;
+let revealObserver;
+
+const hasParallax = parallaxEls.length > 0;
+
+const shouldRunParallax = () => hasParallax && parallaxAllowed && !prefersReducedMotion;
+
+const resetParallax = () => {
+  if (!hasParallax) return;
+  parallaxEls.forEach((el) => {
+    el.style.transform = '';
+  });
+};
 
 const setYear = () => {
   if (yearEl) {
@@ -15,60 +39,106 @@ const setYear = () => {
   }
 };
 
-const setActivePage = (pageId) => {
-  const target = pageId || 'home';
+const setMenuVisibility = (expanded) => {
+  if (!menuToggle || !navList || !document.body) return;
+  const isMobile = mobileNavQuery.matches;
+  const shouldExpand = expanded && isMobile;
 
-  pages.forEach((page) => {
-    page.classList.toggle('active', page.dataset.page === target);
-  });
-
-  navLinks.forEach((link) => {
-    const linkTarget = link.getAttribute('data-nav');
-    const isActive = linkTarget === target;
-    link.classList.toggle('active', isActive);
-  });
-
-  if (menuToggle?.getAttribute('aria-expanded') === 'true') {
-    toggleMenu(false);
-  }
+  menuToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+  navList.classList.toggle('open', shouldExpand);
+  navList.setAttribute('aria-hidden', String(isMobile ? !shouldExpand : false));
+  document.body.dataset.menuOpen = shouldExpand ? 'true' : 'false';
 };
 
 const toggleMenu = (force) => {
-  const expanded = typeof force === 'boolean' ? force : menuToggle.getAttribute('aria-expanded') !== 'true';
-  menuToggle.setAttribute('aria-expanded', expanded);
-  navList.classList.toggle('open', expanded);
+  if (!menuToggle || !navList) return;
+  const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+  const shouldExpand = typeof force === 'boolean' ? force : !isExpanded;
+  setMenuVisibility(shouldExpand);
+};
+
+const setActivePage = (pageId) => {
+  const fallback = bodyPageId || pages[0]?.dataset.page || defaultPageId;
+  const target = pageId || fallback || defaultPageId;
+
+  pages.forEach((page, index) => {
+    const pageIdentifier = page.dataset.page;
+    const shouldBeActive = pageIdentifier ? pageIdentifier === target : index === 0;
+    page.classList.toggle('active', shouldBeActive);
+  });
+
+  highlightNavLinks.forEach((link) => {
+    const linkTarget = link.getAttribute('data-nav');
+    const isActive = linkTarget === target;
+    link.classList.toggle('active', isActive);
+    if (isActive) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
+  });
+
+  if (isSpaExperience && menuToggle?.getAttribute('aria-expanded') === 'true') {
+    toggleMenu(false);
+  }
+
+  return target;
 };
 
 const handleNavigation = (event) => {
   const navTarget = event.target.closest('[data-nav]');
   if (!navTarget) return;
-  event.preventDefault();
+
   const target = navTarget.getAttribute('data-nav');
   if (!target) return;
 
-  history.pushState({ page: target }, '', `#${target}`);
-  setActivePage(target);
-  scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  if (isSpaExperience) {
+    const href = navTarget.getAttribute('href');
+    if (!href || !href.startsWith('#')) return;
+
+    event.preventDefault();
+
+    if (typeof history.pushState === 'function') {
+      history.pushState({ page: target }, '', `#${target}`);
+    } else {
+      window.location.hash = `#${target}`;
+    }
+
+    setActivePage(target);
+    if (prefersReducedMotion || typeof window.scrollTo !== 'function') {
+      window.scrollTo(0, 0);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  } else if (menuToggle?.getAttribute('aria-expanded') === 'true') {
+    toggleMenu(false);
+  }
 };
 
 const handleHashChange = () => {
+  if (!isSpaExperience) return;
   const hash = window.location.hash.replace('#', '');
   setActivePage(hash);
   handleScrollEffects();
 };
 
-const observeReveals = () => {
-  if (prefersReducedMotion) {
+const setupRevealObserver = () => {
+  if (revealObserver) {
+    revealObserver.disconnect();
+    revealObserver = undefined;
+  }
+
+  if (prefersReducedMotion || !('IntersectionObserver' in window)) {
     revealEls.forEach((el) => el.classList.add('visible'));
     return;
   }
 
-  const observer = new IntersectionObserver(
-    (entries, observerInstance) => {
+  revealObserver = new IntersectionObserver(
+    (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observerInstance.unobserve(entry.target);
+          revealObserver?.unobserve(entry.target);
         }
       });
     },
@@ -77,7 +147,11 @@ const observeReveals = () => {
     }
   );
 
-  revealEls.forEach((el) => observer.observe(el));
+  revealEls.forEach((el) => {
+    if (!el.classList.contains('visible')) {
+      revealObserver.observe(el);
+    }
+  });
 };
 
 const updateParallax = () => {
@@ -102,21 +176,76 @@ const handleScrollEffects = () => {
   scrollTicking = true;
   requestAnimationFrame(() => {
     updateScrollProgress();
-    if (!prefersReducedMotion) {
+    if (shouldRunParallax()) {
       updateParallax();
+    } else {
+      resetParallax();
     }
     scrollTicking = false;
   });
 };
 
+const updateMotionPreference = (isReduced) => {
+  prefersReducedMotion = isReduced;
+  document.documentElement.classList.toggle('is-reduced-motion', prefersReducedMotion);
+  setupRevealObserver();
+  if (!shouldRunParallax()) {
+    resetParallax();
+  }
+};
+
+const handleMotionChange = (event) => {
+  updateMotionPreference(event.matches);
+};
+
+const handleParallaxChange = (event) => {
+  parallaxAllowed = event.matches;
+  if (!shouldRunParallax()) {
+    resetParallax();
+  }
+  handleScrollEffects();
+};
+
+const handleMobileNavChange = () => {
+  setMenuVisibility(false);
+};
+
 menuToggle?.addEventListener('click', () => toggleMenu());
 navLinks.forEach((link) => link.addEventListener('click', handleNavigation));
-window.addEventListener('popstate', handleHashChange);
-window.addEventListener('hashchange', handleHashChange);
+
+if (isSpaExperience) {
+  window.addEventListener('popstate', handleHashChange);
+  window.addEventListener('hashchange', handleHashChange);
+}
+
 window.addEventListener('scroll', handleScrollEffects, { passive: true });
 window.addEventListener('resize', handleScrollEffects);
 
+if (typeof motionQuery.addEventListener === 'function') {
+  motionQuery.addEventListener('change', handleMotionChange);
+} else if (typeof motionQuery.addListener === 'function') {
+  motionQuery.addListener(handleMotionChange);
+}
+
+if (typeof parallaxQuery.addEventListener === 'function') {
+  parallaxQuery.addEventListener('change', handleParallaxChange);
+} else if (typeof parallaxQuery.addListener === 'function') {
+  parallaxQuery.addListener(handleParallaxChange);
+}
+
+if (typeof mobileNavQuery.addEventListener === 'function') {
+  mobileNavQuery.addEventListener('change', handleMobileNavChange);
+} else if (typeof mobileNavQuery.addListener === 'function') {
+  mobileNavQuery.addListener(handleMobileNavChange);
+}
+
+setMenuVisibility(false);
 setYear();
-handleHashChange();
-observeReveals();
-handleScrollEffects();
+updateMotionPreference(prefersReducedMotion);
+
+if (isSpaExperience) {
+  handleHashChange();
+} else {
+  setActivePage(bodyPageId);
+  handleScrollEffects();
+}
