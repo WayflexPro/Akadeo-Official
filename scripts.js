@@ -4,6 +4,8 @@ const navList = document.getElementById('nav-links');
 const menuToggle = document.querySelector('.menu-toggle');
 const revealEls = document.querySelectorAll('.reveal');
 const yearEl = document.getElementById('year');
+const parallaxEls = document.querySelectorAll('[data-parallax]');
+const scrollProgressBar = document.querySelector('.scroll-progress__bar');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -52,6 +54,7 @@ const handleNavigation = (event) => {
 const handleHashChange = () => {
   const hash = window.location.hash.replace('#', '');
   setActivePage(hash);
+  handleScrollEffects();
 };
 
 const observeReveals = () => {
@@ -77,11 +80,43 @@ const observeReveals = () => {
   revealEls.forEach((el) => observer.observe(el));
 };
 
+const updateParallax = () => {
+  parallaxEls.forEach((el) => {
+    const speed = parseFloat(el.dataset.parallax ?? '0');
+    if (!Number.isFinite(speed)) return;
+    const offset = window.scrollY * speed * -1;
+    el.style.transform = `translate3d(0, ${offset}px, 0)`;
+  });
+};
+
+const updateScrollProgress = () => {
+  if (!scrollProgressBar) return;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const progress = scrollHeight > 0 ? Math.min(window.scrollY / scrollHeight, 1) : 0;
+  scrollProgressBar.style.transform = `scaleX(${progress})`;
+};
+
+let scrollTicking = false;
+const handleScrollEffects = () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    updateScrollProgress();
+    if (!prefersReducedMotion) {
+      updateParallax();
+    }
+    scrollTicking = false;
+  });
+};
+
 menuToggle?.addEventListener('click', () => toggleMenu());
 navLinks.forEach((link) => link.addEventListener('click', handleNavigation));
 window.addEventListener('popstate', handleHashChange);
 window.addEventListener('hashchange', handleHashChange);
+window.addEventListener('scroll', handleScrollEffects, { passive: true });
+window.addEventListener('resize', handleScrollEffects);
 
 setYear();
 handleHashChange();
 observeReveals();
+handleScrollEffects();

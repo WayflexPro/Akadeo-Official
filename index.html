@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="background-scene" aria-hidden="true">
+      <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
+      <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
+      <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
+      <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
+      <span class="background-scene__grid" data-parallax="0.02"></span>
+    </div>
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress__bar"></span>
+    </div>
     <header class="site-header">
       <div class="container">
         <a class="brand" data-nav="home" href="#home">
@@ -167,6 +177,27 @@
                 <p class="metric__label">Student celebrations shared</p>
                 <p>Moments of progress are captured instantly and celebrated across the community.</p>
               </article>
+            </div>
+          </div>
+        </section>
+        <section class="trusted">
+          <div class="container">
+            <p class="eyebrow reveal">Trusted partnerships</p>
+            <div class="trusted__content reveal">
+              <h2>Designed with leading districts and innovators.</h2>
+              <p>
+                Akadeo powers intentional learning communities from rural districts to global
+                academies. Product decisions are shaped in partnership with educators who insist on
+                equity, accessibility, and joy at scale.
+              </p>
+            </div>
+            <div class="trusted__marquee" role="list" aria-label="Highlighted partners">
+              <span class="trusted__logo" role="listitem">Summerside ISD</span>
+              <span class="trusted__logo" role="listitem">Horizon Learning Trust</span>
+              <span class="trusted__logo" role="listitem">Bluebird Charter Network</span>
+              <span class="trusted__logo" role="listitem">North Coast STEM</span>
+              <span class="trusted__logo" role="listitem">Lighthouse Academy</span>
+              <span class="trusted__logo" role="listitem">United World Schools</span>
             </div>
           </div>
         </section>
@@ -352,6 +383,46 @@
                 </aside>
               </div>
             </section>
+            <section class="team-spotlight">
+              <div class="team-spotlight__intro">
+                <p class="eyebrow reveal">People centered</p>
+                <h3 class="reveal">A multidisciplinary crew supporting every launch.</h3>
+                <p class="reveal">
+                  From data scientists and instructional coaches to family engagement specialists,
+                  Akadeo’s team is organized in pods that partner with your school throughout the
+                  year.
+                </p>
+              </div>
+              <div class="team-spotlight__grid">
+                <article class="team-spotlight__card reveal">
+                  <h4>Impact pod</h4>
+                  <p>Instructional strategists who co-create PD plans and celebrate classroom wins.</p>
+                  <ul>
+                    <li>Monthly coaching cycles</li>
+                    <li>Equity-centered implementation reviews</li>
+                    <li>Student focus group facilitation</li>
+                  </ul>
+                </article>
+                <article class="team-spotlight__card reveal">
+                  <h4>Experience pod</h4>
+                  <p>Design researchers and product storytellers shaping a joyful user experience.</p>
+                  <ul>
+                    <li>Inclusive research panels</li>
+                    <li>Design accessibility audits</li>
+                    <li>Quarterly roadmap showcases</li>
+                  </ul>
+                </article>
+                <article class="team-spotlight__card reveal">
+                  <h4>Trust pod</h4>
+                  <p>Security engineers and compliance advocates safeguarding every community.</p>
+                  <ul>
+                    <li>24/7 monitoring & alerts</li>
+                    <li>Annual third-party audits</li>
+                    <li>Transparent data governance playbooks</li>
+                  </ul>
+                </article>
+              </div>
+            </section>
           </div>
         </div>
       </section>
@@ -461,6 +532,39 @@
                 </div>
               </div>
             </section>
+            <section class="feature-outcomes">
+              <div class="feature-outcomes__intro">
+                <p class="eyebrow reveal">Outcomes we track together</p>
+                <h3 class="reveal">Confidence-building insights at every level.</h3>
+                <p class="reveal">
+                  Dashboards surface the stories behind the numbers—helping teachers respond in the
+                  moment, leaders plan long-term, and students own their progress.
+                </p>
+              </div>
+              <div class="feature-outcomes__grid">
+                <article class="outcome-card reveal">
+                  <h4>Whole-child wellness</h4>
+                  <p>
+                    Monitor SEL indicators, check-in trends, and support plans to ensure every
+                    learner is seen and supported.
+                  </p>
+                </article>
+                <article class="outcome-card reveal">
+                  <h4>Instructional momentum</h4>
+                  <p>
+                    Track pacing, mastery, and collaboration moments to celebrate what’s working and
+                    refine what’s next.
+                  </p>
+                </article>
+                <article class="outcome-card reveal">
+                  <h4>Community partnership</h4>
+                  <p>
+                    Visualize family engagement touchpoints, translation coverage, and shared goal
+                    progress across classrooms.
+                  </p>
+                </article>
+              </div>
+            </section>
           </div>
         </div>
       </section>
@@ -522,6 +626,47 @@
                 </div>
               </div>
             </section>
+            <section class="pricing-comparison">
+              <div class="pricing-comparison__table" role="table" aria-label="Plan comparison">
+                <div class="pricing-comparison__row pricing-comparison__row--head" role="row">
+                  <span role="columnheader">Key capabilities</span>
+                  <span role="columnheader">Starter</span>
+                  <span role="columnheader">Growth</span>
+                  <span role="columnheader">District</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Live collaboration spaces</span>
+                  <span role="cell" aria-label="Included in Starter">✔</span>
+                  <span role="cell" aria-label="Included in Growth">✔</span>
+                  <span role="cell" aria-label="Included in District">✔</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Automated insights dashboards</span>
+                  <span role="cell" aria-label="Partially in Starter">Limited</span>
+                  <span role="cell" aria-label="Included in Growth">Full</span>
+                  <span role="cell" aria-label="Included in District">Enterprise</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Dedicated success partner</span>
+                  <span role="cell" aria-label="Not included in Starter">—</span>
+                  <span role="cell" aria-label="Included in Growth">Quarterly</span>
+                  <span role="cell" aria-label="Included in District">Monthly</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Advanced security toolkit</span>
+                  <span role="cell" aria-label="Not included in Starter">—</span>
+                  <span role="cell" aria-label="Included in Growth">Core</span>
+                  <span role="cell" aria-label="Included in District">Full suite</span>
+                </div>
+              </div>
+              <aside class="pricing-comparison__aside reveal">
+                <h3>Scale with confidence</h3>
+                <p>
+                  Every plan comes with migration support, rostering guidance, and access to our
+                  educator-led community hub filled with lessons, templates, and celebration ideas.
+                </p>
+              </aside>
+            </section>
           </div>
         </div>
       </section>
@@ -566,6 +711,24 @@
               </label>
               <button class="primary" type="submit">Send message</button>
             </form>
+            <section class="contact-extras">
+              <div class="contact-extras__card reveal">
+                <h3>Join an onboarding lab</h3>
+                <p>
+                  Explore live demos of lesson flows, analytics review routines, and culture-building
+                  rituals in a 45-minute interactive session.
+                </p>
+                <a class="ghost" href="#contact">Reserve a session</a>
+              </div>
+              <div class="contact-extras__card reveal">
+                <h3>Request a bespoke rollout</h3>
+                <p>
+                  Partner with our district strategists to co-design training calendars, change
+                  management communications, and family launch events.
+                </p>
+                <a class="ghost" href="#contact">Start a conversation</a>
+              </div>
+            </section>
           </div>
         </div>
       </section>
@@ -611,6 +774,24 @@
                 <a class="ghost" href="#contact">Save a seat</a>
               </div>
             </section>
+            <section class="faq-resources">
+              <article class="faq-resource reveal">
+                <h3>Implementation blueprint</h3>
+                <p>
+                  Download step-by-step launch plans for elementary, middle, and secondary teams,
+                  including communication templates and success metrics.
+                </p>
+                <a class="ghost" href="#blog">Get the blueprint</a>
+              </article>
+              <article class="faq-resource reveal">
+                <h3>Security & privacy center</h3>
+                <p>
+                  Review compliance documentation, data processing agreements, and audit summaries in
+                  our transparent trust portal.
+                </p>
+                <a class="ghost" data-nav="privacy" href="#privacy">Visit the trust center</a>
+              </article>
+            </section>
           </div>
         </div>
       </section>
@@ -654,6 +835,22 @@
                   <p>Hear from educators pioneering mastery-based reporting with Akadeo.</p>
                   <a class="ghost" href="#">Listen now</a>
                 </article>
+              </div>
+            </section>
+            <section class="blog-newsletter">
+              <div class="blog-newsletter__inner">
+                <div class="blog-newsletter__copy reveal">
+                  <h3>Stay in the loop</h3>
+                  <p>
+                    Subscribe for monthly insights on playful pedagogy, platform updates, and stories
+                    from schools elevating community-centered learning.
+                  </p>
+                </div>
+                <form class="blog-newsletter__form reveal" aria-label="Join the Akadeo newsletter">
+                  <label class="sr-only" for="newsletter-email">Email address</label>
+                  <input id="newsletter-email" type="email" placeholder="you@example.com" required />
+                  <button class="primary" type="submit">Subscribe</button>
+                </form>
               </div>
             </section>
           </div>
