@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="background-scene" aria-hidden="true">
+      <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
+      <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
+      <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
+      <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
+      <span class="background-scene__grid" data-parallax="0.02"></span>
+    </div>
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress__bar"></span>
+    </div>
     <header class="site-header">
       <div class="container">
         <a class="brand" data-nav="home" href="#home">
@@ -35,8 +45,8 @@
           </ul>
         </nav>
         <div class="auth-links">
-          <a class="ghost" data-nav="sign-in" href="#sign-in">Beta login</a>
-          <a class="primary" data-nav="sign-up" href="#sign-up">Join waitlist</a>
+          <a class="ghost" data-nav="sign-in" href="#sign-in">Sign In</a>
+          <a class="primary" data-nav="sign-up" href="#sign-up">Sign Up</a>
         </div>
       </div>
     </header>
@@ -51,60 +61,60 @@
           </div>
           <div class="container hero__content">
             <div class="hero__copy">
-              <p class="eyebrow reveal">Private beta in progress</p>
-              <h1 class="reveal">Building a calmer, more connected classroom hub.</h1>
+              <p class="eyebrow reveal">Where curiosity meets clarity</p>
+              <h1 class="reveal">A modern classroom experience, reinvented.</h1>
               <p class="lead reveal">
-                Akadeo is an emerging platform co-designed with a handful of educators. We are
-                validating the essentials before inviting broader schools to join.
+                Akadeo blends powerful teaching tools, student engagement insights, and
+                delightful collaboration features to elevate learning for everyone.
               </p>
               <ul class="hero__list reveal">
-                <li>Planned tools for lesson flow, formative checks, and family updates</li>
-                <li>Transparent progress notes instead of marketing hype</li>
-                <li>A focus on accessibility and privacy from day zero</li>
+                <li>Human-centered design that keeps teachers in control</li>
+                <li>Engagement analytics that surface wins and nudge support</li>
+                <li>Secure infrastructure trusted by districts worldwide</li>
               </ul>
               <div class="hero__actions reveal">
-                <a class="primary" data-nav="sign-up" href="#sign-up">Join the waitlist</a>
-                <a class="ghost" data-nav="about" href="#about">View our roadmap</a>
+                <a class="primary" data-nav="sign-up" href="#sign-up">Get started</a>
+                <a class="ghost" data-nav="features" href="#features">See features</a>
               </div>
             </div>
             <div class="hero__visual reveal">
               <div class="hero-panel">
                 <header class="hero-panel__header">
-                  <span class="hero-panel__title">Beta build checklist</span>
-                  <span class="hero-panel__meta">Updated weekly</span>
+                  <span class="hero-panel__title">Today in Year 8 Science</span>
+                  <span class="hero-panel__meta">Live session · 32 students</span>
                 </header>
                 <div class="hero-panel__stats">
                   <div>
-                    <span class="hero-panel__label">Lesson flow workspace</span>
-                    <strong class="hero-panel__value">Prototype testing</strong>
+                    <span class="hero-panel__label">Avg engagement</span>
+                    <strong class="hero-panel__value">92%</strong>
                   </div>
                   <div>
-                    <span class="hero-panel__label">Student reflection prompts</span>
-                    <strong class="hero-panel__value">Design review</strong>
+                    <span class="hero-panel__label">Assignments graded</span>
+                    <strong class="hero-panel__value">1.2k</strong>
                   </div>
                   <div>
-                    <span class="hero-panel__label">Family digest emails</span>
-                    <strong class="hero-panel__value">Planning</strong>
+                    <span class="hero-panel__label">Sessions this month</span>
+                    <strong class="hero-panel__value">48</strong>
                   </div>
                 </div>
                 <div class="hero-panel__chart">
-                  <span class="hero-panel__label">Focus areas</span>
+                  <span class="hero-panel__label">Weekly activity</span>
                   <div class="hero-panel__bars">
-                    <span style="--bar-height: 82%"></span>
-                    <span style="--bar-height: 64%"></span>
-                    <span style="--bar-height: 48%"></span>
-                    <span style="--bar-height: 58%"></span>
-                    <span style="--bar-height: 35%"></span>
+                    <span style="--bar-height: 65%"></span>
+                    <span style="--bar-height: 88%"></span>
+                    <span style="--bar-height: 72%"></span>
+                    <span style="--bar-height: 95%"></span>
+                    <span style="--bar-height: 80%"></span>
                   </div>
                 </div>
                 <footer class="hero-panel__footer">
                   <div>
-                    <span class="hero-panel__label">Next milestone</span>
-                    <strong class="hero-panel__value">Invite 3 pilot classrooms</strong>
+                    <span class="hero-panel__label">Mood check-ins</span>
+                    <strong class="hero-panel__value">+36 smiles</strong>
                   </div>
                   <div>
-                    <span class="hero-panel__label">How to help</span>
-                    <strong class="hero-panel__value">Share feedback & ideas</strong>
+                    <span class="hero-panel__label">Family updates</span>
+                    <strong class="hero-panel__value">18 sent</strong>
                   </div>
                 </footer>
               </div>
@@ -138,97 +148,90 @@
         <section class="metrics">
           <div class="container">
             <div class="metrics__intro">
-              <p class="eyebrow reveal">What we're validating</p>
-              <h2 class="reveal">Evidence before headlines.</h2>
+              <p class="eyebrow reveal">Measurable impact</p>
+              <h2 class="reveal">Every classroom, uplifted.</h2>
               <p class="reveal">
-                We're gathering qualitative insight, not vanity metrics. Every pilot cycle ends with
-                interviews, co-planning sessions, and a checklist of improvements before we talk
-                about scale.
+                Schools that partner with Akadeo report higher student agency, stronger family
+                partnerships, and hours returned to teacher planning time. Here are a few of the
+                stories data tells us.
               </p>
             </div>
             <div class="metrics__grid">
               <article class="metric reveal">
-                <h3>Insight-driven decisions</h3>
-                <p>
-                  Each prototype is reviewed with educators to confirm it actually reduces prep work
-                  or sparks richer discussion. If it doesn't, it ships back to the workshop.
-                </p>
+                <span class="metric__value">+27%</span>
+                <p class="metric__label">Increase in formative assessment completion</p>
+                <p>Teachers launch adaptive check-ins that meet each learner where they are.</p>
               </article>
               <article class="metric reveal">
-                <h3>Respect for context</h3>
-                <p>
-                  Pilot learnings are shared transparently, along with what still needs refining for
-                  diverse classrooms, bandwidth realities, and device limitations.
-                </p>
+                <span class="metric__value">12 hrs</span>
+                <p class="metric__label">Average time saved per educator monthly</p>
+                <p>Automations handle reminders, grading, and data reporting so you can teach.</p>
               </article>
               <article class="metric reveal">
-                <h3>Responsible rollouts</h3>
-                <p>
-                  We will open seats gradually, pairing each new school with a real human on our
-                  team. No dark patterns, just steady guidance.
-                </p>
+                <span class="metric__value">94%</span>
+                <p class="metric__label">Families who feel more connected</p>
+                <p>Weekly snapshots bridge the home-school conversation with joy and insight.</p>
               </article>
               <article class="metric reveal">
-                <h3>Accessible by design</h3>
-                <p>
-                  Every iteration is tested against WCAG targets and low-bandwidth scenarios so the
-                  experience remains friendly on older devices.
-                </p>
+                <span class="metric__value">3.1M</span>
+                <p class="metric__label">Student celebrations shared</p>
+                <p>Moments of progress are captured instantly and celebrated across the community.</p>
               </article>
             </div>
           </div>
         </section>
         <section class="trusted">
           <div class="container">
-            <p class="eyebrow reveal">Building in public</p>
+            <p class="eyebrow reveal">Trusted partnerships</p>
             <div class="trusted__content reveal">
-              <h2>Co-creating with a small circle of educators.</h2>
+              <h2>Designed with leading districts and innovators.</h2>
               <p>
-                We haven't launched widely yet. Instead, we document every sprint with our pilot
-                partners, publish notes, and invite feedback before promising anything to new
-                schools.
+                Akadeo powers intentional learning communities from rural districts to global
+                academies. Product decisions are shaped in partnership with educators who insist on
+                equity, accessibility, and joy at scale.
               </p>
             </div>
-            <div class="trusted__marquee" role="list" aria-label="Ways we're staying transparent">
-              <span class="trusted__logo" role="listitem">Weekly build logs</span>
-              <span class="trusted__logo" role="listitem">Open office hours</span>
-              <span class="trusted__logo" role="listitem">Accessibility reviews</span>
-              <span class="trusted__logo" role="listitem">Privacy-first decisions</span>
-              <span class="trusted__logo" role="listitem">Feedback-driven roadmap</span>
-              <span class="trusted__logo" role="listitem">Device-friendly testing</span>
+            <div class="trusted__marquee" role="list" aria-label="Highlighted partners">
+              <span class="trusted__logo" role="listitem">Summerside ISD</span>
+              <span class="trusted__logo" role="listitem">Horizon Learning Trust</span>
+              <span class="trusted__logo" role="listitem">Bluebird Charter Network</span>
+              <span class="trusted__logo" role="listitem">North Coast STEM</span>
+              <span class="trusted__logo" role="listitem">Lighthouse Academy</span>
+              <span class="trusted__logo" role="listitem">United World Schools</span>
             </div>
           </div>
         </section>
         <section class="journey">
           <div class="container">
             <div class="journey__intro">
-              <p class="eyebrow reveal">Our rollout plan</p>
-              <h2 class="reveal">A thoughtful path from beta to district-ready.</h2>
+              <p class="eyebrow reveal">A guided path</p>
+              <h2 class="reveal">From spark to sustained momentum.</h2>
               <p class="reveal">
-                We are intentional about pacing. Each phase unlocks only after we learn what works
-                for real classrooms and make space to improve what doesn't.
+                We pair intuitive software with a caring team that coaches you through every
+                milestone. Implementation is swift, and the wins start showing up almost
+                immediately.
               </p>
             </div>
             <div class="journey__steps">
               <article class="journey__step reveal">
-                <span class="journey__index">Now</span>
+                <span class="journey__index">01</span>
                 <h3>Discover</h3>
-                <p>Listening sessions and prototype testing with a volunteer group of educators.</p>
+                <p>Co-design success metrics with our former educators and align on your vision.</p>
               </article>
               <article class="journey__step reveal">
-                <span class="journey__index">Next</span>
-                <h3>Prepare</h3>
-                <p>Hardening infrastructure, auditing accessibility, and documenting privacy guardrails.</p>
+                <span class="journey__index">02</span>
+                <h3>Launch</h3>
+                <p>Train teachers in energizing micro-sessions backed by interactive resources.</p>
               </article>
               <article class="journey__step reveal">
-                <span class="journey__index">Soon</span>
-                <h3>Pilot</h3>
-                <p>Limited early access with guided onboarding and shared success criteria.</p>
+                <span class="journey__index">03</span>
+                <h3>Activate</h3>
+                <p>Bring students and families onboard with playful prompts and multilingual guides.</p>
               </article>
               <article class="journey__step reveal">
-                <span class="journey__index">Later</span>
-                <h3>Expand</h3>
-                <p>Gradual rollout with dedicated support pods once we can serve larger communities well.</p>
+                <span class="journey__index">04</span>
+                <h3>Elevate</h3>
+                <p>Review insights in monthly coaching sessions and celebrate new growth moments.</p>
               </article>
             </div>
           </div>
@@ -236,48 +239,56 @@
         <section class="testimonials">
           <div class="container">
             <div class="testimonials__header">
-              <p class="eyebrow reveal">Help shape Akadeo</p>
-              <h2 class="reveal">We learn directly from educators and families.</h2>
+              <p class="eyebrow reveal">Voices from the community</p>
+              <h2 class="reveal">Real classrooms. Real joy.</h2>
             </div>
             <div class="testimonials__grid">
-              <article class="testimonial-card reveal">
-                <h3>Conversation circles</h3>
-                <p>
-                  45-minute sessions where we demo new ideas, gather candid reactions, and share
-                  what we're changing next.
-                </p>
-              </article>
-              <article class="testimonial-card reveal">
-                <h3>Design sprints</h3>
-                <p>
-                  Volunteer educators co-create lesson workflows with our product team. All
-                  artefacts stay open for the community.
-                </p>
-              </article>
-              <article class="testimonial-card reveal">
-                <h3>Family feedback</h3>
-                <p>
-                  Guardians review communication drafts to ensure updates are clear, accessible, and
-                  culturally responsive before they go live.
-                </p>
-              </article>
+              <figure class="testimonial-card reveal">
+                <blockquote>
+                  “Akadeo gave us time back to mentor kids. The insights dashboard is a love
+                  letter to teachers who crave context.”
+                </blockquote>
+                <figcaption>
+                  <span class="testimonial__name">Karina, Instructional Coach</span>
+                  <span class="testimonial__meta">Summerside Middle School</span>
+                </figcaption>
+              </figure>
+              <figure class="testimonial-card reveal">
+                <blockquote>
+                  “Students light up when they see their growth streaks. Families feel in the loop
+                  without extra emails from me.”
+                </blockquote>
+                <figcaption>
+                  <span class="testimonial__name">David, Grade 5 Teacher</span>
+                  <span class="testimonial__meta">Brighton Elementary</span>
+                </figcaption>
+              </figure>
+              <figure class="testimonial-card reveal">
+                <blockquote>
+                  “Implementation took weeks, not months. Akadeo’s team listened deeply and built
+                  a plan that works for our district.”
+                </blockquote>
+                <figcaption>
+                  <span class="testimonial__name">Anika, Director of Innovation</span>
+                  <span class="testimonial__meta">Unity Charter Network</span>
+                </figcaption>
+              </figure>
             </div>
           </div>
         </section>
         <section class="cta" aria-labelledby="cta-heading">
           <div class="container cta__content">
             <div>
-              <p class="eyebrow reveal">Let's start a conversation</p>
-              <h2 class="reveal" id="cta-heading">Explore the beta, share your needs.</h2>
+              <p class="eyebrow reveal">Ready when you are</p>
+              <h2 class="reveal" id="cta-heading">See Akadeo in action today.</h2>
               <p class="reveal">
-                We're meeting with educators, students, and families to make sure Akadeo solves real
-                problems. If you're curious, let's trade notes and decide together whether an early
-                preview makes sense.
+                Schedule a guided tour with an adoption specialist to explore tailored lesson
+                flows, wellbeing dashboards, and how Akadeo integrates with your SIS.
               </p>
             </div>
             <div class="cta__actions reveal">
-              <a class="primary" data-nav="contact" href="#contact">Request a chat</a>
-              <a class="ghost" data-nav="about" href="#about">Read the latest update</a>
+              <a class="primary" data-nav="contact" href="#contact">Book a live tour</a>
+              <a class="ghost" href="#">Download program overview</a>
             </div>
           </div>
         </section>
@@ -288,8 +299,8 @@
           <div class="container narrow">
             <h2 class="reveal">Built with educators, for educators.</h2>
             <p class="lead reveal">
-              Akadeo is the result of ongoing conversations with teachers, students, and school
-              leaders seeking a more human approach to digital learning.
+              Akadeo is the result of hundreds of conversations with teachers, students, and
+              school leaders seeking a more human approach to digital learning.
             </p>
             <div class="grid-2">
               <div class="card reveal">
@@ -310,20 +321,20 @@
             </div>
             <div class="timeline">
               <div class="timeline__item reveal">
-                <span class="timeline__year">Research</span>
-                <p>Dozens of interviews to map the most time-consuming classroom workflows.</p>
+                <span class="timeline__year">2021</span>
+                <p>Prototype built with a community of pioneering educators.</p>
               </div>
               <div class="timeline__item reveal">
-                <span class="timeline__year">Prototype</span>
-                <p>Building core experiences with a small feedback group and documenting learnings.</p>
+                <span class="timeline__year">2022</span>
+                <p>Scaled to 50 pilot schools with outstanding engagement results.</p>
               </div>
               <div class="timeline__item reveal">
-                <span class="timeline__year">Private beta</span>
-                <p>Inviting a limited set of classrooms to validate reliability, accessibility, and support.</p>
+                <span class="timeline__year">2023</span>
+                <p>Launched analytics suite and collaboration hub.</p>
               </div>
               <div class="timeline__item reveal">
-                <span class="timeline__year">Public launch</span>
-                <p>Opens once we can confidently support schools with transparency and care.</p>
+                <span class="timeline__year">Today</span>
+                <p>Trusted by forward-thinking districts and growing everyday.</p>
               </div>
             </div>
             <section class="values">
@@ -360,9 +371,9 @@
                     the belief that delight and rigor can co-exist in every classroom experience.
                   </p>
                   <ul>
-                    <li>Former classroom teachers, instructional coaches, and technologists collaborating daily</li>
-                    <li>Team members spread across multiple time zones to reflect diverse school contexts</li>
-                    <li>Students and families reviewing prototypes alongside educators</li>
+                    <li>45% of our team has taught in K-12 classrooms</li>
+                    <li>Collective experience across 18 countries and 12 languages</li>
+                    <li>Advisory council of students and families shaping the roadmap</li>
                   </ul>
                 </div>
                 <aside class="team-story__aside reveal">
@@ -385,29 +396,29 @@
               <div class="team-spotlight__grid">
                 <article class="team-spotlight__card reveal">
                   <h4>Impact pod</h4>
-                  <p>Instructional strategists co-designing professional learning with early adopters.</p>
+                  <p>Instructional strategists who co-create PD plans and celebrate classroom wins.</p>
                   <ul>
-                    <li>Co-create onboarding toolkits with teachers</li>
-                    <li>Collect qualitative stories from classrooms</li>
-                    <li>Facilitate feedback loops with students</li>
+                    <li>Monthly coaching cycles</li>
+                    <li>Equity-centered implementation reviews</li>
+                    <li>Student focus group facilitation</li>
                   </ul>
                 </article>
                 <article class="team-spotlight__card reveal">
                   <h4>Experience pod</h4>
-                  <p>Design researchers and storytellers making sure workflows feel intuitive.</p>
+                  <p>Design researchers and product storytellers shaping a joyful user experience.</p>
                   <ul>
-                    <li>Host inclusive research panels</li>
-                    <li>Audit accessibility before shipping updates</li>
-                    <li>Share roadmap notes in public updates</li>
+                    <li>Inclusive research panels</li>
+                    <li>Design accessibility audits</li>
+                    <li>Quarterly roadmap showcases</li>
                   </ul>
                 </article>
                 <article class="team-spotlight__card reveal">
                   <h4>Trust pod</h4>
-                  <p>Security engineers and compliance advocates laying the foundations for safe data.</p>
+                  <p>Security engineers and compliance advocates safeguarding every community.</p>
                   <ul>
-                    <li>Document privacy requirements with advisors</li>
-                    <li>Plan for independent reviews before general availability</li>
-                    <li>Publish easy-to-read data practices</li>
+                    <li>24/7 monitoring & alerts</li>
+                    <li>Annual third-party audits</li>
+                    <li>Transparent data governance playbooks</li>
                   </ul>
                 </article>
               </div>
@@ -419,120 +430,115 @@
       <section class="page" data-page="features" id="features">
         <div class="page__inner">
           <div class="container">
-            <h2 class="reveal">What we're building for modern classrooms.</h2>
+            <h2 class="reveal">Everything a modern classroom needs.</h2>
             <div class="feature-grid">
               <article class="feature-card reveal">
                 <h3>Interactive Lesson Builder</h3>
                 <p>
-                  We're designing a drag-and-drop workspace that keeps resources, prompts, and
-                  differentiation in one flow.
+                  Drag-and-drop blocks, embed media, and create branching paths for personalized
+                  learning journeys.
                 </p>
               </article>
               <article class="feature-card reveal">
                 <h3>Live Collaboration Spaces</h3>
                 <p>
-                  Early prototypes explore how to host synchronous and asynchronous collaboration
-                  without overwhelming students.
+                  Host synchronous sessions with chat, polls, and real-time whiteboarding.
                 </p>
               </article>
               <article class="feature-card reveal">
                 <h3>Automated Insights</h3>
                 <p>
-                  Instead of dashboards for the sake of it, we're testing helpful nudges that guide
-                  timely support.
+                  Track engagement, mastery, and wellbeing to tailor support effortlessly.
                 </p>
               </article>
               <article class="feature-card reveal">
                 <h3>Smart Assessments</h3>
                 <p>
-                  Micro-assessments with instant feedback are in development, with teachers staying
-                  firmly in control.
+                  Design adaptive quizzes with instant feedback and learning recommendations.
                 </p>
               </article>
               <article class="feature-card reveal">
                 <h3>Parent & Guardian Portal</h3>
                 <p>
-                  We're co-writing communication flows with families so updates feel useful, not
-                  overwhelming.
+                  Keep supporters informed with progress snapshots and conversation starters.
                 </p>
               </article>
               <article class="feature-card reveal">
                 <h3>Secure Data Locker</h3>
                 <p>
-                  Security foundations and privacy reviews are underway before any large-scale
-                  rollout happens.
+                  Enterprise-grade encryption, role-based access, and comprehensive audit logs.
                 </p>
               </article>
             </div>
             <section class="feature-showcase">
               <div class="feature-showcase__intro">
-                <p class="eyebrow reveal">A day in beta</p>
-                <h3 class="reveal">How we imagine Akadeo supporting your routine.</h3>
+                <p class="eyebrow reveal">Experience the suite</p>
+                <h3 class="reveal">A connected toolkit from planning to celebration.</h3>
                 <p class="reveal">
-                  These scenarios are work in progress. We're using them to validate whether our
-                  planned features meaningfully reduce busywork across the school day.
+                  Whether you’re designing a new unit or guiding students through formative
+                  feedback, Akadeo keeps the flow seamless. Explore the stages of a typical day.
                 </p>
               </div>
               <div class="feature-showcase__grid">
                 <article class="showcase-card reveal">
                   <span class="showcase-card__tag">Morning</span>
                   <h4>Prep & pulse checks</h4>
-                  <p>Concept: quick mood check-ins, warm-up prompts, and roster sync that respects your SIS setup.</p>
+                  <p>Launch mood check-ins, auto-generate warm-up prompts, and sync rosters from your SIS.</p>
                   <ul>
-                    <li>Templates with inclusive prompts</li>
-                    <li>Optional AI suggestions you can edit or ignore</li>
-                    <li>Draft updates ready for family review</li>
+                    <li>Templates with built-in SEL prompts</li>
+                    <li>AI-assisted lesson outlines with teacher controls</li>
+                    <li>Instant guardian digest drafts</li>
                   </ul>
                 </article>
                 <article class="showcase-card reveal">
                   <span class="showcase-card__tag">Midday</span>
                   <h4>Live collaboration</h4>
-                  <p>Concept: collaborative boards, pulse polls, and evidence capture that stay lightweight.</p>
+                  <p>Co-create with students on interactive boards, gather pulse polls, and capture evidence.</p>
                   <ul>
-                    <li>Quick reactions and polls configurable in seconds</li>
-                    <li>Participation notes without invasive tracking</li>
-                    <li>Accessibility-first layouts and captions baked in</li>
+                    <li>Live reactions, quick polls, and breakout rotations</li>
+                    <li>Hands-free attendance and participation tracking</li>
+                    <li>Accessibility-first layouts and captions</li>
                   </ul>
                 </article>
                 <article class="showcase-card reveal">
                   <span class="showcase-card__tag">Afternoon</span>
                   <h4>Feedback & growth</h4>
-                  <p>Concept: guided feedback, progress portfolios, and goal-setting that celebrate growth.</p>
+                  <p>Provide targeted nudges, release progress portfolios, and co-author goals with students.</p>
                   <ul>
-                    <li>Draft feedback grounded in teacher-created rubrics</li>
-                    <li>Progress stories that highlight strengths and next steps</li>
-                    <li>Planned integrations with leading LMS partners</li>
+                    <li>Auto-suggested feedback aligned to rubrics</li>
+                    <li>Family-ready progress stories with celebrations</li>
+                    <li>Integrations with Google Classroom & Canvas</li>
                   </ul>
                 </article>
               </div>
             </section>
             <section class="integrations">
               <div class="integrations__header">
-                <p class="eyebrow reveal">Planned connections</p>
-                <h3 class="reveal">Integrations we're scoping with pilot schools.</h3>
+                <p class="eyebrow reveal">Works with your ecosystem</p>
+                <h3 class="reveal">Plug into the tools you already trust.</h3>
               </div>
               <div class="integrations__grid">
                 <div class="integration-card reveal">
                   <h4>Learning platforms</h4>
-                  <p>We're prioritizing compatibility with Google Classroom, Canvas, Schoology, and Seesaw.</p>
+                  <p>Sync assignments, grades, and rosters with Google Classroom, Canvas, Schoology, and Seesaw.</p>
                 </div>
                 <div class="integration-card reveal">
                   <h4>Communication</h4>
-                  <p>Planned APIs for Microsoft Teams, Zoom, and Slack so updates reach people where they already are.</p>
+                  <p>Connect with Microsoft Teams, Zoom, and Slack to keep your community aligned.</p>
                 </div>
                 <div class="integration-card reveal">
                   <h4>Data & analytics</h4>
-                  <p>Secure exports to SIS partners and district dashboards will ship once privacy reviews conclude.</p>
+                  <p>Export to Snowflake, district dashboards, and trusted SIS partners with one click.</p>
                 </div>
               </div>
             </section>
             <section class="feature-outcomes">
               <div class="feature-outcomes__intro">
-                <p class="eyebrow reveal">Impact goals</p>
-                <h3 class="reveal">Questions guiding our product decisions.</h3>
+                <p class="eyebrow reveal">Outcomes we track together</p>
+                <h3 class="reveal">Confidence-building insights at every level.</h3>
                 <p class="reveal">
-                  We are measuring success by how clearly the platform supports people, not vanity
-                  metrics. These are the outcomes we'll keep testing against.
+                  Dashboards surface the stories behind the numbers—helping teachers respond in the
+                  moment, leaders plan long-term, and students own their progress.
                 </p>
               </div>
               <div class="feature-outcomes__grid">
@@ -566,66 +572,98 @@
       <section class="page" data-page="pricing" id="pricing">
         <div class="page__inner">
           <div class="container">
-            <h2 class="reveal">Pricing in progress.</h2>
+            <h2 class="reveal">Simple, transparent pricing.</h2>
             <div class="pricing-grid">
               <article class="pricing-card reveal">
-                <h3>Early access</h3>
-                <p class="pricing-card__price">TBD</p>
+                <h3>Starter</h3>
+                <p class="pricing-card__price">$19<span>/month</span></p>
                 <ul>
-                  <li>Designed for individual educators exploring the beta</li>
-                  <li>Guided onboarding and feedback sessions</li>
-                  <li>Feature roadmap visibility</li>
+                  <li>Up to 3 classrooms</li>
+                  <li>Interactive lesson builder</li>
+                  <li>Live collaboration spaces</li>
                 </ul>
-                <a class="primary" data-nav="sign-up" href="#sign-up">Join the waitlist</a>
+                <a class="primary" data-nav="sign-up" href="#sign-up">Choose plan</a>
               </article>
               <article class="pricing-card pricing-card--highlight reveal">
-                <h3>Pilot teams</h3>
-                <p class="pricing-card__price">TBD</p>
+                <h3>Growth</h3>
+                <p class="pricing-card__price">$49<span>/month</span></p>
                 <ul>
-                  <li>Small school or grade-level cohorts</li>
-                  <li>Hands-on implementation support</li>
-                  <li>Collaborative data and privacy reviews</li>
+                  <li>Unlimited classrooms</li>
+                  <li>Automated insights & reports</li>
+                  <li>Parent & guardian portal</li>
                 </ul>
-                <a class="primary" data-nav="contact" href="#contact">Register interest</a>
+                <a class="primary" data-nav="sign-up" href="#sign-up">Choose plan</a>
               </article>
               <article class="pricing-card reveal">
-                <h3>District partnerships</h3>
+                <h3>District</h3>
                 <p class="pricing-card__price">Custom</p>
                 <ul>
-                  <li>Planning for rostering, SSO, and change management</li>
-                  <li>Collaborative success metrics and PD design</li>
-                  <li>Priority roadmap alignment</li>
+                  <li>Dedicated success manager</li>
+                  <li>Advanced security controls</li>
+                  <li>Priority support & training</li>
                 </ul>
-                <a class="ghost" data-nav="contact" href="#contact">Start a conversation</a>
+                <a class="ghost" data-nav="contact" href="#contact">Talk to sales</a>
               </article>
             </div>
             <section class="pricing-details">
               <div class="pricing-details__grid">
                 <div class="pricing-details__column reveal">
-                  <h3>What we're committing to</h3>
+                  <h3>What’s always included</h3>
                   <ul>
-                    <li>Clear documentation before any invoices</li>
-                    <li>Options for schools with limited budgets</li>
-                    <li>Transparent data and privacy practices</li>
-                    <li>Real humans handling support questions</li>
+                    <li>Unlimited student and family logins</li>
+                    <li>Library of culturally responsive lesson starters</li>
+                    <li>Bank-level encryption & single sign-on</li>
+                    <li>Live chat with former classroom educators</li>
                   </ul>
                 </div>
                 <div class="pricing-details__column reveal">
-                  <h3>Want to co-design pricing?</h3>
+                  <h3>Need help deciding?</h3>
                   <p>
-                    We're collecting input from schools of all sizes to make sure our pricing is
-                    sustainable and equitable. Share your constraints so we can plan together.
+                    Book a consultative session with our team to discuss roll-out plans, data
+                    privacy, and how Akadeo aligns with your strategic initiatives.
                   </p>
-                  <a class="primary" data-nav="contact" href="#contact">Share feedback</a>
+                  <a class="primary" data-nav="contact" href="#contact">Connect with sales</a>
                 </div>
               </div>
             </section>
             <section class="pricing-comparison">
+              <div class="pricing-comparison__table" role="table" aria-label="Plan comparison">
+                <div class="pricing-comparison__row pricing-comparison__row--head" role="row">
+                  <span role="columnheader">Key capabilities</span>
+                  <span role="columnheader">Starter</span>
+                  <span role="columnheader">Growth</span>
+                  <span role="columnheader">District</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Live collaboration spaces</span>
+                  <span role="cell" aria-label="Included in Starter">✔</span>
+                  <span role="cell" aria-label="Included in Growth">✔</span>
+                  <span role="cell" aria-label="Included in District">✔</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Automated insights dashboards</span>
+                  <span role="cell" aria-label="Partially in Starter">Limited</span>
+                  <span role="cell" aria-label="Included in Growth">Full</span>
+                  <span role="cell" aria-label="Included in District">Enterprise</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Dedicated success partner</span>
+                  <span role="cell" aria-label="Not included in Starter">—</span>
+                  <span role="cell" aria-label="Included in Growth">Quarterly</span>
+                  <span role="cell" aria-label="Included in District">Monthly</span>
+                </div>
+                <div class="pricing-comparison__row" role="row">
+                  <span role="rowheader">Advanced security toolkit</span>
+                  <span role="cell" aria-label="Not included in Starter">—</span>
+                  <span role="cell" aria-label="Included in Growth">Core</span>
+                  <span role="cell" aria-label="Included in District">Full suite</span>
+                </div>
+              </div>
               <aside class="pricing-comparison__aside reveal">
-                <h3>How decisions will be made</h3>
+                <h3>Scale with confidence</h3>
                 <p>
-                  Before finalizing pricing, we'll publish cost break-downs, offer nonprofit
-                  discounts, and provide plenty of notice so you can budget with confidence.
+                  Every plan comes with migration support, rostering guidance, and access to our
+                  educator-led community hub filled with lessons, templates, and celebration ideas.
                 </p>
               </aside>
             </section>
@@ -636,22 +674,24 @@
       <section class="page" data-page="contact" id="contact">
         <div class="page__inner">
           <div class="container narrow">
-            <h2 class="reveal">Let's connect.</h2>
+            <h2 class="reveal">We'd love to hear from you.</h2>
             <div class="contact-info reveal">
               <div>
-                <h3>Say hello</h3>
-                <p>hello@akadeo.com</p>
-                <p>We respond within two business days.</p>
+                <h3>Visit our experience center</h3>
+                <p>
+                  218 Market Street, Suite 400<br />
+                  San Francisco, CA 94105
+                </p>
               </div>
               <div>
                 <h3>Partner with us</h3>
-                <p>partners@akadeo.com</p>
-                <p>Share your goals and we'll schedule a conversation.</p>
+                <p>schools@akadeo.com · (415) 555-0198</p>
+                <p>Office hours: Monday–Friday, 8am–6pm PT</p>
               </div>
               <div>
                 <h3>Media inquiries</h3>
                 <p>press@akadeo.com</p>
-                <a class="ghost" data-nav="about" href="#about">See company updates</a>
+                <a class="ghost" href="#blog">View press resources</a>
               </div>
             </div>
             <form class="contact-form reveal" aria-label="Contact Akadeo">
@@ -673,18 +713,18 @@
             </form>
             <section class="contact-extras">
               <div class="contact-extras__card reveal">
-                <h3>Beta briefings</h3>
+                <h3>Join an onboarding lab</h3>
                 <p>
-                  Join a small-group session to preview current prototypes and learn how feedback
-                  shapes our roadmap.
+                  Explore live demos of lesson flows, analytics review routines, and culture-building
+                  rituals in a 45-minute interactive session.
                 </p>
-                <a class="ghost" href="#contact">Request an invite</a>
+                <a class="ghost" href="#contact">Reserve a session</a>
               </div>
               <div class="contact-extras__card reveal">
-                <h3>Implementation planning</h3>
+                <h3>Request a bespoke rollout</h3>
                 <p>
-                  Share your upcoming initiatives and we'll explore whether Akadeo can support them
-                  once we're ready.
+                  Partner with our district strategists to co-design training calendars, change
+                  management communications, and family launch events.
                 </p>
                 <a class="ghost" href="#contact">Start a conversation</a>
               </div>
@@ -701,29 +741,29 @@
               <details class="reveal" open>
                 <summary>Is Akadeo suitable for hybrid classrooms?</summary>
                 <p>
-                  That's the goal. We're testing features with educators who teach across hybrid
-                  settings to ensure the experience feels smooth before we expand access.
+                  Absolutely! Akadeo is designed to support in-person, remote, and hybrid
+                  environments with seamless communication tools.
                 </p>
               </details>
               <details class="reveal">
                 <summary>How secure is student data?</summary>
                 <p>
-                  We're drafting policies to align with FERPA, COPPA, and GDPR requirements. No
-                  student data from new schools is stored until those reviews are complete.
+                  We follow stringent data privacy standards, including FERPA, COPPA, and GDPR
+                  compliance. Data is encrypted in transit and at rest.
                 </p>
               </details>
               <details class="reveal">
                 <summary>Do you offer onboarding support?</summary>
                 <p>
-                  Early participants work directly with our team to co-design onboarding. As we
-                  learn what works, we'll publish templates that any school can adapt.
+                  Yes! Every plan includes guided onboarding, and district partners receive
+                  custom training paths.
                 </p>
               </details>
               <details class="reveal">
                 <summary>Can students access Akadeo on mobile?</summary>
                 <p>
-                  Mobile responsiveness is a requirement for launch. We're testing on a range of
-                  devices to make sure essential actions work well even on older hardware.
+                  Akadeo is responsive and optimized for phones and tablets, so students can stay
+                  connected anywhere.
                 </p>
               </details>
             </div>
@@ -736,18 +776,18 @@
             </section>
             <section class="faq-resources">
               <article class="faq-resource reveal">
-                <h3>Implementation blueprint (draft)</h3>
+                <h3>Implementation blueprint</h3>
                 <p>
-                  We're compiling launch templates in collaboration with pilot schools. Add your
-                  name to the waitlist and we'll share early drafts for feedback.
+                  Download step-by-step launch plans for elementary, middle, and secondary teams,
+                  including communication templates and success metrics.
                 </p>
-                <a class="ghost" data-nav="sign-up" href="#sign-up">Preview the draft</a>
+                <a class="ghost" href="#blog">Get the blueprint</a>
               </article>
               <article class="faq-resource reveal">
                 <h3>Security & privacy center</h3>
                 <p>
-                  Our trust center is under construction. We'll publish draft policies, processor
-                  lists, and audit timelines as soon as they're ready for review.
+                  Review compliance documentation, data processing agreements, and audit summaries in
+                  our transparent trust portal.
                 </p>
                 <a class="ghost" data-nav="privacy" href="#privacy">Visit the trust center</a>
               </article>
@@ -758,16 +798,61 @@
 
       <section class="page" data-page="blog" id="blog">
         <div class="page__inner">
-          <div class="container narrow">
-            <h2 class="reveal">Learning lab updates</h2>
-            <p class="lead reveal">
-              We're still collecting stories. Blog posts, playbooks, and podcasts will appear here
-              once they're ready. In the meantime, join the waitlist to receive our build notes.
-            </p>
-            <div class="blog-placeholder reveal">
-              <p>First update expected: <strong>Q4 2024</strong></p>
-              <a class="primary" data-nav="sign-up" href="#sign-up">Get notified</a>
+          <div class="container">
+            <h2 class="reveal">From our learning lab.</h2>
+            <div class="blog-grid">
+              <article class="blog-card reveal">
+                <span class="blog-card__tag">Guides</span>
+                <h3>Designing equitable participation in every lesson</h3>
+                <p>Strategies to ensure every voice is heard in hybrid classrooms.</p>
+                <a class="ghost" href="#">Read more</a>
+              </article>
+              <article class="blog-card reveal">
+                <span class="blog-card__tag">Research</span>
+                <h3>The neuroscience behind joyful learning</h3>
+                <p>What brain science reveals about motivation and flow.</p>
+                <a class="ghost" href="#">Read more</a>
+              </article>
+              <article class="blog-card reveal">
+                <span class="blog-card__tag">Product</span>
+                <h3>Unlocking formative assessments with Akadeo</h3>
+                <p>How our latest release accelerates teacher feedback loops.</p>
+                <a class="ghost" href="#">Read more</a>
+              </article>
             </div>
+            <section class="blog-feature">
+              <div class="blog-feature__grid">
+                <article class="blog-feature__card reveal">
+                  <h3>Community playbook: Launching student-led conferences</h3>
+                  <p>
+                    Download our facilitation guide and printable templates for celebrating student
+                    voice at every grade level.
+                  </p>
+                  <a class="primary" href="#">Get the playbook</a>
+                </article>
+                <article class="blog-feature__card reveal">
+                  <h3>Podcast: The future of joyful assessment</h3>
+                  <p>Hear from educators pioneering mastery-based reporting with Akadeo.</p>
+                  <a class="ghost" href="#">Listen now</a>
+                </article>
+              </div>
+            </section>
+            <section class="blog-newsletter">
+              <div class="blog-newsletter__inner">
+                <div class="blog-newsletter__copy reveal">
+                  <h3>Stay in the loop</h3>
+                  <p>
+                    Subscribe for monthly insights on playful pedagogy, platform updates, and stories
+                    from schools elevating community-centered learning.
+                  </p>
+                </div>
+                <form class="blog-newsletter__form reveal" aria-label="Join the Akadeo newsletter">
+                  <label class="sr-only" for="newsletter-email">Email address</label>
+                  <input id="newsletter-email" type="email" placeholder="you@example.com" required />
+                  <button class="primary" type="submit">Subscribe</button>
+                </form>
+              </div>
+            </section>
           </div>
         </div>
       </section>
@@ -775,36 +860,36 @@
       <section class="page" data-page="terms" id="terms">
         <div class="page__inner">
           <div class="container legal">
-            <h2>Draft Terms of Service</h2>
+            <h2>Terms of Service</h2>
             <p>
-              We're currently preparing our formal terms. The principles below outline how we plan
-              to partner with schools and will be refined in collaboration with legal advisors and
-              early adopters.
+              Welcome to Akadeo! By accessing or using our services, you agree to the following
+              terms. We may update these terms from time to time, and will notify you of
+              significant changes.
             </p>
-            <h3>Acceptable use</h3>
+            <h3>Acceptable Use</h3>
             <p>
-              Akadeo is intended for educational communities. We expect every user to respect
-              learners, protect privacy, and use the platform in accordance with applicable laws.
+              You agree to use Akadeo for lawful educational purposes, respect intellectual
+              property rights, and protect the privacy of all users.
             </p>
             <h3>Accounts</h3>
             <p>
-              Beta access is limited. Administrators are responsible for safeguarding credentials
-              and letting us know immediately if anything looks suspicious.
+              Account owners are responsible for maintaining the confidentiality of their login
+              credentials and ensuring all users comply with institutional policies.
             </p>
             <h3>Liability</h3>
             <p>
-              While the product is in beta, features may change quickly. We provide Akadeo "as is"
-              and will communicate known risks promptly.
+              Akadeo provides the platform "as is" without warranties. Our liability is limited to
+              the fullest extent permitted by law.
             </p>
-            <h3>Service levels</h3>
+            <h3>Service level commitments</h3>
             <p>
-              Formal uptime guarantees and support SLAs will be shared before general availability.
-              During beta, we announce maintenance windows in advance and respond as quickly as we can.
+              We aim for 99.9% uptime and provide proactive maintenance notices. If we fall short,
+              affected partners receive service credits in accordance with your agreement.
             </p>
             <h3>Contact</h3>
             <p>
-              Questions? Email legal@akadeo.com. We'll follow up as quickly as possible as we finalize
-              these documents.
+              For questions about these terms, email legal@akadeo.com. We respond to all requests
+              within five business days.
             </p>
           </div>
         </div>
@@ -813,36 +898,35 @@
       <section class="page" data-page="privacy" id="privacy">
         <div class="page__inner">
           <div class="container legal">
-            <h2>Draft Privacy Policy</h2>
+            <h2>Privacy Policy</h2>
             <p>
-              Transparency matters. This draft will evolve as we complete legal reviews and pilot
-              feedback. No new school data is collected until our policies are finalized.
+              We are committed to protecting your privacy. This policy outlines what data we
+              collect, how we use it, and the rights you have regarding your information.
             </p>
-            <h3>Information we collect</h3>
+            <h3>Information We Collect</h3>
             <p>
-              During beta we gather only the information required to run the pilot (such as tester
-              names and emails) plus anonymous usage analytics to improve the product.
+              We collect user-provided information, activity data, and technical analytics to
+              improve the Akadeo experience.
             </p>
-            <h3>How we use information</h3>
+            <h3>How We Use Information</h3>
             <p>
-              Data is used to improve learning workflows, monitor platform health, and provide
-              support. We do not sell personal information and will publish a detailed data map
-              before general availability.
+              Data helps us tailor recommendations, monitor platform health, and deliver support.
+              We never sell personal information.
             </p>
-            <h3>Your choices</h3>
+            <h3>Your Choices</h3>
             <p>
-              You can request access, corrections, or deletion of your information by emailing
-              privacy@akadeo.com. We'll confirm receipt within a few business days.
+              You may request access, updates, or deletion of your data. Contact our privacy team at
+              privacy@akadeo.com.
             </p>
             <h3>Data retention</h3>
             <p>
-              Pilot data is deleted at the end of each testing phase unless you ask us to retain it
-              longer. Final retention controls will be co-designed with districts.
+              Student data is retained only as long as necessary to provide services. Districts can
+              configure retention windows and request secure deletion at any time.
             </p>
             <h3>Third-party processors</h3>
             <p>
-              We are finalizing a list of subprocessors and will share it publicly, along with
-              agreements and change notifications, before onboarding new schools.
+              We vet all subprocessors for compliance and publish an updated list on our Trust
+              Center. Changes are communicated at least 30 days in advance.
             </p>
           </div>
         </div>
@@ -852,27 +936,28 @@
         <div class="page__inner">
           <div class="container auth">
             <div class="auth-card reveal">
-              <h2>Private beta login</h2>
-              <p>This area is for current testers. Credentials are issued manually by our team.</p>
-              <form class="auth-form" aria-disabled="true">
+              <h2>Welcome back</h2>
+              <p>Sign in to continue your Akadeo journey.</p>
+              <form class="auth-form">
                 <label>
                   <span>Email</span>
-                  <input type="email" placeholder="you@example.com" disabled />
+                  <input type="email" placeholder="you@example.com" required />
                 </label>
                 <label>
                   <span>Password</span>
-                  <input type="password" placeholder="••••••••" disabled />
+                  <input type="password" placeholder="••••••••" required />
                 </label>
-                <button class="primary" type="button" disabled>Sign in (beta)</button>
+                <a class="ghost small" href="#">Forgot password?</a>
+                <button class="primary" type="submit">Sign In</button>
               </form>
               <p class="auth-switch">
-                Need access?
-                <a data-nav="sign-up" href="#sign-up">Join the waitlist</a>
+                New to Akadeo?
+                <a data-nav="sign-up" href="#sign-up">Create an account</a>
               </p>
               <div class="auth-more">
-                <h3>Questions?</h3>
-                <p>Reach out to partners@akadeo.com and we'll help you understand the beta process.</p>
-                <a class="ghost" data-nav="contact" href="#contact">Contact the team</a>
+                <h3>Need a district launch?</h3>
+                <p>Request SSO provisioning, roster sync, and compliance documentation.</p>
+                <a class="ghost" data-nav="contact" href="#contact">Talk to our team</a>
               </div>
             </div>
           </div>
@@ -883,35 +968,35 @@
         <div class="page__inner">
           <div class="container auth">
             <div class="auth-card reveal">
-              <h2>Join the waitlist</h2>
-              <p>Tell us about your context so we can tailor the beta and keep you updated.</p>
+              <h2>Create your account</h2>
+              <p>Join thousands of educators transforming learning with Akadeo.</p>
               <form class="auth-form">
                 <label>
                   <span>Full name</span>
                   <input type="text" placeholder="Jane Doe" required />
                 </label>
                 <label>
+                  <span>Institution</span>
+                  <input type="text" placeholder="Sunrise High School" />
+                </label>
+                <label>
                   <span>Email</span>
                   <input type="email" placeholder="you@example.com" required />
                 </label>
                 <label>
-                  <span>Role</span>
-                  <input type="text" placeholder="e.g., Grade 5 Teacher" />
+                  <span>Password</span>
+                  <input type="password" placeholder="Create a secure password" required />
                 </label>
-                <label>
-                  <span>What challenges should we consider?</span>
-                  <textarea rows="4" placeholder="Share your priorities and constraints..."></textarea>
-                </label>
-                <button class="primary" type="submit">Request early access</button>
+                <button class="primary" type="submit">Create account</button>
               </form>
               <p class="auth-switch">
-                Already in the beta?
-                <a data-nav="sign-in" href="#sign-in">Use your issued login</a>
+                Already have an account?
+                <a data-nav="sign-in" href="#sign-in">Sign in</a>
               </p>
               <div class="auth-more">
                 <h3>Bring your whole team</h3>
-                <p>We'll coordinate group sessions once the platform is ready for wider pilots.</p>
-                <a class="ghost" data-nav="contact" href="#contact">Plan a conversation</a>
+                <p>Invite colleagues instantly or import a roster—collaboration spaces spin up automatically.</p>
+                <a class="ghost" data-nav="pricing" href="#pricing">Compare plans</a>
               </div>
             </div>
           </div>
