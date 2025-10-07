@@ -1,5 +1,6 @@
-const pages = document.querySelectorAll('.page');
-const navLinks = document.querySelectorAll('[data-nav]');
+const navLinks = document.querySelectorAll(
+  '.site-nav [data-nav], .auth-links [data-nav], .footer__links [data-nav]'
+);
 const navList = document.getElementById('nav-links');
 const menuToggle = document.querySelector('.menu-toggle');
 const revealEls = Array.from(document.querySelectorAll('.reveal'));
@@ -50,53 +51,18 @@ const toggleMenu = (force) => {
   setMenuVisibility(shouldExpand);
 };
 
-const setActivePage = (pageId) => {
-  const target = pageId || 'home';
-
-  pages.forEach((page) => {
-    page.classList.toggle('active', page.dataset.page === target);
-  });
-
+const highlightActiveNav = () => {
+  if (!navLinks.length) return;
+  const currentPage = document.body?.dataset.page || 'home';
   navLinks.forEach((link) => {
-    const linkTarget = link.getAttribute('data-nav');
-    const isActive = linkTarget === target;
-    link.classList.toggle('active', isActive);
+    const target = link.getAttribute('data-nav');
+    link.classList.toggle('active', target === currentPage);
+    if (target === currentPage) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
   });
-
-  if (menuToggle?.getAttribute('aria-expanded') === 'true') {
-    toggleMenu(false);
-  }
-};
-
-const handleNavigation = (event) => {
-  const navTarget = event.target.closest('[data-nav]');
-  if (!navTarget) return;
-
-  const href = navTarget.getAttribute('href');
-  if (!href || !href.startsWith('#')) return;
-
-  event.preventDefault();
-  const target = navTarget.getAttribute('data-nav');
-  if (!target) return;
-
-  if (typeof history.pushState === 'function') {
-    history.pushState({ page: target }, '', `#${target}`);
-  } else {
-    window.location.hash = `#${target}`;
-  }
-
-  setActivePage(target);
-  if (prefersReducedMotion || typeof window.scrollTo !== 'function') {
-    window.scrollTo(0, 0);
-  } else {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-};
-
-const handleHashChange = () => {
-  const hash = window.location.hash.replace('#', '');
-  setActivePage(hash);
-  handleScrollEffects();
 };
 
 const setupRevealObserver = () => {
@@ -188,9 +154,13 @@ const handleMobileNavChange = () => {
 };
 
 menuToggle?.addEventListener('click', () => toggleMenu());
-navLinks.forEach((link) => link.addEventListener('click', handleNavigation));
-window.addEventListener('popstate', handleHashChange);
-window.addEventListener('hashchange', handleHashChange);
+navLinks.forEach((link) =>
+  link.addEventListener('click', () => {
+    if (menuToggle?.getAttribute('aria-expanded') === 'true') {
+      toggleMenu(false);
+    }
+  })
+);
 window.addEventListener('scroll', handleScrollEffects, { passive: true });
 window.addEventListener('resize', handleScrollEffects);
 
@@ -215,5 +185,5 @@ if (typeof mobileNavQuery.addEventListener === 'function') {
 setMenuVisibility(false);
 setYear();
 updateMotionPreference(prefersReducedMotion);
-handleHashChange();
+highlightActiveNav();
 handleScrollEffects();
