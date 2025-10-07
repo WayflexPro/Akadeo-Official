@@ -273,6 +273,10 @@ a:hover {
   align-items: center;
 }
 
+.auth-links .active {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
 .primary,
 .ghost {
   display: inline-flex;
@@ -788,12 +792,8 @@ a:hover {
 }
 
 .page {
-  display: none;
-  animation: fadeIn 500ms ease;
-}
-
-.page.active {
   display: block;
+  animation: fadeIn 500ms ease;
 }
 
 .page__inner {
@@ -1567,6 +1567,11 @@ summary::-webkit-details-marker {
   margin-bottom: 10px;
   color: var(--text-secondary);
   font-size: 0.95rem;
+}
+
+.footer__links a.active {
+  color: var(--accent-strong);
+  font-weight: 600;
 }
 
 .footer__links a:hover {
