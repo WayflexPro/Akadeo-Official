@@ -12,7 +12,7 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-menu-open="false">
     <div class="background-scene" aria-hidden="true">
       <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
       <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
@@ -29,12 +29,17 @@
           <span class="brand-name">Akadeo</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
-          <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="nav-links"
+          >
             <span class="sr-only">Toggle navigation</span>
             <span class="menu-toggle__line"></span>
             <span class="menu-toggle__line"></span>
           </button>
-          <ul id="nav-links">
+          <ul id="nav-links" aria-hidden="false">
             <li><a data-nav="home" href="#home">Home</a></li>
             <li><a data-nav="about" href="#about">About</a></li>
             <li><a data-nav="features" href="#features">Features</a></li>
@@ -1048,6 +1053,6 @@
       </div>
     </footer>
 
-    <script src="scripts.js"></script>
+    <script src="scripts.js" defer></script>
   </body>
 </html>
