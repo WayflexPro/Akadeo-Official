@@ -11,6 +11,7 @@ import SignUpPage from "./pages/SignUp";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import TermsPage from "./pages/Terms";
 import PrivacyPage from "./pages/Privacy";
+import DebugPanel from "./components/DebugPanel";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
@@ -221,6 +222,7 @@ export default function App() {
 
   return (
     <>
+      <DebugPanel />
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>

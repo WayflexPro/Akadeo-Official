@@ -1,4 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { resendVerification, verify } from "../features/auth/api";
+import { resolveApiErrorMessage } from "../features/auth/errors";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
@@ -40,35 +42,27 @@ export default function VerifyEmailPage() {
       setStatus("loading");
       setMessage("");
 
-      const response = await fetch("/api/verify.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formatEmail(email),
-          code: code.trim(),
-        }),
+      const payload = await verify({
+        email: formatEmail(email),
+        code: code.trim(),
       });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.message ?? "Verification failed.");
-      }
 
       window.localStorage.removeItem(STORAGE_KEY);
       setStatus("success");
-      const requiresSetup = Boolean(payload?.requiresSetup);
-      setMessage(
-        requiresSetup
+      const requiresSetup = Boolean(payload?.data?.requiresSetup);
+      const successMessage =
+        payload.data?.message ??
+        (requiresSetup
           ? "Email verified! Let’s finish getting to know you…"
-          : "Email verified! Redirecting to your dashboard...",
+          : "Email verified! Redirecting to your dashboard...");
+      setMessage(
+        successMessage,
       );
       window.location.href = requiresSetup ? "/setup.php" : "/dashboard.php";
     } catch (error) {
       console.error(error);
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Verification failed.");
+      setMessage(resolveApiErrorMessage(error, "Verification failed."));
     }
   };
 
@@ -83,23 +77,14 @@ export default function VerifyEmailPage() {
       setStatus("loading");
       setMessage("");
 
-      const response = await fetch("/api/resend-verification.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formatEmail(email) }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.message ?? "Couldn't resend the code.");
-      }
+      const payload = await resendVerification({ email: formatEmail(email) });
 
       setStatus("success");
-      setMessage("A fresh code is on its way. Check your inbox!");
+      setMessage(payload.data?.message ?? "A fresh code is on its way. Check your inbox!");
     } catch (error) {
       console.error(error);
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Couldn't resend the code.");
+      setMessage(resolveApiErrorMessage(error, "Couldn't resend the code."));
     }
   };
 

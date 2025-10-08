@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(405, ['message' => 'Method not allowed.']);
+    json_error('VALIDATION', 'Method not allowed.', 'E_METHOD_NOT_ALLOWED', null, 405);
 }
 
 $data = get_json_body();
@@ -14,11 +14,11 @@ $email = normalise_email($data['email'] ?? '');
 $code = trim((string) ($data['code'] ?? ''));
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    json_response(422, ['message' => 'Enter a valid email address.']);
+    json_error('VALIDATION', 'Enter a valid email address.', 'E_INVALID_EMAIL', ['field' => 'email'], 422);
 }
 
 if (!preg_match('/^[0-9]{6}$/', $code)) {
-    json_response(422, ['message' => 'Enter the 6 digit code from your email.']);
+    json_error('VALIDATION', 'Enter the 6 digit code from your email.', 'E_INVALID_CODE', ['field' => 'code'], 422);
 }
 
 $pdo = get_pdo();
@@ -29,11 +29,11 @@ $stmt->execute([$email]);
 $record = $stmt->fetch();
 
 if (!$record) {
-    json_response(404, ['message' => 'We could not find a verification request for that email.']);
+    json_error('NOT_FOUND', 'We could not find a verification request for that email.', 'E_VERIFICATION_NOT_FOUND', ['field' => 'email'], 404);
 }
 
 if (!hash_equals($record['verification_code'], $code)) {
-    json_response(400, ['message' => 'The verification code is incorrect.']);
+    json_error('VALIDATION', 'The verification code is incorrect.', 'E_INVALID_CODE', ['field' => 'code'], 400);
 }
 
 $expiresAt = new DateTimeImmutable($record['expires_at'], new DateTimeZone('UTC'));
@@ -41,7 +41,7 @@ $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
 if ($expiresAt < $now) {
     $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
-    json_response(410, ['message' => 'This verification link expired. Please sign up again.']);
+    json_error('VALIDATION', 'This verification link expired. Please sign up again.', 'E_VERIFICATION_EXPIRED', ['field' => 'code'], 410);
 }
 
 $userId = null;
@@ -69,7 +69,7 @@ try {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    json_response(500, ['message' => 'Unable to complete the verification. Please try again.']);
+    json_error('INTERNAL', 'Unable to complete the verification. Please try again.', 'E_VERIFICATION_FAILED', null, 500);
 }
 
 session_regenerate_id(true);
@@ -78,4 +78,7 @@ $_SESSION['user_name'] = $record['full_name'];
 $_SESSION['user_email'] = $record['email'];
 $_SESSION['setup_completed_at'] = null;
 
-json_response(200, ['message' => 'Email verified.', 'requiresSetup' => true]);
+json_ok([
+    'message' => 'Email verified.',
+    'requiresSetup' => true,
+]);
