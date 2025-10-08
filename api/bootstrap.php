@@ -184,3 +184,13 @@ function normalise_email(?string $email): string
 {
     return strtolower(trim((string) $email));
 }
+
+function compute_email_hash(string $normalisedEmail): string
+{
+    return hash('sha256', $normalisedEmail);
+}
+
+function email_hash(?string $rawEmail): string
+{
+    return compute_email_hash(normalise_email($rawEmail));
+}
