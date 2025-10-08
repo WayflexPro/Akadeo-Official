@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { cleanupExpiredVerifications, getPool } from '../db.mjs';
 import { sendVerificationEmail } from '../email.mjs';
-import { emailHash, normalizeEmail } from '../lib/emailHash.mjs';
+import { emailHash, normalizeEmail } from '../lib/emailTools.mjs';
 import { HttpError, asyncHandler, jsonOk, methodNotAllowed } from '../utils.mjs';
 
 function validateEmail(email) {
@@ -110,13 +110,20 @@ authRouter.post(
     try {
       await cleanupExpiredVerifications(connection);
 
-      const [existingUsers] = await connection.execute('SELECT id FROM users WHERE email_hash = ? LIMIT 1', [emailHashValue]);
+      const [existingUsers] = await connection.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
       if (Array.isArray(existingUsers) && existingUsers.length > 0) {
         throw new HttpError(409, 'CONFLICT', 'An account with that email already exists.', {
           code: 'E_USER_EXISTS',
           details: { field: 'email' },
         });
       }
+
+      const [existingPending] = await connection.execute(
+        'SELECT id FROM account_verifications WHERE email = ? LIMIT 1',
+        [email]
+      );
+
+      const hasPendingVerification = Array.isArray(existingPending) && existingPending.length > 0;
 
       verificationCode = generateVerificationCode();
       const passwordHash = await bcrypt.hash(String(password), 12);
@@ -136,7 +143,9 @@ authRouter.post(
 
       await connection.beginTransaction();
       inTransaction = true;
-      await connection.execute('DELETE FROM account_verifications WHERE email_hash = ?', [emailHashValue]);
+      if (hasPendingVerification) {
+        await connection.execute('DELETE FROM account_verifications WHERE email = ?', [email]);
+      }
       await connection.execute(
         'INSERT INTO account_verifications (full_name, institution, email, email_hash, password_hash, verification_code, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())',
         [fullName, institution || null, email, emailHashValue, passwordHash, verificationCode, expiresAt]
@@ -163,7 +172,7 @@ authRouter.post(
     } catch (error) {
       const cleanupConnection = await pool.getConnection();
       try {
-        await cleanupConnection.execute('DELETE FROM account_verifications WHERE email_hash = ?', [emailHashValue]);
+        await cleanupConnection.execute('DELETE FROM account_verifications WHERE email = ?', [email]);
       } finally {
         cleanupConnection.release();
       }

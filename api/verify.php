@@ -26,9 +26,9 @@ $pdo = get_pdo();
 cleanup_expired_verifications($pdo);
 
 $stmt = $pdo->prepare(
-    'SELECT * FROM account_verifications WHERE email_hash = ? AND verification_code = ? LIMIT 1'
+    'SELECT * FROM account_verifications WHERE email = ? AND verification_code = ? LIMIT 1'
 );
-$stmt->execute([$emailHash, $code]);
+$stmt->execute([$email, $code]);
 $record = $stmt->fetch();
 
 if (!$record) {
@@ -43,7 +43,7 @@ $expiresAt = new DateTimeImmutable($record['expires_at'], new DateTimeZone('UTC'
 $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
 if ($expiresAt < $now) {
-    $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?')->execute([$emailHash]);
+    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
     json_error('VALIDATION', 'This verification link expired. Please sign up again.', 'E_VERIFICATION_EXPIRED', ['field' => 'code'], 410);
 }
 
@@ -52,8 +52,8 @@ $userId = null;
 try {
     $pdo->beginTransaction();
 
-    $existingUserStmt = $pdo->prepare('SELECT id FROM users WHERE email_hash = ? LIMIT 1');
-    $existingUserStmt->execute([$emailHash]);
+    $existingUserStmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+    $existingUserStmt->execute([$email]);
     $existingUserId = $existingUserStmt->fetchColumn();
 
     if ($existingUserId) {
@@ -74,7 +74,7 @@ try {
         $userId = (int) $pdo->lastInsertId();
     }
 
-    $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?')->execute([$emailHash]);
+    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
 
     $pdo->commit();
 } catch (\Throwable $exception) {

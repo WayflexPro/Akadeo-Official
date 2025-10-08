@@ -43,11 +43,15 @@ if (!password_is_strong($password)) {
 $pdo = get_pdo();
 cleanup_expired_verifications($pdo);
 
-$stmt = $pdo->prepare('SELECT id FROM users WHERE email_hash = ? LIMIT 1');
-$stmt->execute([$emailHash]);
+$stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+$stmt->execute([$email]);
 if ($stmt->fetchColumn()) {
     json_error('CONFLICT', 'An account with that email already exists.', 'E_USER_EXISTS', ['field' => 'email'], 409);
 }
+
+$pending = $pdo->prepare('SELECT id FROM account_verifications WHERE email = ? LIMIT 1');
+$pending->execute([$email]);
+$hasPending = (bool) $pending->fetchColumn();
 
 $code = generate_verification_code();
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -66,8 +70,9 @@ $expiresAt = (new DateTimeImmutable('now', new DateTimeZone('UTC')))
 
 $pdo->beginTransaction();
 
-$delete = $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?');
-$delete->execute([$emailHash]);
+if ($hasPending) {
+    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
+}
 
 $insert = $pdo->prepare(
     'INSERT INTO account_verifications (full_name, institution, email, email_hash, password_hash, verification_code, expires_at, created_at) '
@@ -88,7 +93,7 @@ $pdo->commit();
 try {
     send_verification_email($email, $fullName, $code);
 } catch (\Throwable $exception) {
-    $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?')->execute([$emailHash]);
+    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
     json_error('INTERNAL', 'We could not send the verification email. Please try again.', 'E_EMAIL_SEND_FAILED', null, 500);
 }
 
