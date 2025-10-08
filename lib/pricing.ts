@@ -1,4 +1,4 @@
-import { LAUNCH_DISCOUNT, COST_ASSUMPTIONS } from "../content/siteContent.js";
+import { LAUNCH_DISCOUNT, COST_ASSUMPTIONS } from "../content/siteContent";
 
 export function applyLaunchDiscount(base: number | null) {
   if (base == null) return null;
