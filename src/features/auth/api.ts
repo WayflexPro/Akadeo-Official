@@ -73,7 +73,7 @@ async function request<T>(
 }
 
 export async function register(payload: RegisterPayload) {
-  return request<RegisterResponse>("/api/register.php", {
+  return request<RegisterResponse>("/api/auth/register", {
     method: "POST",
     bodyJson: payload,
     timeoutMs: 15000,
