@@ -11,15 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = get_json_body();
 
 $email = normalise_email($data['email'] ?? '');
+$emailHash = email_hash($email);
 $password = (string) ($data['password'] ?? '');
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 320 || $password === '') {
     json_error('VALIDATION', 'Enter your email and password.', 'E_INVALID_CREDENTIALS_INPUT', ['fields' => ['email', 'password']], 422);
 }
 
 $pdo = get_pdo();
-$stmt = $pdo->prepare('SELECT id, full_name, email, password_hash, setup_completed_at FROM users WHERE email = ? LIMIT 1');
-$stmt->execute([$email]);
+$stmt = $pdo->prepare('SELECT id, full_name, email, password_hash, setup_completed_at FROM users WHERE email_hash = ? LIMIT 1');
+$stmt->execute([$emailHash]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($password, $user['password_hash'])) {

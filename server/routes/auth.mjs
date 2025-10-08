@@ -2,11 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { cleanupExpiredVerifications, getPool } from '../db.mjs';
 import { sendVerificationEmail } from '../email.mjs';
+import { emailHash, normalizeEmail } from '../lib/emailHash.mjs';
 import { HttpError, asyncHandler, jsonOk, methodNotAllowed } from '../utils.mjs';
-
-function normaliseEmail(email) {
-  return String(email ?? '').trim().toLowerCase();
-}
 
 function validateEmail(email) {
   return /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email);
@@ -48,7 +45,7 @@ authRouter.post(
     const body = req.body ?? {};
     const fullName = String(body.fullName ?? '').trim();
     const institution = String(body.institution ?? '').trim();
-    const email = normaliseEmail(body.email);
+    const email = normalizeEmail(body.email);
     const password = body.password ?? '';
 
     if (fullName.length < 2) {
@@ -64,6 +61,29 @@ authRouter.post(
         details: { field: 'email' },
       });
     }
+
+    if (email.length > 320) {
+      throw new HttpError(422, 'VALIDATION', 'Email address is too long.', {
+        code: 'E_EMAIL_TOO_LONG',
+        details: { field: 'email' },
+      });
+    }
+
+    if (fullName.length > 255) {
+      throw new HttpError(422, 'VALIDATION', 'Full name is too long.', {
+        code: 'E_FULL_NAME_TOO_LONG',
+        details: { field: 'fullName' },
+      });
+    }
+
+    if (institution && institution.length > 255) {
+      throw new HttpError(422, 'VALIDATION', 'Institution name is too long.', {
+        code: 'E_INSTITUTION_TOO_LONG',
+        details: { field: 'institution' },
+      });
+    }
+
+    const emailHashValue = emailHash(email);
 
     if (!isStrongPassword(password)) {
       throw new HttpError(422, 'VALIDATION', 'Use a stronger password.', {
@@ -90,7 +110,7 @@ authRouter.post(
     try {
       await cleanupExpiredVerifications(connection);
 
-      const [existingUsers] = await connection.execute('SELECT id FROM users WHERE email = ? LIMIT 1', [email]);
+      const [existingUsers] = await connection.execute('SELECT id FROM users WHERE email_hash = ? LIMIT 1', [emailHashValue]);
       if (Array.isArray(existingUsers) && existingUsers.length > 0) {
         throw new HttpError(409, 'CONFLICT', 'An account with that email already exists.', {
           code: 'E_USER_EXISTS',
@@ -102,12 +122,24 @@ authRouter.post(
       const passwordHash = await bcrypt.hash(String(password), 12);
       const expiresAt = expiresAtUtc(24);
 
+      if (passwordHash.length > 255) {
+        throw new HttpError(500, 'INTERNAL', 'Password hash is too long.', {
+          code: 'E_PASSWORD_HASH_TOO_LONG',
+        });
+      }
+
+      if (verificationCode.length > 64) {
+        throw new HttpError(500, 'INTERNAL', 'Verification code is too long.', {
+          code: 'E_VERIFICATION_CODE_TOO_LONG',
+        });
+      }
+
       await connection.beginTransaction();
       inTransaction = true;
-      await connection.execute('DELETE FROM account_verifications WHERE email = ?', [email]);
+      await connection.execute('DELETE FROM account_verifications WHERE email_hash = ?', [emailHashValue]);
       await connection.execute(
-        'INSERT INTO account_verifications (full_name, institution, email, password_hash, verification_code, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())',
-        [fullName, institution, email, passwordHash, verificationCode, expiresAt]
+        'INSERT INTO account_verifications (full_name, institution, email, email_hash, password_hash, verification_code, expires_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP())',
+        [fullName, institution || null, email, emailHashValue, passwordHash, verificationCode, expiresAt]
       );
       await connection.commit();
       inTransaction = false;
@@ -131,7 +163,7 @@ authRouter.post(
     } catch (error) {
       const cleanupConnection = await pool.getConnection();
       try {
-        await cleanupConnection.execute('DELETE FROM account_verifications WHERE email = ?', [email]);
+        await cleanupConnection.execute('DELETE FROM account_verifications WHERE email_hash = ?', [emailHashValue]);
       } finally {
         cleanupConnection.release();
       }

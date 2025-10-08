@@ -11,9 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = get_json_body();
 
 $email = normalise_email($data['email'] ?? '');
+$emailHash = email_hash($email);
 $code = trim((string) ($data['code'] ?? ''));
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 320) {
     json_error('VALIDATION', 'Enter a valid email address.', 'E_INVALID_EMAIL', ['field' => 'email'], 422);
 }
 
@@ -24,8 +25,10 @@ if (!preg_match('/^[0-9]{6}$/', $code)) {
 $pdo = get_pdo();
 cleanup_expired_verifications($pdo);
 
-$stmt = $pdo->prepare('SELECT * FROM account_verifications WHERE email = ? LIMIT 1');
-$stmt->execute([$email]);
+$stmt = $pdo->prepare(
+    'SELECT * FROM account_verifications WHERE email_hash = ? AND verification_code = ? LIMIT 1'
+);
+$stmt->execute([$emailHash, $code]);
 $record = $stmt->fetch();
 
 if (!$record) {
@@ -40,7 +43,7 @@ $expiresAt = new DateTimeImmutable($record['expires_at'], new DateTimeZone('UTC'
 $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
 if ($expiresAt < $now) {
-    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
+    $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?')->execute([$emailHash]);
     json_error('VALIDATION', 'This verification link expired. Please sign up again.', 'E_VERIFICATION_EXPIRED', ['field' => 'code'], 410);
 }
 
@@ -49,20 +52,29 @@ $userId = null;
 try {
     $pdo->beginTransaction();
 
-    $insertUser = $pdo->prepare(
-        'INSERT INTO users (full_name, institution, email, password_hash, setup_completed_at, created_at, updated_at) '
-        . 'VALUES (?, ?, ?, ?, NULL, UTC_TIMESTAMP(), UTC_TIMESTAMP())'
-    );
-    $insertUser->execute([
-        $record['full_name'],
-        $record['institution'],
-        $record['email'],
-        $record['password_hash'],
-    ]);
+    $existingUserStmt = $pdo->prepare('SELECT id FROM users WHERE email_hash = ? LIMIT 1');
+    $existingUserStmt->execute([$emailHash]);
+    $existingUserId = $existingUserStmt->fetchColumn();
 
-    $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
+    if ($existingUserId) {
+        $userId = (int) $existingUserId;
+    } else {
+        $insertUser = $pdo->prepare(
+            'INSERT INTO users (full_name, institution, email, email_hash, password_hash, setup_completed_at, created_at, updated_at) '
+            . 'VALUES (?, ?, ?, ?, ?, NULL, UTC_TIMESTAMP(), UTC_TIMESTAMP())'
+        );
+        $insertUser->execute([
+            $record['full_name'],
+            $record['institution'],
+            $email,
+            $emailHash,
+            $record['password_hash'],
+        ]);
 
-    $userId = (int) $pdo->lastInsertId();
+        $userId = (int) $pdo->lastInsertId();
+    }
+
+    $pdo->prepare('DELETE FROM account_verifications WHERE email_hash = ?')->execute([$emailHash]);
 
     $pdo->commit();
 } catch (\Throwable $exception) {
@@ -75,7 +87,7 @@ try {
 session_regenerate_id(true);
 $_SESSION['user_id'] = $userId;
 $_SESSION['user_name'] = $record['full_name'];
-$_SESSION['user_email'] = $record['email'];
+$_SESSION['user_email'] = $email;
 $_SESSION['setup_completed_at'] = null;
 
 json_ok([

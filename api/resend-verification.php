@@ -10,16 +10,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $data = get_json_body();
 $email = normalise_email($data['email'] ?? '');
+$emailHash = email_hash($email);
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 320) {
     json_error('VALIDATION', 'Enter a valid email address.', 'E_INVALID_EMAIL', ['field' => 'email'], 422);
 }
 
 $pdo = get_pdo();
 cleanup_expired_verifications($pdo);
 
-$stmt = $pdo->prepare('SELECT full_name FROM account_verifications WHERE email = ? LIMIT 1');
-$stmt->execute([$email]);
+$stmt = $pdo->prepare('SELECT full_name FROM account_verifications WHERE email_hash = ? LIMIT 1');
+$stmt->execute([$emailHash]);
 $record = $stmt->fetch();
 
 if (!$record) {
@@ -31,8 +32,8 @@ $expiresAt = (new DateTimeImmutable('now', new DateTimeZone('UTC')))
     ->modify('+1 day')
     ->format('Y-m-d H:i:s');
 
-$update = $pdo->prepare('UPDATE account_verifications SET verification_code = ?, expires_at = ? WHERE email = ?');
-$update->execute([$code, $expiresAt, $email]);
+$update = $pdo->prepare('UPDATE account_verifications SET verification_code = ?, expires_at = ? WHERE email_hash = ?');
+$update->execute([$code, $expiresAt, $emailHash]);
 
 try {
     send_verification_email($email, $record['full_name'], $code);
