@@ -8,12 +8,13 @@ import BlogPage from "./pages/Blog";
 import ContactPage from "./pages/Contact";
 import SignInPage from "./pages/SignIn";
 import SignUpPage from "./pages/SignUp";
+import VerifyEmailPage from "./pages/VerifyEmail";
 import TermsPage from "./pages/Terms";
 import PrivacyPage from "./pages/Privacy";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
-const AUTH_PAGES = ["sign-in", "sign-up"] as const;
+const AUTH_PAGES = ["sign-in", "sign-up", "verify-email"] as const;
 
 const ALL_PAGES = [
   ...NAV_PAGES,
@@ -57,6 +58,7 @@ const pageComponents: Record<PageId, JSX.Element> = {
   contact: <ContactPage />,
   "sign-in": <SignInPage />,
   "sign-up": <SignUpPage />,
+  "verify-email": <VerifyEmailPage />,
   terms: <TermsPage />,
   privacy: <PrivacyPage />,
 };
