@@ -13,154 +13,93 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="contact" data-menu-open="false">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="background-scene" aria-hidden="true">
-          <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
-          <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
-          <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
-          <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
-          <span class="background-scene__grid" data-parallax="0.02"></span>
-        </div>
-        <div class="scroll-progress" aria-hidden="true">
-          <span class="scroll-progress__bar"></span>
-        </div>
+      <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
+      <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
+      <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
+      <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
+      <span class="background-scene__grid" data-parallax="0.02"></span>
+    </div>
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress__bar"></span>
+    </div>
     <header class="site-header">
-          <div class="container">
+      <div class="container">
+        <a class="brand" data-nav="home" href="index.html">
+          <span class="brand-name">Akadeo</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="nav-links"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="menu-toggle__line"></span>
+            <span class="menu-toggle__line"></span>
+          </button>
+          <ul id="nav-links" aria-hidden="false">
+            <li><a data-nav="home" href="index.html">Home</a></li>
+            <li><a data-nav="about" href="about.html">About</a></li>
+            <li><a data-nav="features" href="features.html">Features</a></li>
+            <li><a data-nav="pricing" href="pricing.html">Pricing</a></li>
+            <li><a data-nav="faq" href="faq.html">FAQ</a></li>
+            <li><a data-nav="blog" href="blog.html">Blog</a></li>
+            <li><a data-nav="contact" href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="auth-links">
+          <a class="ghost" data-nav="sign-in" href="sign-in.html">Sign In</a>
+          <a class="primary" data-nav="sign-up" href="sign-up.html">Sign Up</a>
+        </div>
+      </div>
+    </header>
+    <main id="main-content" class="page-shell" tabindex="-1" data-page-root></main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer__top">
+          <div>
             <a class="brand" data-nav="home" href="index.html">
+              <span class="brand-mark">A</span>
               <span class="brand-name">Akadeo</span>
             </a>
-            <nav class="site-nav" aria-label="Primary">
-              <button
-                class="menu-toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="nav-links"
-              >
-                <span class="sr-only">Toggle navigation</span>
-                <span class="menu-toggle__line"></span>
-                <span class="menu-toggle__line"></span>
-              </button>
-              <ul id="nav-links" aria-hidden="false">
-                <li><a data-nav="home" href="index.html">Home</a></li>
-                <li><a data-nav="about" href="about.html">About</a></li>
-                <li><a data-nav="features" href="features.html">Features</a></li>
-                <li><a data-nav="pricing" href="pricing.html">Pricing</a></li>
-                <li><a data-nav="faq" href="faq.html">FAQ</a></li>
-                <li><a data-nav="blog" href="blog.html">Blog</a></li>
-                <li><a data-nav="contact" href="contact.html">Contact</a></li>
-              </ul>
-            </nav>
-            <div class="auth-links">
-              <a class="ghost" data-nav="sign-in" href="sign-in.html">Sign In</a>
-              <a class="primary" data-nav="sign-up" href="sign-up.html">Sign Up</a>
+            <p>
+              A connected platform where teachers, students, and families shape extraordinary
+              learning experiences.
+            </p>
+          </div>
+          <div class="footer__links">
+            <div>
+              <h4>Product</h4>
+              <a data-nav="features" href="features.html">Features</a>
+              <a data-nav="pricing" href="pricing.html">Pricing</a>
+              <a data-nav="faq" href="faq.html">FAQ</a>
+            </div>
+            <div>
+              <h4>Company</h4>
+              <a data-nav="about" href="about.html">About</a>
+              <a data-nav="blog" href="blog.html">Blog</a>
+              <a data-nav="contact" href="contact.html">Contact</a>
+            </div>
+            <div>
+              <h4>Legal</h4>
+              <a data-nav="terms" href="terms.html">Terms</a>
+              <a data-nav="privacy" href="privacy.html">Privacy</a>
             </div>
           </div>
-        </header>
-    <main id="app" class="app">
-      <section class="page" id="contact">
-      <div class="page__inner">
-      <div class="container narrow">
-      <h2 class="reveal">We'd love to hear from you.</h2>
-      <div class="contact-info reveal">
-      <div>
-      <h3>Visit our experience center</h3>
-      <p>
-                        218 Market Street, Suite 400<br/>
-                        San Francisco, CA 94105
-                      </p>
-      </div>
-      <div>
-      <h3>Partner with us</h3>
-      <p>schools@akadeo.com &middot; (415) 555-0198</p>
-      <p>Office hours: Monday&ndash;Friday, 8am&ndash;6pm PT</p>
-      </div>
-      <div>
-      <h3>Media inquiries</h3>
-      <p>press@akadeo.com</p>
-      <a class="ghost" href="blog.html">View press resources</a>
-      </div>
-      </div>
-      <form aria-label="Contact Akadeo" class="contact-form reveal">
-      <div class="form-grid">
-      <label>
-      <span>Name</span>
-      <input name="name" placeholder="Jane Doe" required="" type="text"/>
-      </label>
-      <label>
-      <span>Email</span>
-      <input name="email" placeholder="you@example.com" required="" type="email"/>
-      </label>
-      </div>
-      <label>
-      <span>How can we help?</span>
-      <textarea name="message" placeholder="Share your thoughts..." required="" rows="4"></textarea>
-      </label>
-      <button class="primary" type="submit">Send message</button>
-      </form>
-      <section class="contact-extras">
-      <div class="contact-extras__card reveal">
-      <h3>Join an onboarding lab</h3>
-      <p>
-                        Explore live demos of lesson flows, analytics review routines, and culture-building
-                        rituals in a 45-minute interactive session.
-                      </p>
-      <a class="ghost" href="contact.html">Reserve a session</a>
-      </div>
-      <div class="contact-extras__card reveal">
-      <h3>Request a bespoke rollout</h3>
-      <p>
-                        Partner with our district strategists to co-design training calendars, change
-                        management communications, and family launch events.
-                      </p>
-      <a class="ghost" href="contact.html">Start a conversation</a>
-      </div>
-      </section>
-      </div>
-      </div>
-      </section>
-    </main>
-    <footer class="site-footer">
-          <div class="container">
-            <div class="footer__top">
-              <div>
-                <a class="brand" data-nav="home" href="index.html">
-                  <span class="brand-mark">A</span>
-                  <span class="brand-name">Akadeo</span>
-                </a>
-                <p>
-                  A connected platform where teachers, students, and families shape extraordinary
-                  learning experiences.
-                </p>
-              </div>
-              <div class="footer__links">
-                <div>
-                  <h4>Product</h4>
-                  <a data-nav="features" href="features.html">Features</a>
-                  <a data-nav="pricing" href="pricing.html">Pricing</a>
-                  <a data-nav="faq" href="faq.html">FAQ</a>
-                </div>
-                <div>
-                  <h4>Company</h4>
-                  <a data-nav="about" href="about.html">About</a>
-                  <a data-nav="blog" href="blog.html">Blog</a>
-                  <a data-nav="contact" href="contact.html">Contact</a>
-                </div>
-                <div>
-                  <h4>Legal</h4>
-                  <a data-nav="terms" href="terms.html">Terms</a>
-                  <a data-nav="privacy" href="privacy.html">Privacy</a>
-                </div>
-              </div>
-            </div>
-            <div class="footer__bottom">
-              <p>© <span id="year"></span> Akadeo. All rights reserved.</p>
-              <div class="footer__socials">
-                <a href="#" aria-label="Akadeo on Twitter">🐦</a>
-                <a href="#" aria-label="Akadeo on LinkedIn">💼</a>
-                <a href="#" aria-label="Akadeo on YouTube">▶️</a>
-              </div>
-            </div>
+        </div>
+        <div class="footer__bottom">
+          <p>© <span id="year"></span> Akadeo. All rights reserved.</p>
+          <div class="footer__socials">
+            <a href="#" aria-label="Akadeo on Twitter">🐦</a>
+            <a href="#" aria-label="Akadeo on LinkedIn">💼</a>
+            <a href="#" aria-label="Akadeo on YouTube">▶️</a>
           </div>
-        </footer>
-    <script src="scripts.js" defer></script>
+        </div>
+      </div>
+    </footer>
+    <script type="module" src="dist/src/main.js"></script>
   </body>
 </html>

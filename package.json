@@ -1,0 +1,17 @@
+{
+  "name": "akadeo-official",
+  "version": "1.0.0",
+  "description": "Akadeo marketing site",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.5.4"
+  }
+}

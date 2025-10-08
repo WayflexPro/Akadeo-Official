@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Akadeo | Elevate Teaching & Learning</title>
+    <title>Akadeo | Modern classroom tools teachers actually love</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,334 +13,93 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="home" data-menu-open="false">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="background-scene" aria-hidden="true">
-          <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
-          <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
-          <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
-          <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
-          <span class="background-scene__grid" data-parallax="0.02"></span>
-        </div>
-        <div class="scroll-progress" aria-hidden="true">
-          <span class="scroll-progress__bar"></span>
-        </div>
+      <span class="background-scene__orb background-scene__orb--one" data-parallax="0.04"></span>
+      <span class="background-scene__orb background-scene__orb--two" data-parallax="0.08"></span>
+      <span class="background-scene__orb background-scene__orb--three" data-parallax="0.12"></span>
+      <span class="background-scene__orb background-scene__orb--four" data-parallax="0.05"></span>
+      <span class="background-scene__grid" data-parallax="0.02"></span>
+    </div>
+    <div class="scroll-progress" aria-hidden="true">
+      <span class="scroll-progress__bar"></span>
+    </div>
     <header class="site-header">
-          <div class="container">
+      <div class="container">
+        <a class="brand" data-nav="home" href="index.html">
+          <span class="brand-name">Akadeo</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          <button
+            class="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="nav-links"
+          >
+            <span class="sr-only">Toggle navigation</span>
+            <span class="menu-toggle__line"></span>
+            <span class="menu-toggle__line"></span>
+          </button>
+          <ul id="nav-links" aria-hidden="false">
+            <li><a data-nav="home" href="index.html">Home</a></li>
+            <li><a data-nav="about" href="about.html">About</a></li>
+            <li><a data-nav="features" href="features.html">Features</a></li>
+            <li><a data-nav="pricing" href="pricing.html">Pricing</a></li>
+            <li><a data-nav="faq" href="faq.html">FAQ</a></li>
+            <li><a data-nav="blog" href="blog.html">Blog</a></li>
+            <li><a data-nav="contact" href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="auth-links">
+          <a class="ghost" data-nav="sign-in" href="sign-in.html">Sign In</a>
+          <a class="primary" data-nav="sign-up" href="sign-up.html">Sign Up</a>
+        </div>
+      </div>
+    </header>
+    <main id="main-content" class="page-shell" tabindex="-1" data-page-root></main>
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer__top">
+          <div>
             <a class="brand" data-nav="home" href="index.html">
+              <span class="brand-mark">A</span>
               <span class="brand-name">Akadeo</span>
             </a>
-            <nav class="site-nav" aria-label="Primary">
-              <button
-                class="menu-toggle"
-                type="button"
-                aria-expanded="false"
-                aria-controls="nav-links"
-              >
-                <span class="sr-only">Toggle navigation</span>
-                <span class="menu-toggle__line"></span>
-                <span class="menu-toggle__line"></span>
-              </button>
-              <ul id="nav-links" aria-hidden="false">
-                <li><a data-nav="home" href="index.html">Home</a></li>
-                <li><a data-nav="about" href="about.html">About</a></li>
-                <li><a data-nav="features" href="features.html">Features</a></li>
-                <li><a data-nav="pricing" href="pricing.html">Pricing</a></li>
-                <li><a data-nav="faq" href="faq.html">FAQ</a></li>
-                <li><a data-nav="blog" href="blog.html">Blog</a></li>
-                <li><a data-nav="contact" href="contact.html">Contact</a></li>
-              </ul>
-            </nav>
-            <div class="auth-links">
-              <a class="ghost" data-nav="sign-in" href="sign-in.html">Sign In</a>
-              <a class="primary" data-nav="sign-up" href="sign-up.html">Sign Up</a>
+            <p>
+              A connected platform where teachers, students, and families shape extraordinary
+              learning experiences.
+            </p>
+          </div>
+          <div class="footer__links">
+            <div>
+              <h4>Product</h4>
+              <a data-nav="features" href="features.html">Features</a>
+              <a data-nav="pricing" href="pricing.html">Pricing</a>
+              <a data-nav="faq" href="faq.html">FAQ</a>
+            </div>
+            <div>
+              <h4>Company</h4>
+              <a data-nav="about" href="about.html">About</a>
+              <a data-nav="blog" href="blog.html">Blog</a>
+              <a data-nav="contact" href="contact.html">Contact</a>
+            </div>
+            <div>
+              <h4>Legal</h4>
+              <a data-nav="terms" href="terms.html">Terms</a>
+              <a data-nav="privacy" href="privacy.html">Privacy</a>
             </div>
           </div>
-        </header>
-    <main id="app" class="app">
-      <section class="page" id="home">
-      <div class="hero">
-      <div aria-hidden="true" class="hero__background">
-      <span class="hero__orb hero__orb--one"></span>
-      <span class="hero__orb hero__orb--two"></span>
-      <span class="hero__orb hero__orb--three"></span>
-      </div>
-      <div class="container hero__content">
-      <div class="hero__copy">
-      <p class="eyebrow reveal">Where curiosity meets clarity</p>
-      <h1 class="reveal">A modern classroom experience, reinvented.</h1>
-      <p class="lead reveal">
-                      Akadeo blends powerful teaching tools, student engagement insights, and
-                      delightful collaboration features to elevate learning for everyone.
-                    </p>
-      <ul class="hero__list reveal">
-      <li>Human-centered design that keeps teachers in control</li>
-      <li>Engagement analytics that surface wins and nudge support</li>
-      <li>Secure infrastructure trusted by districts worldwide</li>
-      </ul>
-      <div class="hero__actions reveal">
-      <a class="primary" data-nav="sign-up" href="sign-up.html">Get started</a>
-      <a class="ghost" data-nav="features" href="features.html">See features</a>
-      </div>
-      </div>
-      <div class="hero__visual reveal">
-      <div class="hero-panel">
-      <header class="hero-panel__header">
-      <span class="hero-panel__title">Today in Year 8 Science</span>
-      <span class="hero-panel__meta">Live session &middot; 32 students</span>
-      </header>
-      <div class="hero-panel__stats">
-      <div>
-      <span class="hero-panel__label">Avg engagement</span>
-      <strong class="hero-panel__value">92%</strong>
-      </div>
-      <div>
-      <span class="hero-panel__label">Assignments graded</span>
-      <strong class="hero-panel__value">1.2k</strong>
-      </div>
-      <div>
-      <span class="hero-panel__label">Sessions this month</span>
-      <strong class="hero-panel__value">48</strong>
-      </div>
-      </div>
-      <div class="hero-panel__chart">
-      <span class="hero-panel__label">Weekly activity</span>
-      <div class="hero-panel__bars">
-      <span style="--bar-height: 65%"></span>
-      <span style="--bar-height: 88%"></span>
-      <span style="--bar-height: 72%"></span>
-      <span style="--bar-height: 95%"></span>
-      <span style="--bar-height: 80%"></span>
-      </div>
-      </div>
-      <footer class="hero-panel__footer">
-      <div>
-      <span class="hero-panel__label">Mood check-ins</span>
-      <strong class="hero-panel__value">+36 smiles</strong>
-      </div>
-      <div>
-      <span class="hero-panel__label">Family updates</span>
-      <strong class="hero-panel__value">18 sent</strong>
-      </div>
-      </footer>
-      </div>
-      </div>
-      </div>
-      </div>
-      <section class="highlights">
-      <div class="container">
-      <article class="highlight reveal">
-      <h3>Teacher-first design</h3>
-      <p>
-                      Streamline lesson planning, assessments, and real-time feedback with workflows
-                      that adapt to your teaching style.
-                    </p>
-      </article>
-      <article class="highlight reveal">
-      <h3>Student-centered engagement</h3>
-      <p>
-                      Boost participation through interactive spaces, personalized nudges, and playful
-                      gamification moments.
-                    </p>
-      </article>
-      <article class="highlight reveal">
-      <h3>Privacy-first infrastructure</h3>
-      <p>
-                      Enterprise-grade security, compliance, and controls to protect every classroom.
-                    </p>
-      </article>
-      </div>
-      </section>
-      <section class="metrics">
-      <div class="container">
-      <div class="metrics__intro">
-      <p class="eyebrow reveal">Measurable impact</p>
-      <h2 class="reveal">Every classroom, uplifted.</h2>
-      <p class="reveal">
-                      Schools that partner with Akadeo report higher student agency, stronger family
-                      partnerships, and hours returned to teacher planning time. Here are a few of the
-                      stories data tells us.
-                    </p>
-      </div>
-      <div class="metrics__grid">
-      <article class="metric reveal">
-      <span class="metric__value">+27%</span>
-      <p class="metric__label">Increase in formative assessment completion</p>
-      <p>Teachers launch adaptive check-ins that meet each learner where they are.</p>
-      </article>
-      <article class="metric reveal">
-      <span class="metric__value">12 hrs</span>
-      <p class="metric__label">Average time saved per educator monthly</p>
-      <p>Automations handle reminders, grading, and data reporting so you can teach.</p>
-      </article>
-      <article class="metric reveal">
-      <span class="metric__value">94%</span>
-      <p class="metric__label">Families who feel more connected</p>
-      <p>Weekly snapshots bridge the home-school conversation with joy and insight.</p>
-      </article>
-      <article class="metric reveal">
-      <span class="metric__value">3.1M</span>
-      <p class="metric__label">Student celebrations shared</p>
-      <p>Moments of progress are captured instantly and celebrated across the community.</p>
-      </article>
-      </div>
-      </div>
-      </section>
-      <section class="trusted">
-      <div class="container">
-      <p class="eyebrow reveal">Trusted partnerships</p>
-      <div class="trusted__content reveal">
-      <h2>Designed with leading districts and innovators.</h2>
-      <p>
-                      Akadeo powers intentional learning communities from rural districts to global
-                      academies. Product decisions are shaped in partnership with educators who insist on
-                      equity, accessibility, and joy at scale.
-                    </p>
-      </div>
-      <div aria-label="Highlighted partners" class="trusted__marquee" role="list">
-      <span class="trusted__logo" role="listitem">Summerside ISD</span>
-      <span class="trusted__logo" role="listitem">Horizon Learning Trust</span>
-      <span class="trusted__logo" role="listitem">Bluebird Charter Network</span>
-      <span class="trusted__logo" role="listitem">North Coast STEM</span>
-      <span class="trusted__logo" role="listitem">Lighthouse Academy</span>
-      <span class="trusted__logo" role="listitem">United World Schools</span>
-      </div>
-      </div>
-      </section>
-      <section class="journey">
-      <div class="container">
-      <div class="journey__intro">
-      <p class="eyebrow reveal">A guided path</p>
-      <h2 class="reveal">From spark to sustained momentum.</h2>
-      <p class="reveal">
-                      We pair intuitive software with a caring team that coaches you through every
-                      milestone. Implementation is swift, and the wins start showing up almost
-                      immediately.
-                    </p>
-      </div>
-      <div class="journey__steps">
-      <article class="journey__step reveal">
-      <span class="journey__index">01</span>
-      <h3>Discover</h3>
-      <p>Co-design success metrics with our former educators and align on your vision.</p>
-      </article>
-      <article class="journey__step reveal">
-      <span class="journey__index">02</span>
-      <h3>Launch</h3>
-      <p>Train teachers in energizing micro-sessions backed by interactive resources.</p>
-      </article>
-      <article class="journey__step reveal">
-      <span class="journey__index">03</span>
-      <h3>Activate</h3>
-      <p>Bring students and families onboard with playful prompts and multilingual guides.</p>
-      </article>
-      <article class="journey__step reveal">
-      <span class="journey__index">04</span>
-      <h3>Elevate</h3>
-      <p>Review insights in monthly coaching sessions and celebrate new growth moments.</p>
-      </article>
-      </div>
-      </div>
-      </section>
-      <section class="testimonials">
-      <div class="container">
-      <div class="testimonials__header">
-      <p class="eyebrow reveal">Voices from the community</p>
-      <h2 class="reveal">Real classrooms. Real joy.</h2>
-      </div>
-      <div class="testimonials__grid">
-      <figure class="testimonial-card reveal">
-      <blockquote>
-                        &ldquo;Akadeo gave us time back to mentor kids. The insights dashboard is a love
-                        letter to teachers who crave context.&rdquo;
-                      </blockquote>
-      <figcaption>
-      <span class="testimonial__name">Karina, Instructional Coach</span>
-      <span class="testimonial__meta">Summerside Middle School</span>
-      </figcaption>
-      </figure>
-      <figure class="testimonial-card reveal">
-      <blockquote>
-                        &ldquo;Students light up when they see their growth streaks. Families feel in the loop
-                        without extra emails from me.&rdquo;
-                      </blockquote>
-      <figcaption>
-      <span class="testimonial__name">David, Grade 5 Teacher</span>
-      <span class="testimonial__meta">Brighton Elementary</span>
-      </figcaption>
-      </figure>
-      <figure class="testimonial-card reveal">
-      <blockquote>
-                        &ldquo;Implementation took weeks, not months. Akadeo&rsquo;s team listened deeply and built
-                        a plan that works for our district.&rdquo;
-                      </blockquote>
-      <figcaption>
-      <span class="testimonial__name">Anika, Director of Innovation</span>
-      <span class="testimonial__meta">Unity Charter Network</span>
-      </figcaption>
-      </figure>
-      </div>
-      </div>
-      </section>
-      <section aria-labelledby="cta-heading" class="cta">
-      <div class="container cta__content">
-      <div>
-      <p class="eyebrow reveal">Ready when you are</p>
-      <h2 class="reveal" id="cta-heading">See Akadeo in action today.</h2>
-      <p class="reveal">
-                      Schedule a guided tour with an adoption specialist to explore tailored lesson
-                      flows, wellbeing dashboards, and how Akadeo integrates with your SIS.
-                    </p>
-      </div>
-      <div class="cta__actions reveal">
-      <a class="primary" data-nav="contact" href="contact.html">Book a live tour</a>
-      <a class="ghost" href="#">Download program overview</a>
-      </div>
-      </div>
-      </section>
-      </section>
-    </main>
-    <footer class="site-footer">
-          <div class="container">
-            <div class="footer__top">
-              <div>
-                <a class="brand" data-nav="home" href="index.html">
-                  <span class="brand-mark">A</span>
-                  <span class="brand-name">Akadeo</span>
-                </a>
-                <p>
-                  A connected platform where teachers, students, and families shape extraordinary
-                  learning experiences.
-                </p>
-              </div>
-              <div class="footer__links">
-                <div>
-                  <h4>Product</h4>
-                  <a data-nav="features" href="features.html">Features</a>
-                  <a data-nav="pricing" href="pricing.html">Pricing</a>
-                  <a data-nav="faq" href="faq.html">FAQ</a>
-                </div>
-                <div>
-                  <h4>Company</h4>
-                  <a data-nav="about" href="about.html">About</a>
-                  <a data-nav="blog" href="blog.html">Blog</a>
-                  <a data-nav="contact" href="contact.html">Contact</a>
-                </div>
-                <div>
-                  <h4>Legal</h4>
-                  <a data-nav="terms" href="terms.html">Terms</a>
-                  <a data-nav="privacy" href="privacy.html">Privacy</a>
-                </div>
-              </div>
-            </div>
-            <div class="footer__bottom">
-              <p>© <span id="year"></span> Akadeo. All rights reserved.</p>
-              <div class="footer__socials">
-                <a href="#" aria-label="Akadeo on Twitter">🐦</a>
-                <a href="#" aria-label="Akadeo on LinkedIn">💼</a>
-                <a href="#" aria-label="Akadeo on YouTube">▶️</a>
-              </div>
-            </div>
+        </div>
+        <div class="footer__bottom">
+          <p>© <span id="year"></span> Akadeo. All rights reserved.</p>
+          <div class="footer__socials">
+            <a href="#" aria-label="Akadeo on Twitter">🐦</a>
+            <a href="#" aria-label="Akadeo on LinkedIn">💼</a>
+            <a href="#" aria-label="Akadeo on YouTube">▶️</a>
           </div>
-        </footer>
-    <script src="scripts.js" defer></script>
+        </div>
+      </div>
+    </footer>
+    <script type="module" src="dist/src/main.js"></script>
   </body>
 </html>
