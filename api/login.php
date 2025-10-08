@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(405, ['message' => 'Method not allowed.']);
+    json_error('VALIDATION', 'Method not allowed.', 'E_METHOD_NOT_ALLOWED', null, 405);
 }
 
 $data = get_json_body();
@@ -14,7 +14,7 @@ $email = normalise_email($data['email'] ?? '');
 $password = (string) ($data['password'] ?? '');
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
-    json_response(422, ['message' => 'Enter your email and password.']);
+    json_error('VALIDATION', 'Enter your email and password.', 'E_INVALID_CREDENTIALS_INPUT', ['fields' => ['email', 'password']], 422);
 }
 
 $pdo = get_pdo();
@@ -23,7 +23,7 @@ $stmt->execute([$email]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($password, $user['password_hash'])) {
-    json_response(401, ['message' => 'Invalid email or password.']);
+    json_error('AUTH', 'Invalid email or password.', 'E_INVALID_CREDENTIALS', ['field' => 'email'], 401);
 }
 
 session_regenerate_id(true);
@@ -34,4 +34,7 @@ $_SESSION['setup_completed_at'] = $user['setup_completed_at'];
 
 $requiresSetup = empty($user['setup_completed_at']);
 
-json_response(200, ['message' => 'Signed in successfully.', 'requiresSetup' => $requiresSetup]);
+json_ok([
+    'message' => 'Signed in successfully.',
+    'requiresSetup' => $requiresSetup,
+]);

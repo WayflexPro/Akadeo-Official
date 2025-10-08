@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(405, ['message' => 'Method not allowed.']);
+    json_error('VALIDATION', 'Method not allowed.', 'E_METHOD_NOT_ALLOWED', null, 405);
 }
 
 $data = get_json_body();
@@ -16,15 +16,15 @@ $email = normalise_email($data['email'] ?? '');
 $password = (string) ($data['password'] ?? '');
 
 if ($fullName === '' || strlen($fullName) < 2) {
-    json_response(422, ['message' => 'Enter your full name.']);
+    json_error('VALIDATION', 'Enter your full name.', 'E_INVALID_FULL_NAME', ['field' => 'fullName'], 422);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    json_response(422, ['message' => 'Enter a valid email address.']);
+    json_error('VALIDATION', 'Enter a valid email address.', 'E_INVALID_EMAIL', ['field' => 'email'], 422);
 }
 
 if (!password_is_strong($password)) {
-    json_response(422, ['message' => 'Use a stronger password.']);
+    json_error('VALIDATION', 'Use a stronger password.', 'E_WEAK_PASSWORD', ['field' => 'password'], 422);
 }
 
 $pdo = get_pdo();
@@ -33,7 +33,7 @@ cleanup_expired_verifications($pdo);
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
 $stmt->execute([$email]);
 if ($stmt->fetchColumn()) {
-    json_response(409, ['message' => 'An account with that email already exists.']);
+    json_error('CONFLICT', 'An account with that email already exists.', 'E_USER_EXISTS', ['field' => 'email'], 409);
 }
 
 $code = generate_verification_code();
@@ -60,7 +60,7 @@ try {
     send_verification_email($email, $fullName, $code);
 } catch (\Throwable $exception) {
     $pdo->prepare('DELETE FROM account_verifications WHERE email = ?')->execute([$email]);
-    json_response(500, ['message' => 'We could not send the verification email. Please try again.']);
+    json_error('INTERNAL', 'We could not send the verification email. Please try again.', 'E_EMAIL_SEND_FAILED', null, 500);
 }
 
-json_response(201, ['message' => 'Verification email sent.']);
+json_ok(['message' => 'Verification email sent.'], 201);

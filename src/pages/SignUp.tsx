@@ -1,4 +1,6 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { register } from "../features/auth/api";
+import { resolveApiErrorMessage } from "../features/auth/errors";
 import { PENDING_EMAIL_STORAGE_KEY } from "./VerifyEmail";
 
 type FormState = {
@@ -111,25 +113,16 @@ export default function SignUpPage() {
         password: form.password,
       };
 
-      const response = await fetch("/api/register.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result?.message ?? "We couldn't create your account just yet.");
-      }
+      const response = await register(payload);
 
       window.localStorage.setItem(PENDING_EMAIL_STORAGE_KEY, payload.email);
       setStatus("success");
-      setMessage("Account created! Check your inbox for a verification code.");
+      setMessage(response.data?.message ?? "Account created! Check your inbox for a verification code.");
       window.location.hash = "#verify-email";
     } catch (error) {
       console.error(error);
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Something went wrong.");
+      setMessage(resolveApiErrorMessage(error));
     }
   };
 

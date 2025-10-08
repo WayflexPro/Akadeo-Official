@@ -1,4 +1,6 @@
 import { FormEvent, useState } from "react";
+import { login } from "../features/auth/api";
+import { resolveApiErrorMessage } from "../features/auth/errors";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
@@ -20,29 +22,20 @@ export default function SignInPage() {
       setStatus("loading");
       setMessage("");
 
-      const response = await fetch("/api/login.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        throw new Error(payload?.message ?? "We couldn't sign you in.");
-      }
+      const payload = await login({ email: email.trim().toLowerCase(), password });
 
       setStatus("success");
-      const requiresSetup = Boolean(payload?.requiresSetup);
+      const requiresSetup = Boolean(payload?.data?.requiresSetup);
       setMessage(
         requiresSetup
-          ? "Welcome back! Let’s finish your setup…"
-          : "Welcome back! Redirecting to your dashboard…",
+          ? payload.data?.message ?? "Welcome back! Let’s finish your setup…"
+          : payload.data?.message ?? "Welcome back! Redirecting to your dashboard…",
       );
       window.location.href = requiresSetup ? "/setup.php" : "/dashboard.php";
     } catch (error) {
       console.error(error);
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "We couldn't sign you in.");
+      setMessage(resolveApiErrorMessage(error, "We couldn't sign you in."));
     }
   };
 

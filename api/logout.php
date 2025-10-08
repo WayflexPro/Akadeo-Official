@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    json_response(405, ['message' => 'Method not allowed.']);
+    json_error('VALIDATION', 'Method not allowed.', 'E_METHOD_NOT_ALLOWED', null, 405);
 }
 
 $_SESSION = [];
@@ -16,4 +16,4 @@ if (ini_get('session.use_cookies')) {
 
 session_destroy();
 
-json_response(200, ['message' => 'Signed out.']);
+json_ok(['message' => 'Signed out.']);
