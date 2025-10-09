@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomePage from "./pages/Home";
 import AboutPage from "./pages/About";
 import FeaturesPage from "./pages/Features";
@@ -14,6 +14,7 @@ import PrivacyPage from "./pages/Privacy";
 import SetupPage from "./pages/Setup";
 import DebugPanel from "./components/DebugPanel";
 import { useAuth } from "./features/auth/AuthContext";
+import DashboardApp from "./dashboard/DashboardApp";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
@@ -425,13 +426,83 @@ function MarketingShell() {
 }
 
 export default function App() {
-  const path = typeof window !== "undefined" ? window.location.pathname : "/";
+  const { state: authState } = useAuth();
+  const [currentPath, setCurrentPath] = useState<string>(() =>
+    typeof window !== "undefined" ? window.location.pathname : "/"
+  );
 
-  if (path === "/setup") {
+  const navigate = useCallback((path: string, replace = false) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    if (window.location.pathname === path) {
+      setCurrentPath(path);
+      return;
+    }
+    if (replace) {
+      window.history.replaceState(null, "", path);
+    } else {
+      window.history.pushState(null, "", path);
+    }
+    setCurrentPath(path);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!authState.isAuthenticated) {
+      if (currentPath.startsWith("/dashboard")) {
+        navigate("/", true);
+      } else if (currentPath === "/setup") {
+        navigate("/", true);
+      }
+      return;
+    }
+
+    if (authState.requiresSetup) {
+      if (currentPath !== "/setup") {
+        navigate("/setup", true);
+      }
+      return;
+    }
+
+    if (currentPath === "/setup") {
+      navigate("/dashboard", true);
+      return;
+    }
+
+    if (currentPath === "/") {
+      navigate("/dashboard", true);
+    }
+  }, [authState, currentPath, navigate]);
+
+  if (currentPath === "/setup") {
     return (
       <>
         <DebugPanel />
         <SetupPage />
+      </>
+    );
+  }
+
+  if (currentPath.startsWith("/dashboard")) {
+    return (
+      <>
+        <DebugPanel />
+        <DashboardApp />
       </>
     );
   }
