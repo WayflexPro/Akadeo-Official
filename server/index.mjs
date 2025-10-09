@@ -10,6 +10,12 @@ import { HttpError, jsonError, withRequestId } from './utils.mjs';
 const app = express();
 app.disable('x-powered-by');
 
+const production = isProduction();
+
+if (production) {
+  app.set('trust proxy', true);
+}
+
 app.use(withRequestId);
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
@@ -18,6 +24,8 @@ app.use((req, res, next) => {
 });
 
 const sessionSecret = requireEnv('SESSION_SECRET');
+const useSecureCookies = production;
+const sameSite = useSecureCookies ? 'none' : 'lax';
 
 app.use(
   session({
@@ -25,10 +33,11 @@ app.use(
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
+    proxy: production,
     cookie: {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: isProduction(),
+      sameSite,
+      secure: useSecureCookies,
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     },
   })
