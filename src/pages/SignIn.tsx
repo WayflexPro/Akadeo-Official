@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { login } from "../features/auth/api";
 import { resolveApiErrorMessage } from "../features/auth/errors";
+import { useAuth } from "../features/auth/AuthContext";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
@@ -9,6 +10,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<SubmitState>("idle");
   const [message, setMessage] = useState<string>("");
+  const { setAuthenticated } = useAuth();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,12 +28,13 @@ export default function SignInPage() {
 
       setStatus("success");
       const requiresSetup = Boolean(payload?.data?.requiresSetup);
+      setAuthenticated({ requiresSetup });
       setMessage(
         requiresSetup
           ? payload.data?.message ?? "Welcome back! Let’s finish your setup…"
           : payload.data?.message ?? "Welcome back! Redirecting to your dashboard…",
       );
-      window.location.href = requiresSetup ? "/setup.php" : "/dashboard.php";
+      window.location.href = requiresSetup ? "/setup" : "/dashboard";
     } catch (error) {
       console.error(error);
       setStatus("error");
