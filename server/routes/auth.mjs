@@ -39,6 +39,21 @@ authRouter.options('/register', (req, res) => {
   jsonOk(res, { message: 'Ready' });
 });
 
+authRouter.options('/login', (req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  jsonOk(res, { message: 'Ready' });
+});
+
+authRouter.options('/verify', (req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  jsonOk(res, { message: 'Ready' });
+});
+
+authRouter.options('/resend-verification', (req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  jsonOk(res, { message: 'Ready' });
+});
+
 authRouter.post(
   '/register',
   asyncHandler(async (req, res) => {
@@ -192,8 +207,255 @@ authRouter.post(
   })
 );
 
+authRouter.post(
+  '/login',
+  asyncHandler(async (req, res) => {
+    const body = req.body ?? {};
+    const email = normalizeEmail(body.email);
+    const password = String(body.password ?? '');
+
+    if (!validateEmail(email) || email.length > 320 || password.length === 0) {
+      throw new HttpError(422, 'VALIDATION', 'Enter your email and password.', {
+        code: 'E_INVALID_CREDENTIALS_INPUT',
+        details: { fields: ['email', 'password'] },
+      });
+    }
+
+    const connection = await getPool().getConnection();
+
+    try {
+      const [users] = await connection.execute(
+        'SELECT id, full_name, email, password_hash, setup_completed_at FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
+
+      if (!Array.isArray(users) || users.length === 0) {
+        const [pending] = await connection.execute(
+          'SELECT id FROM account_verifications WHERE email = ? LIMIT 1',
+          [email]
+        );
+
+        if (Array.isArray(pending) && pending.length > 0) {
+          throw new HttpError(401, 'AUTH', 'Please verify your email before signing in.', {
+            code: 'E_EMAIL_NOT_VERIFIED',
+            details: { field: 'email' },
+          });
+        }
+
+        throw new HttpError(401, 'AUTH', 'Invalid email or password.', {
+          code: 'E_INVALID_CREDENTIALS',
+          details: { field: 'email' },
+        });
+      }
+
+      const user = users[0];
+      const passwordHash = user.password_hash ?? '';
+
+      if (passwordHash.length === 0) {
+        throw new HttpError(401, 'AUTH', 'Invalid email or password.', {
+          code: 'E_INVALID_CREDENTIALS',
+          details: { field: 'email' },
+        });
+      }
+
+      const passwordMatches = await bcrypt.compare(password, passwordHash);
+
+      if (!passwordMatches) {
+        throw new HttpError(401, 'AUTH', 'Invalid email or password.', {
+          code: 'E_INVALID_CREDENTIALS',
+          details: { field: 'email' },
+        });
+      }
+
+      const requiresSetup = !user.setup_completed_at;
+
+      jsonOk(res, { message: 'Signed in successfully.', requiresSetup });
+    } finally {
+      connection.release();
+    }
+  })
+);
+
+authRouter.post(
+  '/verify',
+  asyncHandler(async (req, res) => {
+    const body = req.body ?? {};
+    const email = normalizeEmail(body.email);
+    const code = String(body.code ?? '').trim();
+
+    if (!validateEmail(email) || email.length > 320) {
+      throw new HttpError(422, 'VALIDATION', 'Enter a valid email address.', {
+        code: 'E_INVALID_EMAIL',
+        details: { field: 'email' },
+      });
+    }
+
+    if (!/^[0-9]{6}$/.test(code)) {
+      throw new HttpError(422, 'VALIDATION', 'Enter the 6 digit code from your email.', {
+        code: 'E_INVALID_CODE',
+        details: { field: 'code' },
+      });
+    }
+
+    const pool = getPool();
+    const connection = await pool.getConnection();
+    let inTransaction = false;
+
+    try {
+      await cleanupExpiredVerifications(connection);
+
+      const [records] = await connection.execute(
+        'SELECT id, full_name, institution, email, email_hash, password_hash, verification_code, expires_at FROM account_verifications WHERE email = ? AND verification_code = ? LIMIT 1',
+        [email, code]
+      );
+
+      if (!Array.isArray(records) || records.length === 0) {
+        throw new HttpError(404, 'NOT_FOUND', 'We could not find a verification request for that email and code.', {
+          code: 'E_VERIFICATION_NOT_FOUND',
+          details: { field: 'code' },
+        });
+      }
+
+      const record = records[0];
+
+      const expiresAt = record.expires_at ? new Date(`${record.expires_at}Z`) : null;
+      if (!expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) {
+        await connection.execute(
+          'DELETE FROM account_verifications WHERE email = ? AND verification_code = ?',
+          [email, code]
+        );
+        throw new HttpError(410, 'VALIDATION', 'This verification code expired. Please sign up again.', {
+          code: 'E_VERIFICATION_EXPIRED',
+          details: { field: 'code' },
+        });
+      }
+
+      await connection.beginTransaction();
+      inTransaction = true;
+
+      const [existingUsers] = await connection.execute(
+        'SELECT id, setup_completed_at FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
+
+      let requiresSetup = true;
+
+      if (Array.isArray(existingUsers) && existingUsers.length > 0) {
+        const existingUser = existingUsers[0];
+        requiresSetup = !existingUser.setup_completed_at;
+      } else {
+        await connection.execute(
+          'INSERT INTO users (full_name, institution, email, email_hash, password_hash, setup_completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NULL, UTC_TIMESTAMP(), UTC_TIMESTAMP())',
+          [
+            record.full_name,
+            record.institution || null,
+            email,
+            emailHash(email),
+            record.password_hash,
+          ]
+        );
+      }
+
+      await connection.execute(
+        'DELETE FROM account_verifications WHERE email = ? AND verification_code = ?',
+        [email, code]
+      );
+
+      await connection.commit();
+      inTransaction = false;
+
+      jsonOk(res, { message: 'Email verified.', requiresSetup });
+    } catch (error) {
+      if (inTransaction) {
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to roll back transaction', rollbackError);
+        }
+      }
+      throw error;
+    } finally {
+      connection.release();
+    }
+  })
+);
+
+authRouter.post(
+  '/resend-verification',
+  asyncHandler(async (req, res) => {
+    const body = req.body ?? {};
+    const email = normalizeEmail(body.email);
+
+    if (!validateEmail(email) || email.length > 320) {
+      throw new HttpError(422, 'VALIDATION', 'Enter a valid email address.', {
+        code: 'E_INVALID_EMAIL',
+        details: { field: 'email' },
+      });
+    }
+
+    const pool = getPool();
+    const connection = await pool.getConnection();
+
+    let verificationCode;
+    let fullName = '';
+
+    try {
+      await cleanupExpiredVerifications(connection);
+
+      const [records] = await connection.execute(
+        'SELECT full_name FROM account_verifications WHERE email = ? LIMIT 1',
+        [email]
+      );
+
+      if (!Array.isArray(records) || records.length === 0) {
+        throw new HttpError(404, 'NOT_FOUND', 'Start the sign up process again to receive a new code.', {
+          code: 'E_VERIFICATION_NOT_FOUND',
+          details: { field: 'email' },
+        });
+      }
+
+      fullName = records[0].full_name ?? '';
+      verificationCode = generateVerificationCode();
+
+      const expiresAt = expiresAtUtc(24);
+
+      await connection.execute(
+        'UPDATE account_verifications SET verification_code = ?, expires_at = ? WHERE email = ?',
+        [verificationCode, expiresAt, email]
+      );
+    } finally {
+      connection.release();
+    }
+
+    try {
+      await sendVerificationEmail({ email, name: fullName, code: verificationCode });
+    } catch (error) {
+      const mailError = new HttpError(500, 'INTERNAL', 'We could not resend the verification email.', {
+        code: 'E_EMAIL_SEND_FAILED',
+      });
+      mailError.cause = error;
+      throw mailError;
+    }
+
+    jsonOk(res, { message: 'Verification code resent.' });
+  })
+);
+
 authRouter.all('/register', (req, res) => {
   methodNotAllowed(res, ['POST', 'OPTIONS'], 'Use POST for registration.');
+});
+
+authRouter.all('/login', (req, res) => {
+  methodNotAllowed(res, ['POST', 'OPTIONS'], 'Use POST to sign in.');
+});
+
+authRouter.all('/verify', (req, res) => {
+  methodNotAllowed(res, ['POST', 'OPTIONS'], 'Use POST to verify your email.');
+});
+
+authRouter.all('/resend-verification', (req, res) => {
+  methodNotAllowed(res, ['POST', 'OPTIONS'], 'Use POST to resend the verification email.');
 });
 
 export default authRouter;
