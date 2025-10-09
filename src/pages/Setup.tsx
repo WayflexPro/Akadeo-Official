@@ -8,7 +8,6 @@ type SubmitState = "idle" | "loading" | "success" | "error";
 type FormErrors = Partial<{
   subject: string;
   gradeLevels: string;
-  country: string;
   studentCountRange: string;
   primaryGoal: string;
   consentAiProcessing: string;
@@ -29,19 +28,9 @@ const studentCountOptions = [
   { value: "over_500", label: "More than 500 students" },
 ];
 
-const countryOptions = [
-  { value: "US", label: "United States" },
-  { value: "CA", label: "Canada" },
-  { value: "UK", label: "United Kingdom" },
-  { value: "AU", label: "Australia" },
-  { value: "NZ", label: "New Zealand" },
-  { value: "OTHER", label: "Other" },
-];
-
 type FormState = {
   subject: string;
   gradeLevels: string[];
-  country: string;
   studentCountRange: string;
   primaryGoal: string;
   consentAiProcessing: boolean;
@@ -50,7 +39,6 @@ type FormState = {
 const defaultState: FormState = {
   subject: "",
   gradeLevels: [],
-  country: "US",
   studentCountRange: "",
   primaryGoal: "",
   consentAiProcessing: false,
@@ -107,10 +95,6 @@ export default function SetupPage() {
       nextErrors.gradeLevels = "Select at least one grade level.";
     }
 
-    if (!countryOptions.some((option) => option.value === form.country)) {
-      nextErrors.country = "Choose your country.";
-    }
-
     if (!studentCountOptions.some((option) => option.value === form.studentCountRange)) {
       nextErrors.studentCountRange = "Let us know how many students you support.";
     }
@@ -143,7 +127,6 @@ export default function SetupPage() {
       await completeSetup({
         subject: form.subject.trim(),
         gradeLevels: form.gradeLevels,
-        country: form.country,
         studentCountRange: form.studentCountRange,
         primaryGoal: form.primaryGoal.trim(),
         consentAiProcessing: form.consentAiProcessing,
@@ -201,26 +184,6 @@ export default function SetupPage() {
             </div>
             {errors.gradeLevels && <p className="form-message form-message--error">{errors.gradeLevels}</p>}
           </fieldset>
-
-          <label className="setup-field">
-            <span>Where do you teach?</span>
-            <select
-              name="country"
-              value={form.country}
-              onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
-              required
-            >
-              <option value="" disabled>
-                Select a country
-              </option>
-              {countryOptions.map(({ value, label }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            {errors.country && <p className="form-message form-message--error">{errors.country}</p>}
-          </label>
 
           <label className="setup-field">
             <span>About how many students do you support each year?</span>

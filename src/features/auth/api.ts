@@ -60,7 +60,6 @@ type VerifyResponse = {
 type CompleteSetupPayload = {
   subject: string;
   gradeLevels: string[];
-  country: string;
   studentCountRange: string;
   primaryGoal: string;
   consentAiProcessing: boolean;

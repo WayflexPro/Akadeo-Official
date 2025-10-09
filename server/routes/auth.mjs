@@ -36,7 +36,6 @@ const authRouter = Router();
 
 const GRADE_LEVEL_OPTIONS = new Set(['k5', '68', '912', 'higher_ed', 'other']);
 const STUDENT_COUNT_OPTIONS = new Set(['under_50', '50_150', '150_500', 'over_500']);
-const COUNTRY_OPTIONS = new Set(['US', 'CA', 'UK', 'AU', 'NZ', 'OTHER']);
 
 function toIsoOrNull(value) {
   if (!value) {
@@ -521,14 +520,6 @@ authRouter.post(
       });
     }
 
-    const country = String(body.country ?? '').trim().toUpperCase();
-    if (!COUNTRY_OPTIONS.has(country)) {
-      throw new HttpError(422, 'VALIDATION', 'Choose your country.', {
-        code: 'E_INVALID_COUNTRY',
-        details: { field: 'country' },
-      });
-    }
-
     const studentCountRange = String(body.studentCountRange ?? '').trim();
     if (!STUDENT_COUNT_OPTIONS.has(studentCountRange)) {
       throw new HttpError(422, 'VALIDATION', 'Let us know how many students you support.', {
@@ -565,15 +556,14 @@ authRouter.post(
         : 'teacher';
 
       await connection.execute(
-        `INSERT INTO user_setup_responses (user_id, educator_role, subjects, grade_levels, country, students_served, primary_goal, consent_ai_processing, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
-         ON DUPLICATE KEY UPDATE educator_role = VALUES(educator_role), subjects = VALUES(subjects), grade_levels = VALUES(grade_levels), country = VALUES(country), students_served = VALUES(students_served), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
+        `INSERT INTO user_setup_responses (user_id, educator_role, subjects, grade_levels, students_served, primary_goal, consent_ai_processing, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+         ON DUPLICATE KEY UPDATE educator_role = VALUES(educator_role), subjects = VALUES(subjects), grade_levels = VALUES(grade_levels), students_served = VALUES(students_served), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
         [
           userId,
           educatorRole,
           subject,
           gradeLevels.join(','),
-          country,
           studentCountRange,
           primaryGoal,
           consentAiProcessing ? 1 : 0,
