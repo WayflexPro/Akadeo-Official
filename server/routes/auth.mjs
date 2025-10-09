@@ -560,12 +560,17 @@ authRouter.post(
       await connection.beginTransaction();
       inTransaction = true;
 
+      const educatorRole = typeof body.educatorRole === 'string' && body.educatorRole.trim().length > 0
+        ? body.educatorRole.trim().slice(0, 120)
+        : 'teacher';
+
       await connection.execute(
-        `INSERT INTO teacher_profiles (user_id, subject, grade_levels, country, student_count_range, primary_goal, consent_ai_processing, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
-         ON DUPLICATE KEY UPDATE subject = VALUES(subject), grade_levels = VALUES(grade_levels), country = VALUES(country), student_count_range = VALUES(student_count_range), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
+        `INSERT INTO user_setup_responses (user_id, educator_role, subjects, grade_levels, country, students_served, primary_goal, consent_ai_processing, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+         ON DUPLICATE KEY UPDATE educator_role = VALUES(educator_role), subjects = VALUES(subjects), grade_levels = VALUES(grade_levels), country = VALUES(country), students_served = VALUES(students_served), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
         [
           userId,
+          educatorRole,
           subject,
           gradeLevels.join(','),
           country,
