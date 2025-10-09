@@ -81,7 +81,7 @@ export async function register(payload: RegisterPayload) {
 }
 
 export async function login(payload: LoginPayload) {
-  return request<LoginResponse>("/api/login.php", {
+  return request<LoginResponse>("/api/auth/login", {
     method: "POST",
     bodyJson: payload,
     timeoutMs: 15000,
@@ -89,7 +89,7 @@ export async function login(payload: LoginPayload) {
 }
 
 export async function verify(payload: VerifyPayload) {
-  return request<VerifyResponse>("/api/verify.php", {
+  return request<VerifyResponse>("/api/auth/verify", {
     method: "POST",
     bodyJson: payload,
     timeoutMs: 15000,
@@ -97,7 +97,7 @@ export async function verify(payload: VerifyPayload) {
 }
 
 export async function resendVerification(payload: ResendPayload) {
-  return request<ResendResponse>("/api/resend-verification.php", {
+  return request<ResendResponse>("/api/auth/resend-verification", {
     method: "POST",
     bodyJson: payload,
     timeoutMs: 15000,
