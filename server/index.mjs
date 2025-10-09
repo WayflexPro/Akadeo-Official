@@ -42,7 +42,7 @@ app.use('/api', (req, res) => {
   });
 });
 
-app.use(['/dashboard', '/dashboard/*'], (req, res, next) => {
+app.use('/dashboard', (req, res, next) => {
   const session = req.session;
   if (!session || !session.userId) {
     res.redirect('/index.html#sign-in');
