@@ -1,4 +1,4 @@
-import { optionalEnv, requireEnv } from './env.mjs';
+import { isProduction, optionalEnv } from './env.mjs';
 
 const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email';
 
@@ -34,10 +34,23 @@ function buildEmailHtml(name, code, appUrl) {
 }
 
 export async function sendVerificationEmail({ email, name, code }) {
-  const apiKey = requireEnv('BREVO_API_KEY');
-  const senderEmail = requireEnv('BREVO_SENDER_EMAIL');
+  const apiKey = optionalEnv('BREVO_API_KEY');
+  const senderEmail = optionalEnv('BREVO_SENDER_EMAIL');
   const senderName = optionalEnv('BREVO_SENDER_NAME', 'Akadeo');
   const appUrl = optionalEnv('APP_URL', '');
+
+  if (!apiKey || !senderEmail) {
+    if (isProduction()) {
+      throw new Error('Brevo API credentials are not configured.');
+    }
+
+    // eslint-disable-next-line no-console
+    console.warn(
+      'Brevo credentials are missing. Skipping email delivery and logging verification code instead.',
+      { email, code }
+    );
+    return;
+  }
 
   const payload = {
     sender: {
