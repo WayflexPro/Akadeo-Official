@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { resendVerification, verify } from "../features/auth/api";
 import { resolveApiErrorMessage } from "../features/auth/errors";
+import { useAuth } from "../features/auth/AuthContext";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
@@ -15,6 +16,7 @@ export default function VerifyEmailPage() {
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<SubmitState>("idle");
   const [message, setMessage] = useState<string>("");
+  const { setAuthenticated } = useAuth();
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -50,6 +52,7 @@ export default function VerifyEmailPage() {
       window.localStorage.removeItem(STORAGE_KEY);
       setStatus("success");
       const requiresSetup = Boolean(payload?.data?.requiresSetup);
+      setAuthenticated({ requiresSetup });
       const successMessage =
         payload.data?.message ??
         (requiresSetup
@@ -58,7 +61,7 @@ export default function VerifyEmailPage() {
       setMessage(
         successMessage,
       );
-      window.location.href = requiresSetup ? "/setup.php" : "/dashboard.php";
+      window.location.href = requiresSetup ? "/setup" : "/dashboard";
     } catch (error) {
       console.error(error);
       setStatus("error");

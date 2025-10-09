@@ -34,6 +34,89 @@ function expiresAtUtc(hours = 24) {
 
 const authRouter = Router();
 
+const GRADE_LEVEL_OPTIONS = new Set(['k5', '68', '912', 'higher_ed', 'other']);
+const STUDENT_COUNT_OPTIONS = new Set(['under_50', '50_150', '150_500', 'over_500']);
+const COUNTRY_OPTIONS = new Set(['US', 'CA', 'UK', 'AU', 'NZ', 'OTHER']);
+
+function toIsoOrNull(value) {
+  if (!value) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value.toISOString();
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function ensureSession(req) {
+  if (!req.session) {
+    throw new HttpError(500, 'INTERNAL', 'Session store unavailable.', {
+      code: 'E_SESSION_UNAVAILABLE',
+    });
+  }
+  return req.session;
+}
+
+function establishUserSession(req, userId, setupCompletedAt) {
+  const session = ensureSession(req);
+  return new Promise((resolve, reject) => {
+    session.regenerate((err) => {
+      if (err) {
+        reject(new HttpError(500, 'INTERNAL', 'Could not establish session.', {
+          code: 'E_SESSION_REGENERATE_FAILED',
+        }));
+        return;
+      }
+      req.session.userId = Number.parseInt(userId, 10);
+      req.session.setupCompletedAt = toIsoOrNull(setupCompletedAt);
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          reject(
+            new HttpError(500, 'INTERNAL', 'Failed to persist session.', {
+              code: 'E_SESSION_SAVE_FAILED',
+            })
+          );
+          return;
+        }
+        resolve();
+      });
+    });
+  });
+}
+
+function requireAuthenticatedUser(req) {
+  const session = ensureSession(req);
+  const userId = session.userId;
+  if (!userId) {
+    throw new HttpError(401, 'AUTH', 'You must be signed in to continue.', {
+      code: 'E_NOT_AUTHENTICATED',
+    });
+  }
+  return {
+    userId: Number.parseInt(userId, 10),
+    setupCompletedAt: session.setupCompletedAt ?? null,
+  };
+}
+
+function markSessionSetupComplete(req) {
+  const session = ensureSession(req);
+  session.setupCompletedAt = new Date().toISOString();
+  return new Promise((resolve, reject) => {
+    session.save((err) => {
+      if (err) {
+        reject(
+          new HttpError(500, 'INTERNAL', 'Failed to update session.', {
+            code: 'E_SESSION_UPDATE_FAILED',
+          })
+        );
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 authRouter.options('/register', (req, res) => {
   res.set('Allow', 'POST, OPTIONS');
   jsonOk(res, { message: 'Ready' });
@@ -50,6 +133,16 @@ authRouter.options('/verify', (req, res) => {
 });
 
 authRouter.options('/resend-verification', (req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  jsonOk(res, { message: 'Ready' });
+});
+
+authRouter.options('/complete-setup', (req, res) => {
+  res.set('Allow', 'POST, OPTIONS');
+  jsonOk(res, { message: 'Ready' });
+});
+
+authRouter.options('/logout', (req, res) => {
   res.set('Allow', 'POST, OPTIONS');
   jsonOk(res, { message: 'Ready' });
 });
@@ -267,7 +360,9 @@ authRouter.post(
         });
       }
 
-      const requiresSetup = !user.setup_completed_at;
+      const requiresSetup = user.setup_completed_at === null;
+
+      await establishUserSession(req, user.id, user.setup_completed_at ?? null);
 
       jsonOk(res, { message: 'Signed in successfully.', requiresSetup });
     } finally {
@@ -339,12 +434,16 @@ authRouter.post(
       );
 
       let requiresSetup = true;
+      let userId = null;
+      let setupCompletedAt = null;
 
       if (Array.isArray(existingUsers) && existingUsers.length > 0) {
         const existingUser = existingUsers[0];
-        requiresSetup = !existingUser.setup_completed_at;
+        userId = existingUser.id;
+        setupCompletedAt = existingUser.setup_completed_at ?? null;
+        requiresSetup = existingUser.setup_completed_at === null;
       } else {
-        await connection.execute(
+        const [insertResult] = await connection.execute(
           'INSERT INTO users (full_name, institution, email, email_hash, password_hash, setup_completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NULL, UTC_TIMESTAMP(), UTC_TIMESTAMP())',
           [
             record.full_name,
@@ -354,6 +453,9 @@ authRouter.post(
             record.password_hash,
           ]
         );
+        userId = insertResult.insertId ?? null;
+        requiresSetup = true;
+        setupCompletedAt = null;
       }
 
       await connection.execute(
@@ -363,6 +465,14 @@ authRouter.post(
 
       await connection.commit();
       inTransaction = false;
+
+      if (!userId) {
+        throw new HttpError(500, 'INTERNAL', 'Could not determine user account.', {
+          code: 'E_USER_LOOKUP_FAILED',
+        });
+      }
+
+      await establishUserSession(req, userId, setupCompletedAt);
 
       jsonOk(res, { message: 'Email verified.', requiresSetup });
     } catch (error) {
@@ -378,6 +488,117 @@ authRouter.post(
     } finally {
       connection.release();
     }
+  })
+);
+
+authRouter.post(
+  '/complete-setup',
+  asyncHandler(async (req, res) => {
+    const { userId } = requireAuthenticatedUser(req);
+    const body = req.body ?? {};
+
+    const subject = String(body.subject ?? '').trim();
+    if (subject.length < 2 || subject.length > 120) {
+      throw new HttpError(422, 'VALIDATION', 'Tell us what you teach.', {
+        code: 'E_INVALID_SUBJECT',
+        details: { field: 'subject' },
+      });
+    }
+
+    const rawGradeLevels = Array.isArray(body.gradeLevels) ? body.gradeLevels : [];
+    const gradeLevels = Array.from(
+      new Set(
+        rawGradeLevels.filter(
+          (value) => typeof value === 'string' && GRADE_LEVEL_OPTIONS.has(value)
+        )
+      )
+    );
+
+    if (gradeLevels.length === 0) {
+      throw new HttpError(422, 'VALIDATION', 'Select at least one grade level.', {
+        code: 'E_INVALID_GRADE_LEVELS',
+        details: { field: 'gradeLevels' },
+      });
+    }
+
+    const country = String(body.country ?? '').trim().toUpperCase();
+    if (!COUNTRY_OPTIONS.has(country)) {
+      throw new HttpError(422, 'VALIDATION', 'Choose your country.', {
+        code: 'E_INVALID_COUNTRY',
+        details: { field: 'country' },
+      });
+    }
+
+    const studentCountRange = String(body.studentCountRange ?? '').trim();
+    if (!STUDENT_COUNT_OPTIONS.has(studentCountRange)) {
+      throw new HttpError(422, 'VALIDATION', 'Let us know how many students you support.', {
+        code: 'E_INVALID_STUDENT_COUNT',
+        details: { field: 'studentCountRange' },
+      });
+    }
+
+    const primaryGoal = String(body.primaryGoal ?? '').trim();
+    if (primaryGoal.length < 10) {
+      throw new HttpError(422, 'VALIDATION', 'Share a short note about your primary goal.', {
+        code: 'E_INVALID_PRIMARY_GOAL',
+        details: { field: 'primaryGoal' },
+      });
+    }
+
+    const consentAiProcessing = Boolean(body.consentAiProcessing);
+    if (!consentAiProcessing) {
+      throw new HttpError(422, 'VALIDATION', 'We need your consent to continue.', {
+        code: 'E_MISSING_CONSENT',
+        details: { field: 'consentAiProcessing' },
+      });
+    }
+
+    const connection = await getPool().getConnection();
+    let inTransaction = false;
+
+    try {
+      await connection.beginTransaction();
+      inTransaction = true;
+
+      await connection.execute(
+        `INSERT INTO teacher_profiles (user_id, subject, grade_levels, country, student_count_range, primary_goal, consent_ai_processing, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
+         ON DUPLICATE KEY UPDATE subject = VALUES(subject), grade_levels = VALUES(grade_levels), country = VALUES(country), student_count_range = VALUES(student_count_range), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
+        [
+          userId,
+          subject,
+          gradeLevels.join(','),
+          country,
+          studentCountRange,
+          primaryGoal,
+          consentAiProcessing ? 1 : 0,
+        ]
+      );
+
+      await connection.execute(
+        'UPDATE users SET setup_completed_at = UTC_TIMESTAMP(), updated_at = UTC_TIMESTAMP() WHERE id = ?',
+        [userId]
+      );
+
+      await connection.commit();
+      inTransaction = false;
+    } catch (error) {
+      if (inTransaction) {
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          // eslint-disable-next-line no-console
+          console.error('Failed to roll back transaction', rollbackError);
+        }
+      }
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    await markSessionSetupComplete(req);
+
+    jsonOk(res, { message: 'Setup completed.' });
   })
 );
 
@@ -439,6 +660,38 @@ authRouter.post(
     }
 
     jsonOk(res, { message: 'Verification code resent.' });
+  })
+);
+
+authRouter.post(
+  '/logout',
+  asyncHandler(async (req, res) => {
+    if (!req.session) {
+      jsonOk(res, { message: 'Signed out.' });
+      return;
+    }
+
+    await new Promise((resolve, reject) => {
+      req.session.destroy((err) => {
+        if (err) {
+          reject(
+            new HttpError(500, 'INTERNAL', 'Could not log you out.', {
+              code: 'E_SESSION_DESTROY_FAILED',
+            })
+          );
+          return;
+        }
+        resolve();
+      });
+    });
+
+    res.clearCookie('akadeo_session', {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+
+    jsonOk(res, { message: 'Signed out.' });
   })
 );
 

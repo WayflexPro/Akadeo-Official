@@ -11,7 +11,9 @@ import SignUpPage from "./pages/SignUp";
 import VerifyEmailPage from "./pages/VerifyEmail";
 import TermsPage from "./pages/Terms";
 import PrivacyPage from "./pages/Privacy";
+import SetupPage from "./pages/Setup";
 import DebugPanel from "./components/DebugPanel";
+import { useAuth } from "./features/auth/AuthContext";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
@@ -91,14 +93,16 @@ const AUTH_LINKS = [
   { label: "Sign Up", page: "sign-up", className: "primary" },
 ] as const;
 
-export default function App() {
+function MarketingShell() {
   const [currentPage, setCurrentPage] = useState<PageId>(() => getPageFromHash());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutPending, setLogoutPending] = useState(false);
   const isMobileNav = useMediaQuery("(max-width: 940px)");
   const parallaxAllowed = useMediaQuery("(min-width: 768px)");
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const mainRef = useRef<HTMLElement>(null);
   const scrollBarRef = useRef<HTMLSpanElement>(null);
+  const { state: authState, logout } = useAuth();
 
   useEffect(() => {
     const handleHashChange = () => setCurrentPage(getPageFromHash());
@@ -220,9 +224,21 @@ export default function App() {
 
   const navHidden = isMobileNav ? !menuOpen : false;
 
+  const handleLogout = async () => {
+    setLogoutPending(true);
+    try {
+      await logout();
+    } finally {
+      setLogoutPending(false);
+      window.location.href = "/";
+    }
+  };
+
+  const dashboardHref = authState.requiresSetup ? "/setup" : "/dashboard";
+  const dashboardLabel = authState.requiresSetup ? "Finish setup" : "Dashboard";
+
   return (
     <>
-      <DebugPanel />
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
@@ -238,8 +254,8 @@ export default function App() {
       </div>
       <header className="site-header">
         <div className="container">
-          <a className="brand" data-nav="home" href="#home" onClick={() => setCurrentPage("home")}
-            ><span className="brand-name">Akadeo</span>
+          <a className="brand" data-nav="home" href="#home" onClick={() => setCurrentPage("home")}>
+            <span className="brand-name">Akadeo</span>
           </a>
           <nav className="site-nav" aria-label="Primary">
             <button
@@ -277,22 +293,42 @@ export default function App() {
             </ul>
           </nav>
           <div className="auth-links">
-            {AUTH_LINKS.map(({ label, page, className }) => {
-              const isActive = currentPage === page;
-              const combinedClass = `${className}${isActive ? " active" : ""}`.trim();
-              return (
+            {authState.isAuthenticated ? (
+              <>
                 <a
-                  key={page}
-                  className={combinedClass}
-                  data-nav={page}
-                  href={`#${page}`}
-                  aria-current={isActive ? "page" : undefined}
+                  className="ghost"
+                  href={dashboardHref}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {label}
+                  {dashboardLabel}
                 </a>
-              );
-            })}
+                <button
+                  className="ghost auth-links__logout"
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={logoutPending}
+                >
+                  {logoutPending ? "Signing out…" : "Logout"}
+                </button>
+              </>
+            ) : (
+              AUTH_LINKS.map(({ label, page, className }) => {
+                const isActive = currentPage === page;
+                const combinedClass = `${className}${isActive ? " active" : ""}`.trim();
+                return (
+                  <a
+                    key={page}
+                    className={combinedClass}
+                    data-nav={page}
+                    href={`#${page}`}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {label}
+                  </a>
+                );
+              })
+            )}
           </div>
         </div>
       </header>
@@ -384,6 +420,26 @@ export default function App() {
           </div>
         </div>
       </footer>
+    </>
+  );
+}
+
+export default function App() {
+  const path = typeof window !== "undefined" ? window.location.pathname : "/";
+
+  if (path === "/setup") {
+    return (
+      <>
+        <DebugPanel />
+        <SetupPage />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <DebugPanel />
+      <MarketingShell />
     </>
   );
 }

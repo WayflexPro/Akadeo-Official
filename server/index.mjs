@@ -1,9 +1,10 @@
 import express from 'express';
+import session from 'express-session';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import authRouter from './routes/auth.mjs';
-import { isProduction } from './env.mjs';
+import { isProduction, requireEnv } from './env.mjs';
 import { HttpError, jsonError, withRequestId } from './utils.mjs';
 
 const app = express();
@@ -16,12 +17,42 @@ app.use((req, res, next) => {
   next();
 });
 
+const sessionSecret = requireEnv('SESSION_SECRET');
+
+app.use(
+  session({
+    name: 'akadeo_session',
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction(),
+      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    },
+  })
+);
+
 app.use('/api/auth', authRouter);
 
 app.use('/api', (req, res) => {
   jsonError(res, 'NOT_FOUND', 'API route not found.', 404, {
     code: 'E_ROUTE_NOT_FOUND',
   });
+});
+
+app.use(['/dashboard', '/dashboard/*'], (req, res, next) => {
+  const session = req.session;
+  if (!session || !session.userId) {
+    res.redirect('/index.html#sign-in');
+    return;
+  }
+  if (!session.setupCompletedAt) {
+    res.redirect('/setup');
+    return;
+  }
+  next();
 });
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

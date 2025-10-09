@@ -57,6 +57,23 @@ type VerifyResponse = {
   requiresSetup: boolean;
 };
 
+type CompleteSetupPayload = {
+  subject: string;
+  gradeLevels: string[];
+  country: string;
+  studentCountRange: string;
+  primaryGoal: string;
+  consentAiProcessing: boolean;
+};
+
+type CompleteSetupResponse = {
+  message: string;
+};
+
+type LogoutResponse = {
+  message: string;
+};
+
 type ResendPayload = {
   email: string;
 };
@@ -101,5 +118,20 @@ export async function resendVerification(payload: ResendPayload) {
     method: "POST",
     bodyJson: payload,
     timeoutMs: 15000,
+  });
+}
+
+export async function completeSetup(payload: CompleteSetupPayload) {
+  return request<CompleteSetupResponse>("/api/auth/complete-setup", {
+    method: "POST",
+    bodyJson: payload,
+    timeoutMs: 15000,
+  });
+}
+
+export async function logout() {
+  return request<LogoutResponse>("/api/auth/logout", {
+    method: "POST",
+    timeoutMs: 10000,
   });
 }
