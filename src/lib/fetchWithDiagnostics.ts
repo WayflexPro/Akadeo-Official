@@ -33,7 +33,7 @@ export async function fetchWithDiagnostics(
   url: string,
   opts: RequestInit & { timeoutMs?: number; bodyJson?: any } = {}
 ) {
-  const { timeoutMs = 15000, bodyJson, ...rest } = opts;
+  const { timeoutMs = 15000, bodyJson, credentials, ...rest } = opts;
   const method = (rest.method || "GET").toUpperCase();
 
   const controller = new AbortController();
@@ -41,6 +41,7 @@ export async function fetchWithDiagnostics(
 
   const init: RequestInit = {
     ...rest,
+    credentials: credentials ?? "include",
     signal: controller.signal,
     headers: {
       Accept: "application/json",
