@@ -10,6 +10,10 @@ import { HttpError, jsonError, withRequestId } from './utils.mjs';
 const app = express();
 app.disable('x-powered-by');
 
+if (isProduction()) {
+  app.set('trust proxy', 1);
+}
+
 app.use(withRequestId);
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
