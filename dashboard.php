@@ -26,7 +26,7 @@ if (!$user) {
 $setupCompletedAt = $user['setup_completed_at'] ?? null;
 
 if ($setupCompletedAt === null || $setupCompletedAt === '') {
-    header('Location: /setup.php');
+    header('Location: /setup');
     exit;
 }
 
@@ -73,7 +73,7 @@ $createdAt = new DateTimeImmutable($user['created_at'] ?? 'now', new DateTimeZon
           logoutButton.disabled = true;
           logoutButton.textContent = 'Signing out…';
           try {
-            await fetch('/api/logout.php', { method: 'POST' });
+            await fetch('/api/auth/logout', { method: 'POST' });
           } catch (error) {
             console.error(error);
           }
