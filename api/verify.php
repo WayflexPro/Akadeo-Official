@@ -90,6 +90,8 @@ $_SESSION['user_name'] = $record['full_name'];
 $_SESSION['user_email'] = $email;
 $_SESSION['setup_completed_at'] = null;
 
+redirect_for_html_request('/setup', 303);
+
 json_ok([
     'message' => 'Email verified.',
     'requiresSetup' => true,

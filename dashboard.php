@@ -6,5 +6,5 @@ declare(strict_types=1);
 // experience now lives in the React single-page application. Always redirect to
 // the SPA route so the Node/Express server can handle authentication and
 // routing.
-header('Location: /dashboard');
+header('Location: /dashboard', true, 308);
 exit;
