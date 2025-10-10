@@ -97,4 +97,6 @@ try {
     json_error('INTERNAL', 'We could not send the verification email. Please try again.', 'E_EMAIL_SEND_FAILED', null, 500);
 }
 
+redirect_for_html_request('/index.html#verify-email', 303);
+
 json_ok(['message' => 'Verification email sent.'], 201);

@@ -34,6 +34,8 @@ $_SESSION['setup_completed_at'] = $user['setup_completed_at'];
 
 $requiresSetup = empty($user['setup_completed_at']);
 
+redirect_for_html_request($requiresSetup ? '/setup' : '/dashboard', 303);
+
 json_ok([
     'message' => 'Signed in successfully.',
     'requiresSetup' => $requiresSetup,

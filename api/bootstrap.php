@@ -112,6 +112,16 @@ function json_error(string $type, string $message, ?string $code = null, ?array 
     ]);
 }
 
+function redirect_for_html_request(string $path, int $status = 302): void
+{
+    if (!should_redirect_for_html_request()) {
+        return;
+    }
+
+    header('Location: ' . $path, true, $status);
+    exit;
+}
+
 function send_json_response(int $status, array $body): never
 {
     http_response_code($status);
@@ -193,4 +203,35 @@ function compute_email_hash(string $normalisedEmail): string
 function email_hash(?string $rawEmail): string
 {
     return compute_email_hash(normalise_email($rawEmail));
+}
+
+function should_redirect_for_html_request(): bool
+{
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    if ($method !== 'POST') {
+        return false;
+    }
+
+    $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+    if (strtolower((string) $requestedWith) === 'xmlhttprequest') {
+        return false;
+    }
+
+    $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+    if ($accept === '') {
+        return false;
+    }
+
+    $acceptsHtml = str_contains($accept, 'text/html');
+    $acceptsJson = str_contains($accept, 'application/json');
+    if (!$acceptsHtml || $acceptsJson) {
+        return false;
+    }
+
+    $contentType = strtolower((string) ($_SERVER['CONTENT_TYPE'] ?? ($_SERVER['HTTP_CONTENT_TYPE'] ?? '')));
+    if ($contentType !== '' && str_contains($contentType, 'application/json')) {
+        return false;
+    }
+
+    return true;
 }

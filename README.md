@@ -18,6 +18,10 @@ npm run start
 
 `npm run start` serves the compiled `dist/` directory and exposes the REST API on the same origin.
 
+### Deploying alongside legacy PHP entrypoints
+
+If you are serving the compiled assets from a PHP host, make sure the React dashboard has been built (`npm run build`) and that your PHP routes redirect browsers to the SPA rather than to the removed `dashboard.php` template. The PHP authentication handlers in `api/` now detect traditional form submissions—based on the `Accept` and `Content-Type` headers—and issue a `303` redirect to the correct React route (`/dashboard`, `/setup`, or the marketing hash pages). JSON clients continue to receive the existing API responses, so no frontend changes are required when switching to the Node.js backend.
+
 ## Environment variables
 
 The backend expects the following variables (identical to the former PHP implementation):

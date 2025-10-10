@@ -16,4 +16,6 @@ if (ini_get('session.use_cookies')) {
 
 session_destroy();
 
+redirect_for_html_request('/', 303);
+
 json_ok(['message' => 'Signed out.']);
