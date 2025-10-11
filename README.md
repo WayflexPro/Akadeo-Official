@@ -22,6 +22,13 @@ npm run start
 
 If you are serving the compiled assets from a PHP host, make sure the React dashboard has been built (`npm run build`) and that your PHP routes redirect browsers to the SPA rather than to the removed `dashboard.php` template. The PHP authentication handlers in `api/` now detect traditional form submissions—based on the `Accept` and `Content-Type` headers—and issue a `303` redirect to the correct React route (`/dashboard`, `/setup`, or the marketing hash pages). JSON clients continue to receive the existing API responses, so no frontend changes are required when switching to the Node.js backend.
 
+## Post-Auth Redirect → React Dashboard
+
+- Successful login, registration, verification, or setup redirects land on `/dashboard`, which renders the React component in `src/dashboard/AkadeoDashboard.tsx`.
+- Legacy `dashboard.php` remains in place only as a 302 shim that forwards stragglers to `/dashboard`.
+- Static hosts must serve the SPA shell for deep links: copy `deploy/apache.htaccess` or `deploy/nginx.conf` into the web root next to `index.html` so that `/dashboard` (and other client routes) load the compiled bundle.
+- When running behind Apache/Nginx, continue to protect sensitive API routes at the server or PHP layer—those endpoints still enforce authentication before returning data to the React UI.
+
 ## Environment variables
 
 The backend expects the following variables (identical to the former PHP implementation):
