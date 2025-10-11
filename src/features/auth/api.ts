@@ -73,6 +73,15 @@ type LogoutResponse = {
   message: string;
 };
 
+type SessionResponse = {
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    setupCompletedAt: string | null;
+  } | null;
+};
+
 type ResendPayload = {
   email: string;
 };
@@ -131,6 +140,13 @@ export async function completeSetup(payload: CompleteSetupPayload) {
 export async function logout() {
   return request<LogoutResponse>("/api/auth/logout", {
     method: "POST",
+    timeoutMs: 10000,
+  });
+}
+
+export async function getSession() {
+  return request<SessionResponse>("/api/auth/session", {
+    method: "GET",
     timeoutMs: 10000,
   });
 }

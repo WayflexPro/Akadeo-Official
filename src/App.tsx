@@ -15,6 +15,7 @@ import PrivacyPage from "./pages/Privacy";
 import SetupPage from "./pages/Setup";
 import DebugPanel from "./components/DebugPanel";
 import { useAuth } from "./features/auth/AuthContext";
+import { getSession } from "./features/auth/api";
 import AkadeoDashboard from "./dashboard/AkadeoDashboard";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
@@ -455,6 +456,38 @@ function SetupRoute() {
 
 function DashboardRoute() {
   const { state } = useAuth();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!state.isAuthenticated || state.requiresSetup) {
+      setUserName(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadSession = async () => {
+      try {
+        const payload = await getSession();
+        if (cancelled) {
+          return;
+        }
+        const fetchedName = payload?.data?.user?.fullName?.trim();
+        setUserName(fetchedName && fetchedName.length > 0 ? fetchedName : null);
+      } catch (error) {
+        console.error("Failed to load session", error);
+        if (!cancelled) {
+          setUserName(null);
+        }
+      }
+    };
+
+    loadSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state.isAuthenticated, state.requiresSetup]);
 
   if (!state.isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -464,7 +497,7 @@ function DashboardRoute() {
     return <Navigate to="/setup" replace />;
   }
 
-  return <AkadeoDashboard />;
+  return <AkadeoDashboard userName={userName} />;
 }
 
 export default function App() {
