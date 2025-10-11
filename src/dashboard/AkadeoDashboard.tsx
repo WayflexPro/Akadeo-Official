@@ -487,7 +487,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   const { logout } = useAuth();
   const [activePage, setActivePage] = useState<PageId>("overview");
   const [navOpen, setNavOpen] = useState(false);
-  const displayName = userName?.trim().length ? userName : "Alex";
+  const displayName = userName?.trim().length ? userName : "there";
   const [signingOut, setSigningOut] = useState(false);
   const [activeTheme, setActiveTheme] = useState<ThemeDefinition["id"]>(() => {
     if (typeof window === "undefined") {

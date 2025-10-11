@@ -370,6 +370,41 @@ authRouter.post(
   })
 );
 
+authRouter.get(
+  '/session',
+  asyncHandler(async (req, res) => {
+    const { userId } = requireAuthenticatedUser(req);
+
+    const connection = await getPool().getConnection();
+
+    try {
+      const [rows] = await connection.execute(
+        'SELECT id, full_name, email, setup_completed_at FROM users WHERE id = ? LIMIT 1',
+        [userId]
+      );
+
+      if (!Array.isArray(rows) || rows.length === 0) {
+        throw new HttpError(404, 'NOT_FOUND', 'We could not find your account details.', {
+          code: 'E_USER_NOT_FOUND',
+        });
+      }
+
+      const record = rows[0];
+
+      jsonOk(res, {
+        user: {
+          id: Number.parseInt(record.id, 10),
+          fullName: String(record.full_name ?? ''),
+          email: String(record.email ?? ''),
+          setupCompletedAt: toIsoOrNull(record.setup_completed_at ?? null),
+        },
+      });
+    } finally {
+      connection.release();
+    }
+  })
+);
+
 authRouter.post(
   '/verify',
   asyncHandler(async (req, res) => {
