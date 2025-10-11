@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
 import { cn } from "../lib/utils";
@@ -94,6 +94,8 @@ type ThemeDefinition = {
     secondary: { x: number; y: number; duration: number };
   };
 };
+
+const THEME_STORAGE_KEY = "akadeo-dashboard-theme";
 
 const dashboardThemes: ThemeDefinition[] = [
   {
@@ -384,11 +386,50 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   const [navOpen, setNavOpen] = useState(false);
   const displayName = userName?.trim().length ? userName : "Alex";
   const [signingOut, setSigningOut] = useState(false);
+  const [activeTheme, setActiveTheme] = useState<ThemeDefinition["id"]>(() => {
+    if (typeof window === "undefined") {
+      return "aurora-drift";
+    }
+
+    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme && dashboardThemes.some((theme) => theme.id === storedTheme)) {
+      return storedTheme as ThemeDefinition["id"];
+    }
+
+    return "aurora-drift";
+  });
+
+  const appliedTheme = useMemo(
+    () => dashboardThemes.find((theme) => theme.id === activeTheme) ?? dashboardThemes[0],
+    [activeTheme]
+  );
+
+  const themeStyleVariables = useMemo(
+    () =>
+      ({
+        "--selected-theme-accent": appliedTheme.accent,
+        "--selected-theme-accent-soft": appliedTheme.accentSoft,
+        "--selected-theme-glow": appliedTheme.glow,
+      }) as CSSProperties,
+    [appliedTheme]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
+  }, [activeTheme]);
 
   const currentNav = useMemo(
     () => NAV_ITEMS.find((item) => item.id === activePage) ?? NAV_ITEMS[0],
     [activePage]
   );
+
+  const handleThemeSelect = (themeId: ThemeDefinition["id"]) => {
+    setActiveTheme(themeId);
+  };
 
   const renderPage = () => {
     if (activePage === "overview") {
@@ -564,7 +605,10 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
             {dashboardThemes.map((theme) => (
               <motion.article
                 key={theme.id}
-                className="akadeo-dashboard__theme-card"
+                className={cn(
+                  "akadeo-dashboard__theme-card",
+                  activeTheme === theme.id && "is-selected"
+                )}
                 style={
                   {
                     "--theme-accent": theme.accent,
@@ -575,6 +619,19 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                 whileHover={{ y: -6 }}
                 transition={{ type: "spring", stiffness: 260, damping: 22 }}
               >
+                <AnimatePresence>
+                  {activeTheme === theme.id && (
+                    <motion.span
+                      className="akadeo-dashboard__theme-card-check"
+                      initial={{ opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.6 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      ✓
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 <motion.div
                   className="akadeo-dashboard__theme-preview"
                   data-theme={theme.id}
@@ -617,6 +674,16 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                       </li>
                     ))}
                   </ul>
+                  <div className="akadeo-dashboard__theme-actions">
+                    <button
+                      type="button"
+                      className="akadeo-dashboard__theme-select-button"
+                      onClick={() => handleThemeSelect(theme.id)}
+                      aria-pressed={activeTheme === theme.id}
+                    >
+                      {activeTheme === theme.id ? "Selected" : "Apply theme"}
+                    </button>
+                  </div>
                 </div>
               </motion.article>
             ))}
@@ -659,7 +726,12 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   };
 
   return (
-    <div className="akadeo-dashboard">
+    <div className="akadeo-dashboard" data-theme={appliedTheme.id} style={themeStyleVariables}>
+      <div className="akadeo-dashboard__theme-backdrop" aria-hidden="true">
+        <div className="akadeo-dashboard__theme-layer" />
+        <div className="akadeo-dashboard__theme-layer akadeo-dashboard__theme-layer--secondary" />
+        <div className="akadeo-dashboard__theme-particles" />
+      </div>
       <div className="akadeo-dashboard__container">
         <div className="akadeo-dashboard__frame">
           <header className="akadeo-dashboard__header">
