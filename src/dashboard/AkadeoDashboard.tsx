@@ -16,7 +16,6 @@ const NAV_ITEMS = [
   { id: "learning-insights", label: "Learning Insights" },
   { id: "ai-co-teacher", label: "AI Co-Teacher" },
   { id: "themes", label: "Themes" },
-  { id: "layouts", label: "Layouts" },
   { id: "plans", label: "Plans" },
   { id: "settings", label: "Settings" },
 ] as const;
@@ -52,7 +51,7 @@ const classesFeatureList = [
   "Organization Dashboard",
 ];
 
-const comingSoonPages: Record<Exclude<PageId, "overview" | "classes" | "plans" | "themes" | "layouts">, string> = {
+const comingSoonPages: Record<Exclude<PageId, "overview" | "classes" | "plans" | "themes">, string> = {
   "smart-planner": "Plan differentiated instruction with AI suggestions tailored to each class.",
   notifications: "All of your class, student, and platform alerts will surface here soon.",
   templates: "Reusable lesson, quiz, and communication templates are on the way.",
@@ -440,110 +439,29 @@ const secondaryWidgetMap = secondaryWidgets.reduce<Record<SecondaryWidgetDefinit
   {} as Record<SecondaryWidgetDefinition["id"], SecondaryWidgetDefinition>
 );
 
-type LayoutEmphasis = "default" | "wide";
+type WidgetEmphasis = "default" | "wide";
 
-type LayoutWidgetPlacement = {
+type OverviewWidgetPlacement = {
   id: OverviewWidgetDefinition["id"];
-  emphasis?: LayoutEmphasis;
+  emphasis?: WidgetEmphasis;
 };
 
-type LayoutSecondaryPlacement = {
-  id: SecondaryWidgetDefinition["id"];
-};
-
-type DashboardLayoutDefinition = {
-  id: string;
-  name: string;
-  tagline: string;
-  description: string;
-  widgetPlacements: LayoutWidgetPlacement[];
-  secondaryPlacements: LayoutSecondaryPlacement[];
-  ctaPosition: "left" | "right";
-  accent: string;
-  accentSoft: string;
-  previewBackground: string;
-  highlights: string[];
-};
-
-const LAYOUT_STORAGE_KEY = "akadeo-dashboard-layout";
-
-const dashboardLayouts: DashboardLayoutDefinition[] = [
-  {
-    id: "default",
-    name: "Default Mosaic",
-    tagline: "Balanced glance across every widget.",
-    description:
-      "Keep the dashboard feeling familiar with a classic grid and anchored call-to-action that mirrors the current layout.",
-    widgetPlacements: [
-      { id: "focus" },
-      { id: "pulse" },
-      { id: "events" },
-      { id: "files" },
-      { id: "ai" },
-      { id: "spotlight" },
-    ],
-    secondaryPlacements: [{ id: "workflows" }, { id: "wins" }, { id: "setup" }],
-    ctaPosition: "left",
-    accent: "#7cf0ff",
-    accentSoft: "rgba(124, 240, 255, 0.25)",
-    previewBackground: "linear-gradient(150deg, rgba(7, 11, 28, 0.85), rgba(7, 11, 28, 0.45))",
-    highlights: [
-      "Classic three-column grid keeps everything evenly spaced",
-      "Primary CTA stays on the left so actions are immediate",
-      "Secondary stack flows in the default priority",
-    ],
-  },
-  {
-    id: "insight-stream",
-    name: "Insight Stream",
-    tagline: "Let analytics lead the story.",
-    description:
-      "Put momentum metrics up front while your action card glides to the right so insights guide every decision.",
-    widgetPlacements: [
-      { id: "pulse", emphasis: "wide" },
-      { id: "focus" },
-      { id: "ai" },
-      { id: "events" },
-      { id: "files" },
-      { id: "spotlight" },
-    ],
-    secondaryPlacements: [{ id: "wins" }, { id: "workflows" }, { id: "setup" }],
-    ctaPosition: "right",
-    accent: "#8f7bff",
-    accentSoft: "rgba(143, 123, 255, 0.25)",
-    previewBackground: "linear-gradient(160deg, rgba(22, 16, 46, 0.85), rgba(7, 9, 26, 0.55))",
-    highlights: [
-      "Student Pulse expands to span the grid width",
-      "Primary CTA drifts to the right column",
-      "Celebrations rise to the top of the secondary list",
-    ],
-  },
-  {
-    id: "focus-flow",
-    name: "Focus Flow",
-    tagline: "Prioritise planning and upcoming work.",
-    description:
-      "Give planning widgets the hero treatment while keeping supporting insights close by for quick reference.",
-    widgetPlacements: [
-      { id: "focus", emphasis: "wide" },
-      { id: "events" },
-      { id: "files" },
-      { id: "ai" },
-      { id: "pulse" },
-      { id: "spotlight" },
-    ],
-    secondaryPlacements: [{ id: "setup" }, { id: "workflows" }, { id: "wins" }],
-    ctaPosition: "left",
-    accent: "#6fe7b7",
-    accentSoft: "rgba(111, 231, 183, 0.25)",
-    previewBackground: "linear-gradient(155deg, rgba(10, 27, 24, 0.85), rgba(5, 12, 20, 0.55))",
-    highlights: [
-      "Today's Focus stretches across the grid",
-      "Upcoming Events rises beside planning tools",
-      "Secondary stack starts with workspace setup guidance",
-    ],
-  },
+const DEFAULT_WIDGET_PLACEMENTS: OverviewWidgetPlacement[] = [
+  { id: "focus" },
+  { id: "pulse" },
+  { id: "events" },
+  { id: "files" },
+  { id: "ai" },
+  { id: "spotlight" },
 ];
+
+const DEFAULT_SECONDARY_WIDGETS: SecondaryWidgetDefinition["id"][] = [
+  "workflows",
+  "wins",
+  "setup",
+];
+
+const DEFAULT_OVERVIEW_SPLIT_ORDER: Array<"cta" | "secondary"> = ["cta", "secondary"];
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -583,26 +501,10 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
 
     return "aurora-drift";
   });
-  const [activeLayout, setActiveLayout] = useState<DashboardLayoutDefinition["id"]>(() => {
-    if (typeof window === "undefined") {
-      return "default";
-    }
-
-    const storedLayout = window.localStorage.getItem(LAYOUT_STORAGE_KEY);
-    if (storedLayout && dashboardLayouts.some((layout) => layout.id === storedLayout)) {
-      return storedLayout as DashboardLayoutDefinition["id"];
-    }
-
-    return "default";
-  });
 
   const appliedTheme = useMemo(
     () => dashboardThemes.find((theme) => theme.id === activeTheme) ?? dashboardThemes[0],
     [activeTheme]
-  );
-  const currentLayout = useMemo(
-    () => dashboardLayouts.find((layout) => layout.id === activeLayout) ?? dashboardLayouts[0],
-    [activeLayout]
   );
 
   const themeStyleVariables = useMemo(
@@ -623,14 +525,6 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     window.localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
   }, [activeTheme]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem(LAYOUT_STORAGE_KEY, activeLayout);
-  }, [activeLayout]);
-
   const currentNav = useMemo(
     () => NAV_ITEMS.find((item) => item.id === activePage) ?? NAV_ITEMS[0],
     [activePage]
@@ -640,29 +534,22 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     setActiveTheme(themeId);
   };
 
-  const handleLayoutSelect = (layoutId: DashboardLayoutDefinition["id"]) => {
-    setActiveLayout(layoutId);
-  };
-
   const renderPage = () => {
     if (activePage === "overview") {
-      const widgetPlacements = currentLayout.widgetPlacements
-        .map((placement) => {
-          const widget = overviewWidgetMap[placement.id];
-          if (!widget) {
-            return null;
-          }
+      const widgetPlacements = DEFAULT_WIDGET_PLACEMENTS.map((placement) => {
+        const widget = overviewWidgetMap[placement.id];
+        if (!widget) {
+          return null;
+        }
 
-          return { ...widget, emphasis: placement.emphasis ?? "default" };
-        })
-        .filter((widget): widget is OverviewWidgetDefinition & { emphasis: LayoutEmphasis } => Boolean(widget));
+        return { ...widget, emphasis: placement.emphasis ?? "default" };
+      }).filter((widget): widget is OverviewWidgetDefinition & { emphasis: WidgetEmphasis } => Boolean(widget));
 
-      const secondaryPlacements = currentLayout.secondaryPlacements
-        .map((placement) => secondaryWidgetMap[placement.id])
-        .filter((widget): widget is SecondaryWidgetDefinition => Boolean(widget));
+      const secondaryPlacements = DEFAULT_SECONDARY_WIDGETS.map((id) => secondaryWidgetMap[id]).filter(
+        (widget): widget is SecondaryWidgetDefinition => Boolean(widget)
+      );
 
-      const overviewSplitOrder: Array<"cta" | "secondary"> =
-        currentLayout.ctaPosition === "right" ? ["secondary", "cta"] : ["cta", "secondary"];
+      const overviewSplitOrder = DEFAULT_OVERVIEW_SPLIT_ORDER;
 
       return (
         <LayoutGroup id="akadeo-overview-layout">
@@ -944,97 +831,6 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                 </div>
               </motion.article>
             ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (activePage === "layouts") {
-      return (
-        <div className="akadeo-dashboard__layout-page">
-          <div className="akadeo-dashboard__layouts-intro">
-            <h2 className="akadeo-dashboard__heading-lg">Layouts</h2>
-            <p className="akadeo-dashboard__text-lead">
-              Pick the spatial rhythm that matches how you work. Layouts rearrange your widgets and secondary cards, then the
-              dashboard glides into place instantly.
-            </p>
-          </div>
-
-          <div className="akadeo-dashboard__layouts-grid">
-            {dashboardLayouts.map((layout) => {
-              const isSelected = activeLayout === layout.id;
-              return (
-                <motion.article
-                  key={layout.id}
-                  className={cn("akadeo-dashboard__layout-card", isSelected && "is-selected")}
-                  style={
-                    {
-                      "--layout-accent": layout.accent,
-                      "--layout-accent-soft": layout.accentSoft,
-                    } as CSSProperties
-                  }
-                  whileHover={{ y: -4 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                >
-                  <div
-                    className="akadeo-dashboard__layout-preview"
-                    style={{ background: layout.previewBackground } as CSSProperties}
-                  >
-                    <div className="akadeo-dashboard__layout-preview-grid">
-                      {layout.widgetPlacements.map((placement, index) => (
-                        <span
-                          key={`${layout.id}-preview-${placement.id}-${index}`}
-                          className={cn(
-                            "akadeo-dashboard__layout-preview-widget",
-                            placement.emphasis === "wide" && "is-wide"
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <div
-                      className="akadeo-dashboard__layout-preview-split"
-                      data-position={layout.ctaPosition}
-                    >
-                      <span className="akadeo-dashboard__layout-preview-cta" />
-                      <div className="akadeo-dashboard__layout-preview-secondary">
-                        {layout.secondaryPlacements.map((placement, index) => (
-                          <span
-                            key={`${layout.id}-preview-secondary-${placement.id}-${index}`}
-                            className="akadeo-dashboard__layout-preview-secondary-card"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="akadeo-dashboard__layout-body">
-                    <div className="akadeo-dashboard__layout-header">
-                      <h3 className="akadeo-dashboard__layout-title">{layout.name}</h3>
-                      <span className="akadeo-dashboard__layout-tagline">{layout.tagline}</span>
-                    </div>
-                    <p className="akadeo-dashboard__layout-description">{layout.description}</p>
-                    <ul className="akadeo-dashboard__layout-highlights">
-                      {layout.highlights.map((highlight) => (
-                        <li key={highlight}>
-                          <span className="akadeo-dashboard__layout-bullet" aria-hidden="true" />
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="akadeo-dashboard__layout-actions">
-                      <button
-                        type="button"
-                        className="akadeo-dashboard__layout-select-button"
-                        onClick={() => handleLayoutSelect(layout.id)}
-                        aria-pressed={isSelected}
-                      >
-                        {isSelected ? "Selected" : "Use layout"}
-                      </button>
-                    </div>
-                  </div>
-                </motion.article>
-              );
-            })}
           </div>
         </div>
       );
