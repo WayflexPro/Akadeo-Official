@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
+import { cn } from "../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import "./AkadeoDashboard.css";
 
 const NAV_ITEMS = [
   { id: "overview", label: "Overview" },
@@ -109,96 +111,95 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
 
   const renderPage = () => {
     if (activePage === "overview") {
+      const overviewWidgets = [
+        "Today's Focus",
+        "Student Pulse",
+        "Upcoming Events",
+        "Recent Files",
+        "AI Suggestions",
+        "Spotlight",
+      ];
+
       return (
-        <div className="space-y-6">
-          <Card className="border-white/5 bg-slate-900/60 backdrop-blur">
+        <>
+          <Card className="akadeo-dashboard__card--frost">
             <CardHeader>
-              <CardTitle className="text-3xl font-semibold text-white">Welcome back</CardTitle>
-              <CardDescription className="text-base text-slate-300">
-                Your centralized hub for planning, assessing, and guiding every learner. Widgets like
-                Today&apos;s Focus, Student Pulse, and recent activity will live here soon.
+              <CardTitle className="akadeo-dashboard__heading-xl">Welcome back</CardTitle>
+              <CardDescription className="akadeo-dashboard__text-lead">
+                Your centralized hub for planning, assessing, and guiding every learner. Widgets like Today’s Focus,
+                Student Pulse, and recent activity will live here soon.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {["Today&apos;s Focus", "Student Pulse", "Upcoming Events", "Recent Files", "AI Suggestions", "Spotlight"]
-                  .map((widget) => (
-                    <div
-                      key={widget}
-                      className="rounded-2xl border border-white/5 bg-slate-900/40 p-5 text-slate-200 shadow-inner shadow-black/10"
-                    >
-                      <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">{widget}</p>
-                      <p className="mt-3 text-lg text-slate-300">Insights arriving soon.</p>
-                    </div>
-                  ))}
+              <div className="akadeo-dashboard__widget-grid">
+                {overviewWidgets.map((widget) => (
+                  <div key={widget} className="akadeo-dashboard__widget-placeholder">
+                    <h4>{widget}</h4>
+                    <p>Insights arriving soon.</p>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-[1.4fr,1fr]">
-            <Card className="relative overflow-hidden border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-950">
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#6c63ff]/20 via-transparent to-[#00c1c1]/20" />
-              <CardHeader className="relative">
-                <CardTitle className="text-3xl font-semibold text-white">Classes</CardTitle>
-                <CardDescription className="text-base text-slate-300">
+          <div className="akadeo-dashboard__overview-split">
+            <Card className={cn("akadeo-dashboard__card--glow", "akadeo-dashboard__primary-cta")}>
+              <CardHeader>
+                <CardTitle className="akadeo-dashboard__heading-lg">Classes</CardTitle>
+                <CardDescription className="akadeo-dashboard__text-lead">
                   Create, join, and orchestrate every class experience from one beautiful command centre.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="relative pt-2">
+              <CardContent>
                 <motion.button
                   type="button"
-                  className="group flex h-40 w-full items-center justify-center rounded-2xl border border-white/10 bg-slate-950/60 text-lg font-semibold text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c63ff] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 md:h-48"
+                  className="akadeo-dashboard__primary-cta-button"
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  <span className="flex h-28 w-28 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6c63ff] to-[#00c1c1] text-center text-base font-semibold text-slate-950 shadow-lg shadow-[#6c63ff]/30 transition group-hover:shadow-xl group-hover:shadow-[#6c63ff]/40 md:h-32 md:w-32 md:text-lg">
-                    Create or Join Class
-                  </span>
+                  <span>Create or Join Class</span>
                 </motion.button>
               </CardContent>
             </Card>
 
-            <div className="grid gap-4">
+            <div className="akadeo-dashboard__secondary-widgets">
               {["AI workflows", "Student wins", "Workspace setup"].map((title) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border border-white/5 bg-slate-900/50 p-6 text-slate-200 shadow-inner shadow-black/20"
-                >
-                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">{title}</p>
-                  <p className="mt-2 text-sm text-slate-400">Rich analytics and actions tailored for you will appear here.</p>
+                <div key={title} className="akadeo-dashboard__secondary-card">
+                  <h4>{title}</h4>
+                  <p>Rich analytics and actions tailored for you will appear here.</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </>
       );
     }
 
     if (activePage === "classes") {
       return (
-        <Card className="border-white/5 bg-slate-900/60 backdrop-blur">
+        <Card className="akadeo-dashboard__card--frost">
           <CardHeader>
-            <CardTitle className="text-3xl text-white">Classes</CardTitle>
-            <CardDescription className="text-base text-slate-300">
+            <CardTitle className="akadeo-dashboard__heading-lg">Classes</CardTitle>
+            <CardDescription className="akadeo-dashboard__text-lead">
               All of your classroom superpowers—AI planning, grading, communication, and analytics—will live in this
-              space. Here&apos;s a preview of the toolset you&apos;ll unlock.
+              space. Here’s a preview of the toolset you’ll unlock.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="akadeo-dashboard__feature-grid">
               {classesFeatureList.map((feature) => (
                 <motion.div
                   key={feature}
-                  className="rounded-2xl border border-white/5 bg-slate-950/60 p-4 text-sm text-slate-200 shadow-inner shadow-black/10"
-                  whileHover={{ y: -3, scale: 1.01 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className="akadeo-dashboard__feature-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
                 >
                   {feature}
                 </motion.div>
               ))}
             </div>
-            <p className="mt-6 text-sm text-slate-400">
-              Each module will connect seamlessly with Akadeo&apos;s AI engine and analytics to save you hours every week.
+            <p className="akadeo-dashboard__coming-soon">
+              Each module will connect seamlessly with Akadeo’s AI engine and analytics to save you hours every week.
             </p>
           </CardContent>
         </Card>
@@ -207,84 +208,78 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
 
     if (activePage === "plans") {
       return (
-        <div className="space-y-6">
+        <>
           <div>
-            <h2 className="text-3xl font-semibold text-white">Plans</h2>
-            <p className="mt-2 text-base text-slate-300">
+            <h2 className="akadeo-dashboard__heading-lg">Plans</h2>
+            <p className="akadeo-dashboard__text-lead">
               Choose the Akadeo plan that fits your classroom or institution. Monthly pricing shown—switching to annual
               unlocks extra savings.
             </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+          <div className="akadeo-dashboard__plans-grid">
             {plans.map((plan) => (
               <motion.div
                 key={plan.id}
-                whileHover={{ y: -6, scale: 1.01 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 280, damping: 26 }}
               >
                 <Card
-                  className={
-                    plan.id === "starter"
-                      ? "border-[#6c63ff]/80 bg-gradient-to-br from-[#6c63ff]/20 via-slate-900/80 to-[#00c1c1]/20"
-                      : "border-white/10 bg-slate-900/60"
-                  }
+                  className={cn(
+                    "akadeo-dashboard__plan-card",
+                    plan.id === "starter" && "akadeo-dashboard__plan-card--highlight"
+                  )}
                 >
-                  <CardHeader className="relative">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-2xl text-white">{plan.name}</CardTitle>
-                      <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-200">
-                        {plan.badge}
-                      </span>
+                  <CardHeader>
+                    <div className="akadeo-dashboard__plan-header">
+                      <CardTitle className="akadeo-dashboard__plan-title">{plan.name}</CardTitle>
+                      <span className="akadeo-dashboard__plan-badge">{plan.badge}</span>
                     </div>
-                    <CardDescription className="text-sm text-slate-300">{plan.tagline}</CardDescription>
+                    <CardDescription className="akadeo-dashboard__plan-tagline">{plan.tagline}</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  <CardContent>
                     <div>
-                      <p className="text-4xl font-semibold text-white">
+                      <p className="akadeo-dashboard__plan-price">
                         {plan.monthlyPrice === null ? "Custom" : currencyFormatter.format(plan.monthlyPrice)}
-                        {plan.monthlyPrice !== null && <span className="text-base font-normal text-slate-400">/mo</span>}
+                        {plan.monthlyPrice !== null && <small>/mo</small>}
                       </p>
                       {plan.annualPrice !== null && (
-                        <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">
+                        <p className="akadeo-dashboard__plan-annual">
                           Annual: {currencyFormatter.format(plan.annualPrice / 12)}/mo equivalent
                         </p>
                       )}
                     </div>
-                    <ul className="space-y-3 text-sm text-slate-200">
+                    <ul className="akadeo-dashboard__plan-features">
                       {plan.features.slice(0, 3).map((feature) => (
-                        <li key={feature} className="flex items-start gap-2">
-                          <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gradient-to-r from-[#6c63ff] to-[#00c1c1]" />
-                          <span>{feature}</span>
+                        <li key={feature}>
+                          <span className="akadeo-dashboard__plan-feature-dot" />
+                          {feature}
                         </li>
                       ))}
                     </ul>
-                      <button
-                        type="button"
-                        className="w-full rounded-xl bg-gradient-to-r from-[#6c63ff] to-[#00c1c1] px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-[#6c63ff]/20 transition hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c63ff] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                      >
-                        {getPlanCtaLabel(plan.id)}
+                    <button type="button" className="akadeo-dashboard__plan-button">
+                      {getPlanCtaLabel(plan.id)}
                     </button>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
-        </div>
+        </>
       );
     }
 
     if (activePage in comingSoonPages) {
       const copy = comingSoonPages[activePage as keyof typeof comingSoonPages];
       return (
-        <Card className="border-white/5 bg-slate-900/60 backdrop-blur">
+        <Card className="akadeo-dashboard__card--muted">
           <CardHeader>
-            <CardTitle className="text-3xl text-white">{currentNav.label}</CardTitle>
-            <CardDescription className="text-base text-slate-300">{copy}</CardDescription>
+            <CardTitle className="akadeo-dashboard__heading-lg">{currentNav.label}</CardTitle>
+            <CardDescription className="akadeo-dashboard__text-lead">{copy}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-400">
-              We&apos;re building this feature with teachers in mind. Expect thoughtful workflows, automation, and
-              analytics soon.
+            <p className="akadeo-dashboard__coming-soon">
+              We’re building this feature with teachers in mind. Expect thoughtful workflows, automation, and analytics
+              soon.
             </p>
           </CardContent>
         </Card>
@@ -295,38 +290,36 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-[#0b1220] to-[#050810] text-slate-100">
-      <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col px-4 py-6 sm:px-6 lg:px-10">
-        <div className="flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 shadow-[0_35px_120px_rgba(6,10,21,0.45)] backdrop-blur-xl">
-          <header className="border-b border-white/10 bg-slate-950/60 p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#6c63ff] to-[#00c1c1] text-lg font-semibold text-slate-950 shadow-lg shadow-[#6c63ff]/30">
-                  Ak
-                </div>
-                <div>
-                  <p className="text-sm uppercase tracking-[0.2em] text-[#6c63ff]">Akadeo</p>
-                  <p className="text-xl font-semibold text-white">Hello, {displayName}</p>
+    <div className="akadeo-dashboard">
+      <div className="akadeo-dashboard__container">
+        <div className="akadeo-dashboard__frame">
+          <header className="akadeo-dashboard__header">
+            <div className="akadeo-dashboard__header-row">
+              <div className="akadeo-dashboard__brand">
+                <div className="akadeo-dashboard__brand-icon">Ak</div>
+                <div className="akadeo-dashboard__brand-text">
+                  <span className="akadeo-dashboard__brand-eyebrow">Akadeo</span>
+                  <p className="akadeo-dashboard__brand-greeting">Hello, {displayName}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="akadeo-dashboard__header-actions">
                 <motion.span
                   key={currentNav.id}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="hidden rounded-full border border-white/10 bg-slate-900/60 px-4 py-2 text-sm text-slate-300 md:inline-flex"
+                  className="akadeo-dashboard__view-pill"
                 >
-                  You&apos;re viewing <span className="ml-1 font-semibold text-white">{currentNav.label}</span>
+                  You’re viewing <span>{currentNav.label}</span>
                 </motion.span>
                 <motion.button
                   type="button"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-slate-900/80 text-slate-200 transition hover:border-[#6c63ff]/60 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c63ff] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 md:hidden"
+                  className="akadeo-dashboard__menu-button"
                   onClick={() => setNavOpen((prev) => !prev)}
                   aria-expanded={navOpen}
-                  whileTap={{ scale: 0.96 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <span className="sr-only">Toggle navigation</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-5 w-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 7h16M4 12h16M4 17h16" />
                   </svg>
                 </motion.button>
@@ -339,7 +332,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="mt-4 flex flex-col gap-1 rounded-2xl border border-white/10 bg-slate-900/70 p-2 md:hidden"
+                  className="akadeo-dashboard__mobile-nav"
                 >
                   {NAV_ITEMS.map((item) => {
                     const isActive = activePage === item.id;
@@ -351,20 +344,10 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                           setActivePage(item.id);
                           setNavOpen(false);
                         }}
-                        className={`relative flex items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c63ff] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
-                          isActive
-                            ? "bg-gradient-to-r from-[#6c63ff]/90 to-[#00c1c1]/90 text-slate-950 shadow-lg shadow-[#6c63ff]/30"
-                            : "text-slate-200 hover:bg-white/5"
-                        }`}
+                        className={cn("akadeo-dashboard__mobile-nav-button", isActive && "is-active")}
                         aria-current={isActive ? "page" : undefined}
                       >
                         {item.label}
-                        {isActive && (
-                          <motion.span
-                            layoutId="mobile-indicator"
-                            className="ml-2 inline-flex h-2 w-2 items-center justify-center rounded-full bg-slate-950"
-                          />
-                        )}
                       </button>
                     );
                   })}
@@ -373,9 +356,9 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
             </AnimatePresence>
           </header>
 
-          <div className="flex flex-1 flex-col md:flex-row">
-            <aside className="hidden w-64 flex-shrink-0 border-r border-white/10 bg-slate-950/60 p-6 md:block">
-              <nav className="flex flex-col gap-1">
+          <div className="akadeo-dashboard__layout">
+            <aside className="akadeo-dashboard__sidebar">
+              <nav className="akadeo-dashboard__sidebar-nav">
                 {NAV_ITEMS.map((item) => {
                   const isActive = activePage === item.id;
                   return (
@@ -383,27 +366,26 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                       key={item.id}
                       type="button"
                       onClick={() => setActivePage(item.id)}
-                      className={`relative flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6c63ff] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${
-                        isActive ? "text-white" : "text-slate-300 hover:text-white"
-                      }`}
+                      className={cn("akadeo-dashboard__sidebar-button", isActive && "is-active")}
                       variants={sidebarHover}
                       whileHover="hover"
                       aria-current={isActive ? "page" : undefined}
                     >
-                      <span className="relative z-10">{item.label}</span>
                       {isActive && (
                         <motion.span
                           layoutId="desktop-indicator"
-                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6c63ff]/90 to-[#00c1c1]/90 shadow-lg shadow-[#6c63ff]/30"
+                          className="akadeo-dashboard__sidebar-active"
+                          transition={{ type: "spring", stiffness: 320, damping: 32 }}
                         />
                       )}
+                      <span>{item.label}</span>
                     </motion.button>
                   );
                 })}
               </nav>
             </aside>
 
-            <main className="flex-1 overflow-y-auto bg-slate-950/50 p-6 sm:p-8">
+            <main className="akadeo-dashboard__main">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activePage}
@@ -412,7 +394,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                   animate="animate"
                   exit="exit"
                   transition={{ duration: 0.28, ease: "easeOut" }}
-                  className="space-y-6"
+                  className="akadeo-dashboard__page"
                 >
                   {renderPage()}
                 </motion.div>

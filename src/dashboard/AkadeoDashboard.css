@@ -1,0 +1,611 @@
+.akadeo-dashboard {
+  min-height: 100vh;
+  background: radial-gradient(circle at 15% 20%, rgba(108, 99, 255, 0.24), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(0, 193, 193, 0.16), transparent 50%),
+    linear-gradient(160deg, #030712, #050b1a 45%, #020409 100%);
+  padding: clamp(32px, 4vw, 56px) 20px;
+  color: #e2e8f0;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+}
+
+.akadeo-dashboard__container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.akadeo-dashboard__frame {
+  backdrop-filter: blur(24px);
+  background: linear-gradient(180deg, rgba(9, 13, 28, 0.82), rgba(4, 7, 17, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 30px;
+  box-shadow: 0 40px 120px rgba(4, 8, 20, 0.65);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - clamp(64px, 8vw, 112px));
+  overflow: hidden;
+}
+
+.akadeo-dashboard__header {
+  padding: 28px clamp(24px, 5vw, 44px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(9, 14, 30, 0.9), rgba(6, 11, 24, 0.82));
+}
+
+.akadeo-dashboard__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.akadeo-dashboard__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.akadeo-dashboard__brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.akadeo-dashboard__brand-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6c63ff, #00c1c1);
+  color: #050817;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 18px 35px rgba(108, 99, 255, 0.35);
+}
+
+.akadeo-dashboard__brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.akadeo-dashboard__brand-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  color: #6c63ff;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.akadeo-dashboard__brand-greeting {
+  font-family: var(--font-display, "Plus Jakarta Sans", "Inter", sans-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.akadeo-dashboard__view-pill {
+  display: none;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.85);
+  background: rgba(12, 17, 32, 0.6);
+}
+
+.akadeo-dashboard__view-pill span {
+  margin-left: 6px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.akadeo-dashboard__menu-button {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 15, 31, 0.9);
+  color: rgba(226, 232, 240, 0.9);
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.akadeo-dashboard__menu-button:hover {
+  border-color: rgba(108, 99, 255, 0.65);
+  color: #ffffff;
+}
+
+.akadeo-dashboard__menu-button:active {
+  transform: scale(0.95);
+}
+
+.akadeo-dashboard__mobile-nav {
+  margin-top: 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 12, 26, 0.85);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 6px;
+}
+
+.akadeo-dashboard__mobile-nav-button {
+  appearance: none;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  color: rgba(226, 232, 240, 0.9);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 200ms ease, color 200ms ease, transform 200ms ease;
+}
+
+.akadeo-dashboard__mobile-nav-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.akadeo-dashboard__mobile-nav-button.is-active {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.9), rgba(0, 193, 193, 0.9));
+  color: #050817;
+  box-shadow: 0 16px 35px rgba(108, 99, 255, 0.35);
+}
+
+.akadeo-dashboard__mobile-indicator {
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(5, 8, 23, 0.9);
+  margin-left: 10px;
+}
+
+.akadeo-dashboard__layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  background: rgba(5, 9, 20, 0.82);
+}
+
+.akadeo-dashboard__sidebar {
+  display: none;
+  width: 240px;
+  padding: 32px clamp(22px, 4vw, 32px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(9, 13, 28, 0.92), rgba(6, 10, 24, 0.88));
+  gap: 8px;
+}
+
+.akadeo-dashboard__sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.akadeo-dashboard__sidebar-button {
+  appearance: none;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  color: rgba(203, 213, 225, 0.82);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.akadeo-dashboard__sidebar-button:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.akadeo-dashboard__sidebar-button.is-active {
+  color: #ffffff;
+}
+
+.akadeo-dashboard__sidebar-active {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.92), rgba(0, 193, 193, 0.92));
+  box-shadow: 0 20px 45px rgba(108, 99, 255, 0.38);
+  z-index: -1;
+}
+
+.akadeo-dashboard__main {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(28px, 4vw, 44px);
+  overflow-y: auto;
+}
+
+.akadeo-dashboard__page {
+  display: grid;
+  gap: clamp(24px, 3vw, 36px);
+}
+
+.akadeo-dashboard__card--frost {
+  background: rgba(9, 14, 32, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.akadeo-dashboard__card--glow {
+  background: linear-gradient(155deg, rgba(108, 99, 255, 0.2), rgba(8, 12, 26, 0.92));
+  border: 1px solid rgba(108, 99, 255, 0.32);
+  position: relative;
+}
+
+.akadeo-dashboard__card--glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(108, 99, 255, 0.14), transparent 60%);
+  pointer-events: none;
+}
+
+.akadeo-dashboard__card--muted {
+  background: rgba(6, 10, 24, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.akadeo-dashboard__heading-xl {
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.akadeo-dashboard__heading-lg {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.akadeo-dashboard__text-lead {
+  font-size: 1rem;
+  color: rgba(203, 213, 225, 0.88);
+  line-height: 1.7;
+}
+
+.akadeo-dashboard__widget-grid {
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 640px) {
+  .akadeo-dashboard__widget-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .akadeo-dashboard__widget-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.akadeo-dashboard__widget-placeholder {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 12, 26, 0.72);
+  padding: 22px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.akadeo-dashboard__widget-placeholder h4 {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.78);
+}
+
+.akadeo-dashboard__widget-placeholder p {
+  color: rgba(226, 232, 240, 0.82);
+  margin: 14px 0 0;
+  font-size: 1rem;
+}
+
+.akadeo-dashboard__overview-split {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .akadeo-dashboard__overview-split {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.akadeo-dashboard__primary-cta {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(150deg, rgba(108, 99, 255, 0.32), rgba(0, 193, 193, 0.16));
+}
+
+.akadeo-dashboard__primary-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(140deg, rgba(108, 99, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.akadeo-dashboard__primary-cta-button {
+  margin: 18px 0;
+  width: 100%;
+  max-width: 320px;
+  height: 180px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 10, 26, 0.85);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.akadeo-dashboard__primary-cta-button span {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #6c63ff, #00c1c1);
+  color: #050817;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 25px 45px rgba(108, 99, 255, 0.4);
+  padding: 0 18px;
+}
+
+.akadeo-dashboard__primary-cta-button:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 30px 60px rgba(108, 99, 255, 0.25);
+}
+
+.akadeo-dashboard__secondary-widgets {
+  display: grid;
+  gap: 16px;
+}
+
+.akadeo-dashboard__secondary-card {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 12, 26, 0.7);
+  padding: 22px;
+  color: rgba(226, 232, 240, 0.85);
+}
+
+.akadeo-dashboard__secondary-card h4 {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.akadeo-dashboard__secondary-card p {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+}
+
+.akadeo-dashboard__feature-grid {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .akadeo-dashboard__feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .akadeo-dashboard__feature-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.akadeo-dashboard__feature-card {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 15, 32, 0.72);
+  padding: 16px;
+  font-size: 0.95rem;
+  color: rgba(226, 232, 240, 0.92);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.akadeo-dashboard__feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 35px rgba(15, 23, 42, 0.32);
+}
+
+.akadeo-dashboard__plans-grid {
+  display: grid;
+  gap: 22px;
+}
+
+@media (min-width: 1024px) {
+  .akadeo-dashboard__plans-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .akadeo-dashboard__plans-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.akadeo-dashboard__plan-card {
+  position: relative;
+  height: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.akadeo-dashboard__plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.akadeo-dashboard__plan-card--highlight {
+  border: 1px solid rgba(108, 99, 255, 0.6);
+  background: linear-gradient(155deg, rgba(108, 99, 255, 0.25), rgba(2, 6, 18, 0.92));
+}
+
+.akadeo-dashboard__plan-card:not(.akadeo-dashboard__plan-card--highlight) {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(7, 11, 26, 0.85);
+}
+
+.akadeo-dashboard__plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(226, 232, 240, 0.85);
+}
+
+.akadeo-dashboard__plan-price {
+  font-size: 2.4rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.akadeo-dashboard__plan-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.akadeo-dashboard__plan-tagline {
+  font-size: 0.95rem;
+  color: rgba(203, 213, 225, 0.85);
+  line-height: 1.6;
+}
+
+.akadeo-dashboard__plan-price small {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: rgba(148, 163, 184, 0.88);
+  margin-left: 6px;
+}
+
+.akadeo-dashboard__plan-annual {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.akadeo-dashboard__plan-features {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  color: rgba(226, 232, 240, 0.95);
+  font-size: 0.95rem;
+}
+
+.akadeo-dashboard__plan-feature-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+  background: linear-gradient(135deg, #6c63ff, #00c1c1);
+}
+
+.akadeo-dashboard__plan-button {
+  margin-top: 24px;
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6c63ff, #00c1c1);
+  color: #050817;
+  box-shadow: 0 25px 50px rgba(108, 99, 255, 0.35);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.akadeo-dashboard__plan-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 30px 60px rgba(108, 99, 255, 0.4);
+}
+
+.akadeo-dashboard__coming-soon {
+  font-size: 0.95rem;
+  color: rgba(203, 213, 225, 0.85);
+  line-height: 1.7;
+}
+
+.akadeo-dashboard__coming-soon strong {
+  color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .akadeo-dashboard__view-pill {
+    display: inline-flex;
+  }
+
+  .akadeo-dashboard__menu-button {
+    display: none;
+  }
+
+  .akadeo-dashboard__sidebar {
+    display: flex;
+  }
+
+  .akadeo-dashboard__mobile-nav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .akadeo-dashboard,
+  .akadeo-dashboard * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
