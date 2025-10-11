@@ -397,6 +397,10 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
+.akadeo-dashboard__widget-placeholder--wide {
+  grid-column: span 2;
+}
+
 .akadeo-dashboard__widget-placeholder h4 {
   margin: 0;
   font-size: 0.8rem;
@@ -420,6 +424,11 @@
   .akadeo-dashboard__overview-split {
     grid-template-columns: 1.4fr 1fr;
   }
+}
+
+.akadeo-dashboard__cta-column {
+  display: flex;
+  flex-direction: column;
 }
 
 .akadeo-dashboard__primary-cta {
@@ -907,6 +916,232 @@
   background: var(--theme-accent);
   margin-top: 6px;
   box-shadow: 0 0 12px var(--theme-glow);
+}
+
+.akadeo-dashboard__layout-page {
+  display: grid;
+  gap: clamp(28px, 4vw, 40px);
+}
+
+.akadeo-dashboard__layouts-intro {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.akadeo-dashboard__layouts-grid {
+  display: grid;
+  gap: clamp(20px, 3vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (min-width: 1200px) {
+  .akadeo-dashboard__layouts-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.akadeo-dashboard__layout-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 26px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(7, 11, 28, 0.68);
+  box-shadow: 0 24px 60px rgba(5, 10, 26, 0.55);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: border-color 200ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.akadeo-dashboard__layout-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, 0.04), transparent 70%);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.akadeo-dashboard__layout-card:hover,
+.akadeo-dashboard__layout-card.is-selected {
+  border-color: var(--layout-accent, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 34px 70px rgba(7, 12, 32, 0.7);
+}
+
+.akadeo-dashboard__layout-card:hover::after,
+.akadeo-dashboard__layout-card.is-selected::after {
+  opacity: 1;
+}
+
+.akadeo-dashboard__layout-preview {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: clamp(20px, 3vw, 26px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 190px;
+  background: rgba(8, 12, 26, 0.65);
+}
+
+.akadeo-dashboard__layout-preview::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: var(--layout-accent-soft);
+  filter: blur(65px);
+  opacity: 0.7;
+  z-index: 0;
+}
+
+.akadeo-dashboard__layout-preview-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  z-index: 1;
+}
+
+.akadeo-dashboard__layout-preview-widget {
+  height: 18px;
+  border-radius: 12px;
+  background: rgba(236, 241, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.akadeo-dashboard__layout-preview-widget.is-wide {
+  grid-column: span 2;
+}
+
+.akadeo-dashboard__layout-preview-split {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1.4fr 1fr;
+  grid-template-areas: "cta secondary";
+}
+
+.akadeo-dashboard__layout-preview-split[data-position="right"] {
+  grid-template-areas: "secondary cta";
+}
+
+.akadeo-dashboard__layout-preview-cta {
+  grid-area: cta;
+  height: 48px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--layout-accent-soft), rgba(255, 255, 255, 0.18));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.akadeo-dashboard__layout-preview-secondary {
+  grid-area: secondary;
+  display: grid;
+  gap: 8px;
+}
+
+.akadeo-dashboard__layout-preview-secondary-card {
+  height: 14px;
+  border-radius: 14px;
+  background: rgba(236, 241, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.akadeo-dashboard__layout-body {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: clamp(22px, 3vw, 28px);
+}
+
+.akadeo-dashboard__layout-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.akadeo-dashboard__layout-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.akadeo-dashboard__layout-tagline {
+  font-size: 0.85rem;
+  color: rgba(236, 240, 255, 0.72);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.akadeo-dashboard__layout-description {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(226, 232, 240, 0.86);
+}
+
+.akadeo-dashboard__layout-highlights {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.akadeo-dashboard__layout-highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: rgba(203, 213, 225, 0.88);
+  font-size: 0.9rem;
+}
+
+.akadeo-dashboard__layout-bullet {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-top: 6px;
+  background: var(--layout-accent, #7cf0ff);
+  box-shadow: 0 0 12px var(--layout-accent-soft, rgba(124, 240, 255, 0.35));
+}
+
+.akadeo-dashboard__layout-actions {
+  margin-top: 4px;
+}
+
+.akadeo-dashboard__layout-select-button {
+  appearance: none;
+  border-radius: 999px;
+  border: 1px solid var(--layout-accent-soft, rgba(124, 240, 255, 0.32));
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(240, 245, 255, 0.95);
+  background: rgba(8, 12, 26, 0.6);
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 220ms ease, background 220ms ease, color 220ms ease;
+}
+
+.akadeo-dashboard__layout-select-button:hover,
+.akadeo-dashboard__layout-select-button:focus-visible {
+  transform: translateY(-1px);
+  background: var(--layout-accent-soft, rgba(124, 240, 255, 0.32));
+  color: #050817;
+  box-shadow: 0 18px 36px rgba(6, 16, 34, 0.6);
+}
+
+.akadeo-dashboard__layout-card.is-selected .akadeo-dashboard__layout-select-button,
+.akadeo-dashboard__layout-select-button[aria-pressed="true"] {
+  background: var(--layout-accent, #7cf0ff);
+  color: #050817;
+  border-color: transparent;
+  box-shadow: 0 20px 38px var(--layout-accent-soft, rgba(124, 240, 255, 0.4));
 }
 
 @keyframes themeGlowPulse {
