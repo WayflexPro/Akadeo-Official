@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
 import { cn } from "../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import { useAuth } from "../features/auth/AuthContext";
 import "./AkadeoDashboard.css";
 
 const NAV_ITEMS = [
@@ -100,9 +101,11 @@ const getPlanCtaLabel = (planId: SitePlan["id"]): string => {
 };
 
 export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
+  const { logout } = useAuth();
   const [activePage, setActivePage] = useState<PageId>("overview");
   const [navOpen, setNavOpen] = useState(false);
   const displayName = userName?.trim().length ? userName : "Alex";
+  const [signingOut, setSigningOut] = useState(false);
 
   const currentNav = useMemo(
     () => NAV_ITEMS.find((item) => item.id === activePage) ?? NAV_ITEMS[0],
@@ -289,6 +292,18 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     return null;
   };
 
+  const handleLogout = async () => {
+    try {
+      setSigningOut(true);
+      await logout();
+    } finally {
+      setSigningOut(false);
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
+    }
+  };
+
   return (
     <div className="akadeo-dashboard">
       <div className="akadeo-dashboard__container">
@@ -303,6 +318,15 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                 </div>
               </div>
               <div className="akadeo-dashboard__header-actions">
+                <motion.button
+                  type="button"
+                  className="akadeo-dashboard__logout-button"
+                  onClick={handleLogout}
+                  disabled={signingOut}
+                  whileTap={{ scale: signingOut ? 1 : 0.96 }}
+                >
+                  {signingOut ? "Logging out…" : "Log Out"}
+                </motion.button>
                 <motion.span
                   key={currentNav.id}
                   initial={{ opacity: 0, y: 6 }}
