@@ -45,6 +45,34 @@
   gap: 14px;
 }
 
+.akadeo-dashboard__logout-button {
+  appearance: none;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #050817;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.92), rgba(0, 193, 193, 0.9));
+  box-shadow: 0 18px 32px rgba(108, 99, 255, 0.35);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.akadeo-dashboard__logout-button:hover:not(:disabled),
+.akadeo-dashboard__logout-button:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 20px 38px rgba(108, 99, 255, 0.45);
+  filter: brightness(1.05);
+}
+
+.akadeo-dashboard__logout-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
 .akadeo-dashboard__brand {
   display: flex;
   align-items: center;
@@ -581,6 +609,475 @@
 
 .akadeo-dashboard__coming-soon strong {
   color: #ffffff;
+}
+
+.akadeo-dashboard__theme-page {
+  display: grid;
+  gap: clamp(28px, 4vw, 40px);
+}
+
+.akadeo-dashboard__themes-intro {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.akadeo-dashboard__themes-grid {
+  display: grid;
+  gap: clamp(20px, 3vw, 32px);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.akadeo-dashboard__theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 12, 26, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 28px 70px rgba(5, 10, 26, 0.6);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.akadeo-dashboard__theme-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 70%);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.akadeo-dashboard__theme-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 36px 80px rgba(6, 12, 32, 0.68);
+}
+
+.akadeo-dashboard__theme-card:hover::after {
+  opacity: 0.9;
+}
+
+.akadeo-dashboard__theme-preview {
+  position: relative;
+  min-height: 210px;
+  padding: clamp(22px, 3vw, 28px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  background-size: cover;
+  background-position: center;
+  color: #f8fafc;
+  isolation: isolate;
+}
+
+.akadeo-dashboard__theme-preview::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  background: var(--theme-accent-soft);
+  filter: blur(60px);
+  opacity: 0.65;
+  animation: themeGlowPulse 9s ease-in-out infinite;
+  z-index: -1;
+}
+
+.akadeo-dashboard__theme-preview::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(120% 140% at 18% 12%, rgba(255, 255, 255, 0.2), transparent 70%),
+    radial-gradient(100% 120% at 80% 80%, rgba(255, 255, 255, 0.12), transparent 68%);
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  animation: themeStarfield 18s linear infinite;
+  z-index: -1;
+}
+
+.akadeo-dashboard__theme-orb {
+  position: absolute;
+  top: 18%;
+  left: 18%;
+  width: clamp(120px, 14vw, 150px);
+  height: clamp(120px, 14vw, 150px);
+  border-radius: 50%;
+  background: var(--theme-accent);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  filter: saturate(140%);
+}
+
+.akadeo-dashboard__theme-orb--secondary {
+  top: auto;
+  left: auto;
+  bottom: 16%;
+  right: 16%;
+  width: clamp(110px, 12vw, 140px);
+  height: clamp(110px, 12vw, 140px);
+  background: var(--theme-accent-soft);
+  opacity: 0.75;
+  filter: blur(0.5px);
+}
+
+.akadeo-dashboard__theme-spark {
+  position: absolute;
+  top: 28%;
+  right: 18%;
+  width: clamp(90px, 10vw, 120px);
+  height: clamp(90px, 10vw, 120px);
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--theme-glow) 0%, transparent 70%);
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  filter: blur(0.5px);
+}
+
+.akadeo-dashboard__theme-preview-label {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-shadow: 0 6px 18px rgba(2, 6, 18, 0.6);
+}
+
+.akadeo-dashboard__theme-preview-label strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.akadeo-dashboard__theme-preview-label span {
+  font-size: 0.85rem;
+  color: rgba(248, 250, 252, 0.78);
+}
+
+.akadeo-dashboard__theme-body {
+  padding: clamp(22px, 3vw, 28px);
+  display: grid;
+  gap: 16px;
+}
+
+.akadeo-dashboard__theme-description {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(226, 232, 240, 0.84);
+}
+
+.akadeo-dashboard__theme-feature-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.akadeo-dashboard__theme-feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: rgba(203, 213, 225, 0.88);
+}
+
+.akadeo-dashboard__theme-bullet {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--theme-accent);
+  margin-top: 6px;
+  box-shadow: 0 0 12px var(--theme-glow);
+}
+
+@keyframes themeGlowPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes themeStarfield {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-2%, -2%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(2%, 2%, 0) scale(1);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="aurora-drift"]::after {
+  background: radial-gradient(160% 140% at 15% 20%, rgba(124, 240, 255, 0.42), transparent 70%),
+    radial-gradient(140% 120% at 80% 10%, rgba(137, 111, 255, 0.36), transparent 72%);
+  animation: auroraFlow 14s ease-in-out infinite;
+}
+
+@keyframes auroraFlow {
+  0% {
+    transform: translate3d(0, 0, 0) skewX(0deg);
+  }
+  50% {
+    transform: translate3d(2%, -4%, 0) skewX(-2deg);
+  }
+  100% {
+    transform: translate3d(-1%, 3%, 0) skewX(2deg);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="neon-night"]::after {
+  background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 255, 0.12) 0px,
+      rgba(0, 255, 255, 0.12) 2px,
+      transparent 2px,
+      transparent 8px
+    ),
+    radial-gradient(120% 140% at 50% 0%, rgba(255, 54, 210, 0.45), transparent 70%);
+  animation: neonScan 5s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes neonScan {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 0 120px, 0 0;
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="zen-garden"]::after {
+  background: radial-gradient(120% 120% at 20% 80%, rgba(111, 231, 183, 0.35), transparent 70%),
+    radial-gradient(120% 120% at 80% 20%, rgba(87, 140, 111, 0.28), transparent 70%);
+  animation: zenMist 16s ease-in-out infinite;
+}
+
+@keyframes zenMist {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(0, 2%, 0);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="cosmic-wave"]::after {
+  background: radial-gradient(140% 140% at 80% 20%, rgba(143, 123, 255, 0.45), transparent 70%),
+    conic-gradient(from 90deg at 50% 50%, rgba(137, 214, 255, 0.16), transparent 40%, rgba(188, 123, 255, 0.16), transparent 80%);
+  animation: cosmicOrbits 12s linear infinite;
+}
+
+@keyframes cosmicOrbits {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="desert-dawn"]::after {
+  background: radial-gradient(140% 120% at 20% 30%, rgba(255, 184, 130, 0.48), transparent 70%),
+    linear-gradient(180deg, rgba(255, 190, 140, 0.12), transparent 60%);
+  animation: desertMirage 13s ease-in-out infinite;
+}
+
+@keyframes desertMirage {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate3d(1%, -3%, 0) scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="retro-pixel"]::after {
+  background: repeating-linear-gradient(45deg, rgba(88, 245, 255, 0.25) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(-45deg, rgba(255, 239, 95, 0.2) 0 6px, transparent 6px 12px);
+  animation: pixelPulse 4s steps(4) infinite;
+}
+
+@keyframes pixelPulse {
+  0% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="ocean-tide"]::after {
+  background: radial-gradient(140% 120% at 15% 75%, rgba(86, 210, 255, 0.45), transparent 70%),
+    url("data:image/svg+xml,%3Csvg width='160' height='160' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 80 Q40 0 80 80 T160 80 V160 H0 Z' fill='rgba(255,255,255,0.12)'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 160px 160px;
+  background-repeat: no-repeat, repeat;
+  animation: tideDrift 9s ease-in-out infinite;
+}
+
+@keyframes tideDrift {
+  0% {
+    background-position: center, 0 0;
+  }
+  50% {
+    background-position: center, 0 40px;
+  }
+  100% {
+    background-position: center, 0 0;
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="forest-canopy"]::after {
+  background: radial-gradient(140% 140% at 25% 20%, rgba(157, 248, 92, 0.4), transparent 70%),
+    radial-gradient(130% 110% at 70% 80%, rgba(96, 148, 78, 0.28), transparent 70%);
+  animation: canopyGlow 14s ease-in-out infinite;
+}
+
+@keyframes canopyGlow {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1%, -2%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-1%, 1%, 0) scale(1);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="pastel-dream"]::after {
+  background: radial-gradient(140% 120% at 15% 20%, rgba(255, 201, 241, 0.45), transparent 70%),
+    radial-gradient(120% 110% at 80% 70%, rgba(149, 198, 255, 0.32), transparent 70%);
+  animation: pastelFloat 16s ease-in-out infinite;
+}
+
+@keyframes pastelFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-2%, 3%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(2%, -2%, 0) scale(1);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="monochrome-grid"]::after {
+  background: repeating-linear-gradient(
+      90deg,
+      rgba(154, 165, 177, 0.18) 0px,
+      rgba(154, 165, 177, 0.18) 1px,
+      transparent 1px,
+      transparent 12px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(154, 165, 177, 0.12) 0px,
+      rgba(154, 165, 177, 0.12) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  animation: monoGrid 10s linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes monoGrid {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 12px 12px, 0 12px;
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="solar-flare"]::after {
+  background: radial-gradient(140% 110% at 30% 30%, rgba(255, 138, 61, 0.5), transparent 75%),
+    conic-gradient(from 90deg at 50% 50%, rgba(255, 209, 61, 0.2), transparent 35%, rgba(255, 120, 20, 0.18), transparent 70%);
+  animation: solarPulse 8s ease-in-out infinite;
+}
+
+@keyframes solarPulse {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(12deg) scale(1.05);
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="cyber-hologram"]::after {
+  background: repeating-linear-gradient(135deg, rgba(110, 243, 255, 0.3) 0 12px, transparent 12px 24px),
+    linear-gradient(160deg, rgba(55, 155, 255, 0.32), transparent 60%);
+  animation: holoShift 7.5s linear infinite;
+  opacity: 0.55;
+}
+
+@keyframes holoShift {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  50% {
+    background-position: 32px 32px, 0 0;
+  }
+  100% {
+    background-position: 64px 64px, 0 0;
+  }
+}
+
+.akadeo-dashboard__theme-preview[data-theme="chalkboard"]::after {
+  background: radial-gradient(120% 120% at 15% 15%, rgba(255, 226, 122, 0.4), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M0 150 Q60 120 120 150 T240 150' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 180px 180px;
+  background-repeat: no-repeat, repeat;
+  animation: chalkDust 12s ease-in-out infinite;
+}
+
+@keyframes chalkDust {
+  0% {
+    background-position: center, 0 0;
+  }
+  50% {
+    background-position: center, 0 30px;
+  }
+  100% {
+    background-position: center, 0 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .akadeo-dashboard__theme-preview {
+    min-height: 230px;
+  }
 }
 
 @media (min-width: 768px) {
