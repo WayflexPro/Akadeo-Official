@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
+import { LAUNCH_DISCOUNT, plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
 import { cn } from "../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { useAuth } from "../features/auth/AuthContext";
@@ -480,6 +480,9 @@ const getPlanCtaLabel = (planId: SitePlan["id"]): string => {
   if (planId === "enterprise") {
     return "Contact sales";
   }
+  if (LAUNCH_DISCOUNT.active) {
+    return `Choose plan – ${LAUNCH_DISCOUNT.percent}% OFF`;
+  }
   return "Choose plan";
 };
 
@@ -703,11 +706,16 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                     <CardDescription className="akadeo-dashboard__plan-tagline">{plan.tagline}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div>
+                    <div className="akadeo-dashboard__plan-pricing">
                       <p className="akadeo-dashboard__plan-price">
                         {plan.monthlyPrice === null ? "Custom" : currencyFormatter.format(plan.monthlyPrice)}
                         {plan.monthlyPrice !== null && <small>/mo</small>}
                       </p>
+                      {plan.monthlyPrice !== null && plan.id !== "free" && LAUNCH_DISCOUNT.active && (
+                        <span className="akadeo-dashboard__plan-discount">
+                          {LAUNCH_DISCOUNT.percent}% OFF launch
+                        </span>
+                      )}
                       {plan.annualPrice !== null && (
                         <p className="akadeo-dashboard__plan-annual">
                           Annual: {currencyFormatter.format(plan.annualPrice / 12)}/mo equivalent
@@ -941,7 +949,12 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                         className={cn("akadeo-dashboard__mobile-nav-button", isActive && "is-active")}
                         aria-current={isActive ? "page" : undefined}
                       >
-                        {item.label}
+                        <span>{item.label}</span>
+                        {item.id === "plans" && LAUNCH_DISCOUNT.active ? (
+                          <span className="akadeo-dashboard__nav-discount">
+                            {LAUNCH_DISCOUNT.percent}% OFF
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })}
@@ -972,7 +985,12 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                           transition={{ type: "spring", stiffness: 320, damping: 32 }}
                         />
                       )}
-                      <span>{item.label}</span>
+                      <span className="akadeo-dashboard__sidebar-label">{item.label}</span>
+                      {item.id === "plans" && LAUNCH_DISCOUNT.active ? (
+                        <span className="akadeo-dashboard__nav-discount">
+                          {LAUNCH_DISCOUNT.percent}% OFF
+                        </span>
+                      ) : null}
                     </motion.button>
                   );
                 })}

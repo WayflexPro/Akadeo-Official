@@ -298,6 +298,11 @@
   position: relative;
   overflow: hidden;
   transition: color 220ms ease, transform 220ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
 }
 
 .akadeo-dashboard__sidebar-button:hover {
@@ -307,6 +312,36 @@
 
 .akadeo-dashboard__sidebar-button.is-active {
   color: #ffffff;
+}
+
+.akadeo-dashboard__sidebar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.akadeo-dashboard__nav-discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(124, 240, 255, 0.16);
+  color: rgba(148, 255, 255, 0.92);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+.akadeo-dashboard__sidebar-button:hover .akadeo-dashboard__nav-discount,
+.akadeo-dashboard__sidebar-button.is-active .akadeo-dashboard__nav-discount,
+.akadeo-dashboard__mobile-nav-button:hover .akadeo-dashboard__nav-discount,
+.akadeo-dashboard__mobile-nav-button.is-active .akadeo-dashboard__nav-discount {
+  background: rgba(124, 240, 255, 0.24);
+  color: #7cf0ff;
 }
 
 .akadeo-dashboard__sidebar-active {
@@ -603,6 +638,13 @@
   margin: 0;
 }
 
+.akadeo-dashboard__plan-pricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
 .akadeo-dashboard__plan-title {
   font-size: 1.4rem;
   font-weight: 600;
@@ -628,6 +670,22 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: rgba(148, 163, 184, 0.8);
+}
+
+.akadeo-dashboard__plan-discount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.18), rgba(0, 193, 193, 0.18));
+  color: rgba(148, 255, 255, 0.92);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 18px 35px rgba(108, 99, 255, 0.22);
 }
 
 .akadeo-dashboard__plan-features {
