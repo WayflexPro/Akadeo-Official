@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { logout as logoutRequest } from "./api";
+import { getSession, logout as logoutRequest } from "./api";
 
 type AuthState = {
   isAuthenticated: boolean;
@@ -58,6 +58,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(() => readStoredState());
 
   useEffect(() => {
+    let cancelled = false;
+
+    const initialiseSession = async () => {
+      try {
+        const payload = await getSession();
+        if (cancelled) {
+          return;
+        }
+
+        const user = payload?.data?.user ?? null;
+
+        if (user) {
+          setState({
+            isAuthenticated: true,
+            requiresSetup: !user.setupCompletedAt,
+            setupCompletedAt: user.setupCompletedAt,
+          });
+          return;
+        }
+
+        setState(defaultState);
+      } catch (error: any) {
+        if (cancelled) {
+          return;
+        }
+        if (error?.status === 401) {
+          setState(defaultState);
+          if (typeof window !== "undefined") {
+            window.localStorage.removeItem(STORAGE_KEY);
+          }
+        }
+      }
+    };
+
+    initialiseSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
@@ -99,6 +141,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(STORAGE_KEY);
     }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleSessionExpired = () => {
+      let shouldRedirect = false;
+      setState((prev) => {
+        if (!prev.isAuthenticated) {
+          return prev;
+        }
+        shouldRedirect = true;
+        return defaultState;
+      });
+
+      if (shouldRedirect) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        window.location.href = "/#sign-in";
+      }
+    };
+
+    window.addEventListener("akadeo:session-expired", handleSessionExpired);
+    return () => {
+      window.removeEventListener("akadeo:session-expired", handleSessionExpired);
+    };
   }, []);
 
   const value = useMemo<AuthContextValue>(

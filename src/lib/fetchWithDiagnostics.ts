@@ -81,6 +81,13 @@ export async function fetchWithDiagnostics(
     const snippetSource = textFallback ?? (payload !== null ? JSON.stringify(payload) : null);
 
     if (!res.ok) {
+      if (res.status === 401 && typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("akadeo:session-expired", {
+            detail: { url, status: res.status },
+          })
+        );
+      }
       const reason =
         payload?.error?.message || payload?.message || textFallback || `HTTP ${res.status}`;
       emit({

@@ -1,5 +1,7 @@
 import express from 'express';
 import session from 'express-session';
+import mysql from 'mysql2';
+import createMySQLStore from 'express-mysql-session';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,6 +24,23 @@ app.use((req, res, next) => {
 });
 
 const sessionSecret = requireEnv('SESSION_SECRET');
+const MySQLStore = createMySQLStore(session);
+const sessionStore = new MySQLStore(
+  {
+    clearExpired: true,
+    checkExpirationInterval: 1000 * 60 * 10,
+    expiration: 1000 * 60 * 60 * 24 * 30,
+    createDatabaseTable: true,
+  },
+  mysql.createPool({
+    host: requireEnv('DB_HOST'),
+    port: Number.parseInt(requireEnv('DB_PORT', '3306'), 10),
+    user: requireEnv('DB_USER'),
+    password: requireEnv('DB_PASSWORD'),
+    database: requireEnv('DB_NAME'),
+    charset: 'utf8mb4',
+  })
+);
 
 app.use(
   session({
@@ -35,6 +54,7 @@ app.use(
       secure: isProduction(),
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     },
+    store: sessionStore,
   })
 );
 
