@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/Home";
 import AboutPage from "./pages/About";
 import FeaturesPage from "./pages/Features";
@@ -14,7 +15,7 @@ import PrivacyPage from "./pages/Privacy";
 import SetupPage from "./pages/Setup";
 import DebugPanel from "./components/DebugPanel";
 import { useAuth } from "./features/auth/AuthContext";
-import DashboardApp from "./dashboard/DashboardApp";
+import AkadeoDashboard from "./dashboard/AkadeoDashboard";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
@@ -425,92 +426,57 @@ function MarketingShell() {
   );
 }
 
+function RootRoute() {
+  const { state } = useAuth();
+
+  if (state.isAuthenticated) {
+    if (state.requiresSetup) {
+      return <Navigate to="/setup" replace />;
+    }
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <MarketingShell />;
+}
+
+function SetupRoute() {
+  const { state } = useAuth();
+
+  if (!state.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!state.requiresSetup) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <SetupPage />;
+}
+
+function DashboardRoute() {
+  const { state } = useAuth();
+
+  if (!state.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (state.requiresSetup) {
+    return <Navigate to="/setup" replace />;
+  }
+
+  return <AkadeoDashboard />;
+}
+
 export default function App() {
-  const { state: authState } = useAuth();
-  const [currentPath, setCurrentPath] = useState<string>(() =>
-    typeof window !== "undefined" ? window.location.pathname : "/"
-  );
-
-  const navigate = useCallback((path: string, replace = false) => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    if (window.location.pathname === path) {
-      setCurrentPath(path);
-      return;
-    }
-    if (replace) {
-      window.history.replaceState(null, "", path);
-    } else {
-      window.history.pushState(null, "", path);
-    }
-    setCurrentPath(path);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const handlePopState = () => {
-      setCurrentPath(window.location.pathname);
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    if (!authState.isAuthenticated) {
-      if (currentPath.startsWith("/dashboard")) {
-        navigate("/", true);
-      } else if (currentPath === "/setup") {
-        navigate("/", true);
-      }
-      return;
-    }
-
-    if (authState.requiresSetup) {
-      if (currentPath !== "/setup") {
-        navigate("/setup", true);
-      }
-      return;
-    }
-
-    if (currentPath === "/setup") {
-      navigate("/dashboard", true);
-      return;
-    }
-
-    if (currentPath === "/") {
-      navigate("/dashboard", true);
-    }
-  }, [authState, currentPath, navigate]);
-
-  if (currentPath === "/setup") {
-    return (
-      <>
-        <DebugPanel />
-        <SetupPage />
-      </>
-    );
-  }
-
-  if (currentPath.startsWith("/dashboard")) {
-    return (
-      <>
-        <DebugPanel />
-        <DashboardApp />
-      </>
-    );
-  }
-
   return (
-    <>
+    <BrowserRouter>
       <DebugPanel />
-      <MarketingShell />
-    </>
+      <Routes>
+        <Route path="/" element={<RootRoute />} />
+        <Route path="/setup" element={<SetupRoute />} />
+        <Route path="/dashboard" element={<DashboardRoute />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
