@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { cleanupExpiredVerifications, getPool } from '../db.mjs';
 import { sendVerificationEmail } from '../email.mjs';
 import { emailHash, normalizeEmail } from '../lib/emailTools.mjs';
+import { getSessionCookieConfig } from '../env.mjs';
 import { HttpError, asyncHandler, jsonOk, methodNotAllowed } from '../utils.mjs';
 
 function validateEmail(email) {
@@ -34,6 +35,15 @@ function expiresAtUtc(hours = 24) {
 
 const authRouter = Router();
 
+const { name: sessionCookieName, cookie: sessionCookieConfig } = getSessionCookieConfig();
+const cookieClearOptions = {
+  httpOnly: sessionCookieConfig.httpOnly,
+  sameSite: sessionCookieConfig.sameSite,
+  secure: sessionCookieConfig.secure,
+  domain: sessionCookieConfig.domain,
+  path: sessionCookieConfig.path,
+};
+
 const GRADE_LEVEL_OPTIONS = new Set(['k5', '68', '912', 'higher_ed', 'other']);
 const STUDENT_COUNT_OPTIONS = new Set(['under_50', '50_150', '150_500', 'over_500']);
 
@@ -57,7 +67,7 @@ function ensureSession(req) {
   return req.session;
 }
 
-function establishUserSession(req, userId, setupCompletedAt) {
+function establishUserSession(req, user) {
   const session = ensureSession(req);
   return new Promise((resolve, reject) => {
     session.regenerate((err) => {
@@ -67,8 +77,14 @@ function establishUserSession(req, userId, setupCompletedAt) {
         }));
         return;
       }
-      req.session.userId = Number.parseInt(userId, 10);
-      req.session.setupCompletedAt = toIsoOrNull(setupCompletedAt);
+      const sessionUser = {
+        id: Number.parseInt(user.id, 10),
+        email: String(user.email ?? ''),
+        fullName: String(user.fullName ?? ''),
+        role: String(user.role ?? 'teacher'),
+        setupCompletedAt: toIsoOrNull(user.setupCompletedAt),
+      };
+      req.session.user = sessionUser;
       req.session.save((saveErr) => {
         if (saveErr) {
           reject(
@@ -78,29 +94,25 @@ function establishUserSession(req, userId, setupCompletedAt) {
           );
           return;
         }
+        req.user = sessionUser;
         resolve();
       });
     });
   });
 }
 
-function requireAuthenticatedUser(req) {
-  const session = ensureSession(req);
-  const userId = session.userId;
-  if (!userId) {
-    throw new HttpError(401, 'AUTH', 'You must be signed in to continue.', {
-      code: 'E_NOT_AUTHENTICATED',
-    });
-  }
-  return {
-    userId: Number.parseInt(userId, 10),
-    setupCompletedAt: session.setupCompletedAt ?? null,
-  };
-}
-
 function markSessionSetupComplete(req) {
   const session = ensureSession(req);
-  session.setupCompletedAt = new Date().toISOString();
+  const user = getAuthenticatedSessionUser(req);
+  const completedAt = new Date().toISOString();
+  session.user = {
+    ...session.user,
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    role: user.role,
+    setupCompletedAt: completedAt,
+  };
   return new Promise((resolve, reject) => {
     session.save((err) => {
       if (err) {
@@ -114,6 +126,41 @@ function markSessionSetupComplete(req) {
       resolve();
     });
   });
+}
+
+function getAuthenticatedSessionUser(req) {
+  const session = ensureSession(req);
+  const sessionUser = session.user;
+  if (sessionUser && typeof sessionUser === 'object') {
+    const id = Number.parseInt(sessionUser.id, 10);
+    if (!Number.isNaN(id)) {
+      return {
+        id,
+        email: typeof sessionUser.email === 'string' ? sessionUser.email : '',
+        fullName: typeof sessionUser.fullName === 'string' ? sessionUser.fullName : '',
+        role: typeof sessionUser.role === 'string' ? sessionUser.role : 'teacher',
+        setupCompletedAt: sessionUser.setupCompletedAt ?? null,
+      };
+    }
+  }
+
+  throw new HttpError(401, 'AUTH', 'You must be signed in to continue.', {
+    code: 'E_NOT_AUTHENTICATED',
+  });
+}
+
+export function requireAuthenticatedUser(req, _res, next) {
+  try {
+    if (req.method === 'OPTIONS') {
+      next();
+      return;
+    }
+    const user = getAuthenticatedSessionUser(req);
+    req.user = user;
+    next();
+  } catch (error) {
+    next(error);
+  }
 }
 
 authRouter.options('/register', (req, res) => {
@@ -317,7 +364,7 @@ authRouter.post(
 
     try {
       const [users] = await connection.execute(
-        'SELECT id, full_name, email, password_hash, setup_completed_at FROM users WHERE email = ? LIMIT 1',
+        'SELECT id, full_name, email, password_hash, setup_completed_at, role FROM users WHERE email = ? LIMIT 1',
         [email]
       );
 
@@ -361,7 +408,13 @@ authRouter.post(
 
       const requiresSetup = user.setup_completed_at === null;
 
-      await establishUserSession(req, user.id, user.setup_completed_at ?? null);
+      await establishUserSession(req, {
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        role: user.role ?? 'teacher',
+        setupCompletedAt: user.setup_completed_at ?? null,
+      });
 
       jsonOk(res, { message: 'Signed in successfully.', requiresSetup });
     } finally {
@@ -373,14 +426,14 @@ authRouter.post(
 authRouter.get(
   '/session',
   asyncHandler(async (req, res) => {
-    const { userId } = requireAuthenticatedUser(req);
+    const sessionUser = getAuthenticatedSessionUser(req);
 
     const connection = await getPool().getConnection();
 
     try {
       const [rows] = await connection.execute(
         'SELECT id, full_name, email, setup_completed_at FROM users WHERE id = ? LIMIT 1',
-        [userId]
+        [sessionUser.id]
       );
 
       if (!Array.isArray(rows) || rows.length === 0) {
@@ -463,19 +516,25 @@ authRouter.post(
       inTransaction = true;
 
       const [existingUsers] = await connection.execute(
-        'SELECT id, setup_completed_at FROM users WHERE email = ? LIMIT 1',
+        'SELECT id, full_name, email, setup_completed_at, role FROM users WHERE email = ? LIMIT 1',
         [email]
       );
 
       let requiresSetup = true;
       let userId = null;
       let setupCompletedAt = null;
+      let fullNameValue = record.full_name ?? '';
+      let emailValue = email;
+      let roleValue = 'teacher';
 
       if (Array.isArray(existingUsers) && existingUsers.length > 0) {
         const existingUser = existingUsers[0];
         userId = existingUser.id;
         setupCompletedAt = existingUser.setup_completed_at ?? null;
         requiresSetup = existingUser.setup_completed_at === null;
+        fullNameValue = existingUser.full_name ?? fullNameValue;
+        emailValue = existingUser.email ?? emailValue;
+        roleValue = existingUser.role ?? roleValue;
       } else {
         const [insertResult] = await connection.execute(
           'INSERT INTO users (full_name, institution, email, email_hash, password_hash, setup_completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NULL, UTC_TIMESTAMP(), UTC_TIMESTAMP())',
@@ -490,6 +549,8 @@ authRouter.post(
         userId = insertResult.insertId ?? null;
         requiresSetup = true;
         setupCompletedAt = null;
+        fullNameValue = record.full_name ?? '';
+        emailValue = email;
       }
 
       await connection.execute(
@@ -506,7 +567,13 @@ authRouter.post(
         });
       }
 
-      await establishUserSession(req, userId, setupCompletedAt);
+      await establishUserSession(req, {
+        id: userId,
+        email: emailValue,
+        fullName: fullNameValue,
+        role: roleValue,
+        setupCompletedAt,
+      });
 
       jsonOk(res, { message: 'Email verified.', requiresSetup });
     } catch (error) {
@@ -528,7 +595,7 @@ authRouter.post(
 authRouter.post(
   '/complete-setup',
   asyncHandler(async (req, res) => {
-    const { userId } = requireAuthenticatedUser(req);
+    const sessionUser = getAuthenticatedSessionUser(req);
     const body = req.body ?? {};
 
     const subject = String(body.subject ?? '').trim();
@@ -595,7 +662,7 @@ authRouter.post(
          VALUES (?, ?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), UTC_TIMESTAMP())
          ON DUPLICATE KEY UPDATE educator_role = VALUES(educator_role), subjects = VALUES(subjects), grade_levels = VALUES(grade_levels), students_served = VALUES(students_served), primary_goal = VALUES(primary_goal), consent_ai_processing = VALUES(consent_ai_processing), updated_at = UTC_TIMESTAMP()`,
         [
-          userId,
+          sessionUser.id,
           educatorRole,
           subject,
           gradeLevels.join(','),
@@ -607,7 +674,7 @@ authRouter.post(
 
       await connection.execute(
         'UPDATE users SET setup_completed_at = UTC_TIMESTAMP(), updated_at = UTC_TIMESTAMP() WHERE id = ?',
-        [userId]
+        [sessionUser.id]
       );
 
       await connection.commit();
@@ -715,11 +782,7 @@ authRouter.post(
       });
     });
 
-    res.clearCookie('akadeo_session', {
-      path: '/',
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+    res.clearCookie(sessionCookieName, cookieClearOptions);
 
     jsonOk(res, { message: 'Signed out.' });
   })
