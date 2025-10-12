@@ -94,7 +94,7 @@ async function request<T>(
   url: string,
   options: RequestInit & { timeoutMs?: number; bodyJson?: any }
 ): Promise<ApiSuccess<T>> {
-  return (await fetchWithDiagnostics(url, options)) as ApiSuccess<T>;
+  return (await fetchWithDiagnostics(url, { credentials: options.credentials ?? "include", ...options })) as ApiSuccess<T>;
 }
 
 export async function register(payload: RegisterPayload) {
