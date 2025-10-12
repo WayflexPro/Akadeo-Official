@@ -59,6 +59,7 @@ export interface CreateClassInput {
   themeId: string;
   teacherEmails: string[];
   imageUrl?: string;
+  code: string;
 }
 
 export interface JoinClassInput {
