@@ -29,7 +29,8 @@
   "include": [
     "src",
     "content",
-    "lib"
+    "lib",
+    "server/**/*.ts"
   ],
   "references": [
     { "path": "./tsconfig.node.json" }
