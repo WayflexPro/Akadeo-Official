@@ -47,52 +47,6 @@ const cookieClearOptions = {
 const GRADE_LEVEL_OPTIONS = new Set(['k5', '68', '912', 'higher_ed', 'other']);
 const STUDENT_COUNT_OPTIONS = new Set(['under_50', '50_150', '150_500', 'over_500']);
 
-const DEFAULT_USER_ROLE = 'teacher';
-let userRoleColumnSupported;
-
-function normalizeUserRole(rows) {
-  if (!Array.isArray(rows)) {
-    return [];
-  }
-  return rows.map((row) => ({
-    ...row,
-    role: row.role ?? DEFAULT_USER_ROLE,
-  }));
-}
-
-async function selectUsersByEmail(connection, email, options = {}) {
-  const { includePasswordHash = false } = options;
-  const baseColumns = ['id', 'full_name', 'email', 'setup_completed_at'];
-
-  if (includePasswordHash) {
-    baseColumns.push('password_hash');
-  }
-
-  if (userRoleColumnSupported !== false) {
-    const columnsWithRole = [...baseColumns, 'role'];
-    try {
-      const [rows] = await connection.execute(
-        `SELECT ${columnsWithRole.join(', ')} FROM users WHERE email = ? LIMIT 1`,
-        [email]
-      );
-      userRoleColumnSupported = true;
-      return normalizeUserRole(rows);
-    } catch (error) {
-      if (error?.code !== 'ER_BAD_FIELD_ERROR') {
-        throw error;
-      }
-      userRoleColumnSupported = false;
-    }
-  }
-
-  const [rowsWithoutRole] = await connection.execute(
-    `SELECT ${baseColumns.join(', ')} FROM users WHERE email = ? LIMIT 1`,
-    [email]
-  );
-
-  return normalizeUserRole(rowsWithoutRole);
-}
-
 function toIsoOrNull(value) {
   if (!value) {
     return null;
@@ -409,7 +363,10 @@ authRouter.post(
     const connection = await getPool().getConnection();
 
     try {
-      const users = await selectUsersByEmail(connection, email, { includePasswordHash: true });
+      const [users] = await connection.execute(
+        'SELECT id, full_name, email, password_hash, setup_completed_at, role FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
 
       if (!Array.isArray(users) || users.length === 0) {
         const [pending] = await connection.execute(
@@ -558,7 +515,10 @@ authRouter.post(
       await connection.beginTransaction();
       inTransaction = true;
 
-      const existingUsers = await selectUsersByEmail(connection, email);
+      const [existingUsers] = await connection.execute(
+        'SELECT id, full_name, email, setup_completed_at, role FROM users WHERE email = ? LIMIT 1',
+        [email]
+      );
 
       let requiresSetup = true;
       let userId = null;
