@@ -46,9 +46,3 @@ values will cause the setup to fail.
 ## Deploying to Railway
 
 Set the Railway build command to `npm run build` and the start command to `npm run start`. This ensures the Node.js server runs in production so that requests such as `POST /api/auth/register` are handled by the backend instead of a static asset host.
-
-### Database identifiers
-
-- PostgreSQL tables that back the classes feature (`classes`, `class_members`, `class_invites`) store their identifiers as
-  `TEXT` so they remain editable through Railway's UI. The application generates ids with [`nanoid`](https://github.com/ai/nanoid),
-  so no database extensions are required.
