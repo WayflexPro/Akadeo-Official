@@ -1,29 +1,23 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { LAUNCH_DISCOUNT, plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
 import { cn } from "../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { useAuth } from "../features/auth/AuthContext";
-import { ClassesProvider } from "./classes/ClassesContext";
-import { ClassesDashboardPage } from "./classes/ClassesDashboardPage";
-import { CreateClassPage } from "./classes/CreateClassPage";
-import { JoinClassPage } from "./classes/JoinClassPage";
-import { ClassDetailPage } from "./classes/ClassDetailPage";
 import "./AkadeoDashboard.css";
 
 const NAV_ITEMS = [
-  { id: "overview", label: "Overview", path: "/dashboard" },
-  { id: "classes", label: "Classes", path: "/dashboard/classes" },
-  { id: "smart-planner", label: "Smart Planner", path: "/dashboard/smart-planner" },
-  { id: "notifications", label: "Notifications", path: "/dashboard/notifications" },
-  { id: "templates", label: "Templates", path: "/dashboard/templates" },
-  { id: "file-management", label: "File Management", path: "/dashboard/file-management" },
-  { id: "learning-insights", label: "Learning Insights", path: "/dashboard/learning-insights" },
-  { id: "ai-co-teacher", label: "AI Co-Teacher", path: "/dashboard/ai-co-teacher" },
-  { id: "themes", label: "Themes", path: "/dashboard/themes" },
-  { id: "plans", label: "Plans", path: "/dashboard/plans" },
-  { id: "settings", label: "Settings", path: "/dashboard/settings" },
+  { id: "overview", label: "Overview" },
+  { id: "classes", label: "Classes" },
+  { id: "smart-planner", label: "Smart Planner" },
+  { id: "notifications", label: "Notifications" },
+  { id: "templates", label: "Templates" },
+  { id: "file-management", label: "File Management" },
+  { id: "learning-insights", label: "Learning Insights" },
+  { id: "ai-co-teacher", label: "AI Co-Teacher" },
+  { id: "themes", label: "Themes" },
+  { id: "plans", label: "Plans" },
+  { id: "settings", label: "Settings" },
 ] as const;
 
 type PageId = (typeof NAV_ITEMS)[number]["id"];
@@ -31,6 +25,31 @@ type PageId = (typeof NAV_ITEMS)[number]["id"];
 type AkadeoDashboardProps = {
   userName?: string | null;
 };
+
+const classesFeatureList = [
+  "AI Quiz Generator",
+  "AI Grading Assistant",
+  "Assignments",
+  "Quizzes & Tests",
+  "Gradebook",
+  "Anti-Cheat",
+  "Class Dashboard",
+  "Messaging",
+  "Student Profiles",
+  "Multi-Teacher Collaboration",
+  "Learning Insights",
+  "Gap Analysis",
+  "Item Analysis",
+  "Gamification",
+  "Practice Mode",
+  "Peer Review",
+  "Ask-AI",
+  "Smart Planner",
+  "File Management",
+  "Templates",
+  "Notifications",
+  "Organization Dashboard",
+];
 
 const comingSoonPages: Record<Exclude<PageId, "overview" | "classes" | "plans" | "themes">, string> = {
   "smart-planner": "Plan differentiated instruction with AI suggestions tailored to each class.",
@@ -469,8 +488,7 @@ const getPlanCtaLabel = (planId: SitePlan["id"]): string => {
 
 export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   const { logout } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [activePage, setActivePage] = useState<PageId>("overview");
   const [navOpen, setNavOpen] = useState(false);
   const displayName = userName?.trim().length ? userName : "there";
   const [signingOut, setSigningOut] = useState(false);
@@ -510,37 +528,17 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     window.localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
   }, [activeTheme]);
 
-  const currentPage = useMemo(() => {
-    const rawPath = location.pathname || "/dashboard";
-    const normalized = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.replace(/\/+$/, "") : rawPath;
-    if (normalized === "/dashboard") {
-      return "overview" as PageId;
-    }
-
-    const match =
-      NAV_ITEMS.find((item) => item.id !== "overview" && normalized.startsWith(item.path)) ?? NAV_ITEMS[0];
-    return match.id;
-  }, [location.pathname]);
-
-  useEffect(() => {
-    document.body.dataset.dashboardPage = currentPage;
-  }, [currentPage]);
-
-  useEffect(() => {
-    setNavOpen(false);
-  }, [location.pathname]);
-
   const currentNav = useMemo(
-    () => NAV_ITEMS.find((item) => item.id === currentPage) ?? NAV_ITEMS[0],
-    [currentPage]
+    () => NAV_ITEMS.find((item) => item.id === activePage) ?? NAV_ITEMS[0],
+    [activePage]
   );
 
   const handleThemeSelect = (themeId: ThemeDefinition["id"]) => {
     setActiveTheme(themeId);
   };
 
-  const renderPage = (page: PageId) => {
-    if (page === "overview") {
+  const renderPage = () => {
+    if (activePage === "overview") {
       const widgetPlacements = DEFAULT_WIDGET_PLACEMENTS.map((placement) => {
         const widget = overviewWidgetMap[placement.id];
         if (!widget) {
@@ -610,7 +608,6 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                           className="akadeo-dashboard__primary-cta-button"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.97 }}
-                          onClick={() => navigate("/dashboard/classes")}
                         >
                           <span>Create or Join Class</span>
                         </motion.button>
@@ -647,21 +644,38 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
       );
     }
 
-    if (page === "classes") {
+    if (activePage === "classes") {
       return (
-        <ClassesProvider>
-          <Routes>
-            <Route path="classes" element={<ClassesDashboardPage />} />
-            <Route path="classes/create" element={<CreateClassPage />} />
-            <Route path="classes/join" element={<JoinClassPage />} />
-            <Route path="classes/:classId/*" element={<ClassDetailPage />} />
-            <Route path="*" element={<ClassesDashboardPage />} />
-          </Routes>
-        </ClassesProvider>
+        <Card className="akadeo-dashboard__card--frost">
+          <CardHeader>
+            <CardTitle className="akadeo-dashboard__heading-lg">Classes</CardTitle>
+            <CardDescription className="akadeo-dashboard__text-lead">
+              All of your classroom superpowers—AI planning, grading, communication, and analytics—will live in this
+              space. Here’s a preview of the toolset you’ll unlock.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="akadeo-dashboard__feature-grid">
+              {classesFeatureList.map((feature) => (
+                <motion.div
+                  key={feature}
+                  className="akadeo-dashboard__feature-card"
+                  whileHover={{ y: -2 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                >
+                  {feature}
+                </motion.div>
+              ))}
+            </div>
+            <p className="akadeo-dashboard__coming-soon">
+              Each module will connect seamlessly with Akadeo’s AI engine and analytics to save you hours every week.
+            </p>
+          </CardContent>
+        </Card>
       );
     }
 
-    if (page === "plans") {
+    if (activePage === "plans") {
       return (
         <>
           <div>
@@ -728,7 +742,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
       );
     }
 
-    if (page === "themes") {
+    if (activePage === "themes") {
       return (
         <div className="akadeo-dashboard__theme-page">
           <div className="akadeo-dashboard__themes-intro">
@@ -830,8 +844,8 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
       );
     }
 
-    if (page in comingSoonPages) {
-      const copy = comingSoonPages[page as keyof typeof comingSoonPages];
+    if (activePage in comingSoonPages) {
+      const copy = comingSoonPages[activePage as keyof typeof comingSoonPages];
       return (
         <Card className="akadeo-dashboard__card--muted">
           <CardHeader>
@@ -923,13 +937,13 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                   className="akadeo-dashboard__mobile-nav"
                 >
                   {NAV_ITEMS.map((item) => {
-                    const isActive = currentPage === item.id;
+                    const isActive = activePage === item.id;
                     return (
                       <button
                         key={item.id}
                         type="button"
                         onClick={() => {
-                          navigate(item.path);
+                          setActivePage(item.id);
                           setNavOpen(false);
                         }}
                         className={cn("akadeo-dashboard__mobile-nav-button", isActive && "is-active")}
@@ -953,12 +967,12 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
             <aside className="akadeo-dashboard__sidebar">
               <nav className="akadeo-dashboard__sidebar-nav">
                 {NAV_ITEMS.map((item) => {
-                  const isActive = currentPage === item.id;
+                  const isActive = activePage === item.id;
                   return (
                     <motion.button
                       key={item.id}
                       type="button"
-                      onClick={() => navigate(item.path)}
+                      onClick={() => setActivePage(item.id)}
                       className={cn("akadeo-dashboard__sidebar-button", isActive && "is-active")}
                       variants={sidebarHover}
                       whileHover="hover"
@@ -986,7 +1000,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
             <main className="akadeo-dashboard__main">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={currentPage}
+                  key={activePage}
                   variants={pageVariants}
                   initial="initial"
                   animate="animate"
@@ -994,7 +1008,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                   transition={{ duration: 0.28, ease: "easeOut" }}
                   className="akadeo-dashboard__page"
                 >
-                  {renderPage(currentPage)}
+                  {renderPage()}
                 </motion.div>
               </AnimatePresence>
             </main>

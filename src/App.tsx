@@ -507,7 +507,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RootRoute />} />
         <Route path="/setup" element={<SetupRoute />} />
-        <Route path="/dashboard/*" element={<DashboardRoute />} />
+        <Route path="/dashboard" element={<DashboardRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
