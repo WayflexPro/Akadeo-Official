@@ -31,26 +31,12 @@ If you are serving the compiled assets from a PHP host, make sure the React dash
 
 ## Environment variables
 
-The backend expects the following variables (identical to the former PHP implementation unless noted):
+The backend expects the following variables (identical to the former PHP implementation):
 
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-- `DATABASE_URL` – Postgres connection string used by the session store (`connect-pg-simple` creates the `session` table automatically)
-- `SESSION_SECRET` – keep this value stable across deployments so cookies remain valid
-- `WEB_ORIGIN` – comma-separated list of allowed frontend origins for CORS (e.g. `http://localhost:5173,https://app.akadeo.com`)
-- `COOKIE_DOMAIN` – optional shared cookie domain such as `.akadeo.com`
-- `COOKIE_SAMESITE` – defaults to `lax`; set to `none` when the frontend and backend live on different subdomains
-- `COOKIE_SECURE` – defaults to `true` in production, `false` in development; override only when necessary
-- `SESSION_COOKIE_NAME` – optional name for the auth cookie (`akadeo.sid` by default)
-- `SESSION_COOKIE_DAYS` – number of days before cookies expire (defaults to 7)
+- `SESSION_SECRET` (used to sign the session cookie)
 - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`
 - `APP_URL` (used for verification links)
-
-### Cookie & domain guidelines
-
-- **Local development:** keep the defaults (`COOKIE_SAMESITE=lax`, no custom domain) so cookies work over `http://localhost` without TLS.
-- **Cross-subdomain production (e.g. `app.akadeo.com` ↔ `api.akadeo.com`):** set `COOKIE_SAMESITE=none`, ensure TLS is enabled so the `Secure` flag can be set, and configure `COOKIE_DOMAIN=.akadeo.com` so both subdomains share the session cookie.
-- **Single-origin deployments:** you can leave `COOKIE_DOMAIN` unset. Cookies inherit the server origin automatically.
-- Remember to keep `SESSION_SECRET` stable between deploys; rotating it invalidates existing sessions immediately.
 
 When running locally without Brevo credentials, the server logs the verification
 code to the console and skips the email request so you can complete the

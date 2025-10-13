@@ -1,12 +1,12 @@
 import express from 'express';
 import session from 'express-session';
-import pgSession from 'connect-pg-simple';
-import cors from 'cors';
+import mysql from 'mysql2';
+import createMySQLStore from 'express-mysql-session';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import authRouter, { requireAuthenticatedUser } from './routes/auth.mjs';
-import { getSessionCookieConfig, isProduction, optionalEnv, requireEnv } from './env.mjs';
+import authRouter from './routes/auth.mjs';
+import { isProduction, requireEnv } from './env.mjs';
 import { HttpError, jsonError, withRequestId } from './utils.mjs';
 
 const app = express();
@@ -17,70 +17,62 @@ if (isProduction()) {
 }
 
 app.use(withRequestId);
-
-const rawOrigins = optionalEnv('WEB_ORIGIN');
-const allowedOrigins = rawOrigins
-  ? rawOrigins
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter((origin) => origin.length > 0)
-  : true;
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  })
-);
-
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   next();
 });
 
-const { name: sessionCookieName, cookie: sessionCookie } = getSessionCookieConfig();
-const PgSession = pgSession(session);
-const sessionStore = new PgSession({
-  conString: requireEnv('DATABASE_URL'),
-  tableName: optionalEnv('SESSION_TABLE_NAME', 'session'),
-  schemaName: optionalEnv('SESSION_SCHEMA'),
-  createTableIfMissing: true,
-});
+const sessionSecret = requireEnv('SESSION_SECRET');
+const MySQLStore = createMySQLStore(session);
+const sessionStore = new MySQLStore(
+  {
+    clearExpired: true,
+    checkExpirationInterval: 1000 * 60 * 10,
+    expiration: 1000 * 60 * 60 * 24 * 30,
+    createDatabaseTable: true,
+  },
+  mysql.createPool({
+    host: requireEnv('DB_HOST'),
+    port: Number.parseInt(requireEnv('DB_PORT', '3306'), 10),
+    user: requireEnv('DB_USER'),
+    password: requireEnv('DB_PASSWORD'),
+    database: requireEnv('DB_NAME'),
+    charset: 'utf8mb4',
+  })
+);
 
 app.use(
   session({
-    name: sessionCookieName,
-    secret: requireEnv('SESSION_SECRET'),
+    name: 'akadeo_session',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
-    rolling: true,
-    cookie: sessionCookie,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction(),
+      maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+    },
     store: sessionStore,
   })
 );
 
 app.use('/api/auth', authRouter);
 
-const protectedApi = express.Router();
-
-protectedApi.use((req, res) => {
+app.use('/api', (req, res) => {
   jsonError(res, 'NOT_FOUND', 'API route not found.', 404, {
     code: 'E_ROUTE_NOT_FOUND',
   });
 });
 
-app.use('/api', requireAuthenticatedUser, protectedApi);
-
 app.use('/dashboard', (req, res, next) => {
   const session = req.session;
-  const sessionUser = session?.user;
-  if (!session || !sessionUser) {
+  if (!session || !session.userId) {
     res.redirect('/index.html#sign-in');
     return;
   }
-  if (!sessionUser.setupCompletedAt) {
+  if (!session.setupCompletedAt) {
     res.redirect('/setup');
     return;
   }
