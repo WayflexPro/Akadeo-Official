@@ -49,8 +49,8 @@ export interface ClassInviteRow {
   id: string;
   class_id: string;
   invitee_email: string;
-  role: "teacher";
-  status: "pending" | "accepted" | "declined" | "expired";
+  role: string;
+  status: string;
   created_at: string;
 }
 
@@ -91,12 +91,11 @@ export async function insertClassMember(
   input: AddMemberInput
 ): Promise<ClassMemberRow> {
   const id = nanoid();
-  const createdAt = toDbTimestamp(new Date());
   const { rows } = await client.query<ClassMemberRow>(
-    `INSERT INTO class_members (id, class_id, user_id, role, created_at)
-     VALUES ($1,$2,$3,$4,$5)
+    `INSERT INTO class_members (id, class_id, user_id, role)
+     VALUES ($1,$2,$3,$4)
      RETURNING *`,
-    [id, input.classId, input.userId, input.role, createdAt]
+    [id, input.classId, input.userId, input.role]
   );
   return rows[0];
 }
@@ -106,12 +105,11 @@ export async function insertTeacherInvite(
   input: CreateInviteInput
 ): Promise<ClassInviteRow> {
   const id = nanoid();
-  const createdAt = toDbTimestamp(new Date());
   const { rows } = await client.query<ClassInviteRow>(
-    `INSERT INTO class_invites (id, class_id, invitee_email, role, status, created_at)
-     VALUES ($1,$2,$3,'teacher','pending',$4)
+    `INSERT INTO class_invites (id, class_id, invitee_email, role)
+     VALUES ($1,$2,$3,'teacher')
      RETURNING *`,
-    [id, input.classId, input.email.toLowerCase(), createdAt]
+    [id, input.classId, input.email.toLowerCase()]
   );
   return rows[0];
 }
