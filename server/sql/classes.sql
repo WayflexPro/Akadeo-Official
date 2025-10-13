@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS class_members (
   id TEXT PRIMARY KEY,
   class_id TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
   user_id TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('teacher', 'student')),
+  role VARCHAR(20) NOT NULL CHECK (role IN ('teacher', 'student')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT uq_class_members UNIQUE (class_id, user_id)
 );
@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS class_invites (
   id TEXT PRIMARY KEY,
   class_id TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
   invitee_email VARCHAR(254) NOT NULL CHECK (position('@' in invitee_email) > 1),
-  role TEXT NOT NULL CHECK (role = 'teacher'),
-  status TEXT NOT NULL DEFAULT 'pending'
+  role VARCHAR(20) NOT NULL CHECK (role = 'teacher'),
+  status VARCHAR(20) NOT NULL DEFAULT 'pending'
          CHECK (status IN ('pending', 'accepted', 'declined', 'expired')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT uq_class_invite UNIQUE (class_id, invitee_email, role)
