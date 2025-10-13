@@ -6,7 +6,7 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { registerMockClassCode, seedMockClassCodes } from "../../lib/classCode";
+import { customAlphabet } from "nanoid";
 import {
   ClassRecord,
   ClassThemeDefinition,
@@ -14,6 +14,9 @@ import {
   CreateClassInput,
   JoinClassInput,
 } from "./types";
+
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const createCode = customAlphabet(CODE_ALPHABET, 6);
 
 const createId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `cls_${Math.random().toString(36).slice(2)}`);
 
@@ -118,8 +121,6 @@ const seedClasses: ClassRecord[] = [
   },
 ];
 
-seedMockClassCodes(seedClasses.map((cls) => cls.code));
-
 interface ClassesContextValue {
   classes: ClassRecord[];
   notifications: DashboardNotification[];
@@ -150,14 +151,10 @@ export const ClassesProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const createClass = useCallback(async (input: CreateClassInput) => {
-    const normalizedCode = input.code.trim().toUpperCase();
-    const existingCodes = new Set(classes.map((cls) => cls.code.toUpperCase()));
-    if (!normalizedCode) {
-      throw new Error("Class code is required.");
-    }
-    if (existingCodes.has(normalizedCode)) {
-      // TODO: Replace with server-side enforcement (409) once API endpoints are available to avoid race conditions.
-      throw new Error("Class code already exists.");
+    const existingCodes = new Set(classes.map((cls) => cls.code));
+    let code = createCode();
+    while (existingCodes.has(code)) {
+      code = createCode();
     }
 
     const now = new Date().toISOString();
@@ -169,7 +166,7 @@ export const ClassesProvider = ({ children }: PropsWithChildren) => {
       subject: input.subject,
       roomNumber: input.roomNumber,
       themeId: input.themeId,
-      code: normalizedCode,
+      code,
       imageUrl: input.imageUrl,
       ownerId: seedTeacher.id,
       createdAt: now,
@@ -188,7 +185,6 @@ export const ClassesProvider = ({ children }: PropsWithChildren) => {
     };
 
     setClasses((prev) => [newClass, ...prev]);
-    registerMockClassCode(normalizedCode);
 
     if (newClass.invites.length > 0) {
       appendNotification(`Invitations prepared for ${newClass.invites.length} fellow teacher${

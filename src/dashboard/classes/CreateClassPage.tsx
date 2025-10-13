@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
@@ -7,9 +7,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { Select } from "../../components/ui/select";
-import { Badge } from "../../components/ui/badge";
 import { useClasses } from "./ClassesContext";
-import { useClassCode } from "../../hooks/useClassCode";
 
 const EMAIL_SPLIT_REGEX = /[\s,;]+/;
 
@@ -19,9 +17,6 @@ export function CreateClassPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const { code, status, message, regenerate, recheckBeforeSubmit, canSubmit, isChecking } = useClassCode();
-  const [copyLabel, setCopyLabel] = useState("Copy");
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [formState, setFormState] = useState({
     name: "",
@@ -42,65 +37,6 @@ export function CreateClassPage() {
     [formState.teacherEmails]
   );
 
-  const handleCopy = useCallback(async () => {
-    if (copyTimeoutRef.current) {
-      clearTimeout(copyTimeoutRef.current);
-      copyTimeoutRef.current = null;
-    }
-
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopyLabel("Copied!");
-      copyTimeoutRef.current = setTimeout(() => {
-        setCopyLabel("Copy");
-        copyTimeoutRef.current = null;
-      }, 1600);
-    } catch (copyError) {
-      console.error("Failed to copy class code", copyError);
-      setError("We couldn't copy the class code automatically. Please copy it manually.");
-      setCopyLabel("Copy");
-    }
-  }, [code]);
-
-  useEffect(() => {
-    if (copyTimeoutRef.current) {
-      clearTimeout(copyTimeoutRef.current);
-      copyTimeoutRef.current = null;
-    }
-    setCopyLabel("Copy");
-  }, [code]);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const statusBadge = useMemo(() => {
-    switch (status) {
-      case "available":
-        return { label: "Available", variant: "success" as const, className: "" };
-      case "taken":
-        return {
-          label: "Already used",
-          variant: "outline" as const,
-          className: "border-rose-200 bg-rose-100 text-rose-700",
-        };
-      case "error":
-        return { label: "Error", variant: "warning" as const, className: "" };
-      case "checking":
-      case "idle":
-      default:
-        return {
-          label: "Checking…",
-          variant: "outline" as const,
-          className: "border-slate-300 bg-slate-100 text-slate-600",
-        };
-    }
-  }, [status]);
-
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formState.name.trim()) {
@@ -112,14 +48,6 @@ export function CreateClassPage() {
     setIsSubmitting(true);
 
     try {
-      const isUnique = await recheckBeforeSubmit();
-      if (!isUnique) {
-        setError(
-          "Class code changed while you were editing. We've generated a new one—please review it before submitting again."
-        );
-        return;
-      }
-
       const newClass = await createClass({
         name: formState.name.trim(),
         description: formState.description.trim() || undefined,
@@ -128,7 +56,6 @@ export function CreateClassPage() {
         themeId: formState.themeId,
         teacherEmails: parsedTeacherEmails,
         imageUrl: formState.imageUrl.trim() || previewUrl || undefined,
-        code,
       });
 
       console.log("Generated class code", newClass.code);
@@ -227,50 +154,6 @@ export function CreateClassPage() {
             </div>
 
             <div className="grid gap-2">
-              <div className="flex items-center justify-between gap-3">
-                <Label htmlFor="class-code" className="flex items-center gap-2">
-                  Class code
-                  <Badge variant={statusBadge.variant} className={statusBadge.className}>
-                    {statusBadge.label}
-                  </Badge>
-                </Label>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
-                <Input id="class-code" value={code} readOnly className="font-mono uppercase" />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  disabled={isChecking}
-                  onClick={() => {
-                    void regenerate();
-                  }}
-                >
-                  Regenerate
-                </Button>
-                <Button type="button" variant="outline" onClick={() => void handleCopy()}>
-                  {copyLabel}
-                </Button>
-              </div>
-              <p
-                className={
-                  status === "available"
-                    ? "text-xs font-medium text-emerald-600"
-                    : status === "taken"
-                    ? "text-xs font-medium text-rose-600"
-                    : status === "error"
-                    ? "text-xs font-medium text-amber-600"
-                    : "text-xs text-slate-500"
-                }
-              >
-                {message}
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Codes refresh automatically if someone else grabs this one before you finish. Final enforcement will
-                happen on the server (TODO: add 409 response once API is ready).
-              </p>
-            </div>
-
-            <div className="grid gap-2">
               <Label htmlFor="class-image">Class cover image</Label>
               <Input id="class-image" type="file" accept="image/*" onChange={handleFileChange} />
               <Input
@@ -322,7 +205,7 @@ export function CreateClassPage() {
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <Button type="button" variant="ghost" onClick={() => navigate("/dashboard/classes")}>Cancel</Button>
-              <Button type="submit" size="lg" disabled={isSubmitting || !canSubmit || isChecking}>
+              <Button type="submit" size="lg" disabled={isSubmitting}>
                 {isSubmitting ? "Creating class…" : "Create class"}
               </Button>
             </div>
