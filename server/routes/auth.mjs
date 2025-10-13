@@ -845,3 +845,4 @@ authRouter.all('/resend-verification', (req, res) => {
 });
 
 export default authRouter;
+export { getAuthenticatedSessionUser };

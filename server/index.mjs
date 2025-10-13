@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import authRouter, { requireAuthenticatedUser } from './routes/auth.mjs';
+import classesRouter from './routes/classes.mjs';
 import { getSessionCookieConfig, isProduction, optionalEnv, requireEnv } from './env.mjs';
 import { HttpError, jsonError, withRequestId } from './utils.mjs';
 
@@ -62,6 +63,7 @@ app.use(
 );
 
 app.use('/api/auth', authRouter);
+app.use('/api/classes', classesRouter);
 
 const protectedApi = express.Router();
 
