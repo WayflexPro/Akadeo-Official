@@ -6,6 +6,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import authRouter from './routes/auth.mjs';
+import membershipsRouter from './routes/memberships.mjs';
+import stripeWebhookRouter from './routes/stripeWebhook.mjs';
 import { isProduction, requireEnv } from './env.mjs';
 import { HttpError, jsonError, withRequestId } from './utils.mjs';
 
@@ -17,6 +19,7 @@ if (isProduction()) {
 }
 
 app.use(withRequestId);
+app.use('/api/stripe/webhook', stripeWebhookRouter);
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
@@ -59,6 +62,7 @@ app.use(
 );
 
 app.use('/api/auth', authRouter);
+app.use('/api', membershipsRouter);
 
 app.use('/api', (req, res) => {
   jsonError(res, 'NOT_FOUND', 'API route not found.', 404, {
