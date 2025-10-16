@@ -9,6 +9,7 @@ import {
   subscriptionIsActive,
   updatePaymentStatus,
 } from '../lib/membership.mjs';
+import { getDefaultPlanRows } from '../lib/defaultPlans.mjs';
 
 const stripe = new Stripe(requireEnv('STRIPE_SECRET_KEY'), {
   apiVersion: '2024-06-20',
@@ -40,6 +41,10 @@ async function fetchPlanById(connection, planId) {
     [planId]
   );
   if (!Array.isArray(rows) || rows.length === 0) {
+    const fallback = getDefaultPlanRows().find((p) => p.id === planId);
+    if (fallback) {
+      return fallback;
+    }
     throw new HttpError(404, 'NOT_FOUND', 'Plan referenced by payment was not found.', {
       code: 'E_WEBHOOK_PLAN_NOT_FOUND',
     });
