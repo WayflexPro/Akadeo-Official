@@ -572,6 +572,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   const currentPlanId = subscription?.planId ?? null;
   const isSubscriptionActive = subscription?.isActive ?? false;
 
+  // Label is already correct; keep as-is.
   const currentPlanLabel = useMemo(() => {
     if (subscriptionLoading) {
       return "Loading…";
@@ -595,7 +596,11 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     return date.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
   };
 
-  const nextBillingDate = useMemo(() => formatDateDisplay(subscription?.endDate ?? null), [subscription?.endDate]);
+  // ⬇️ Only show a next billing date if the subscription is ACTIVE
+  const nextBillingDate = useMemo(
+    () => (isSubscriptionActive ? formatDateDisplay(subscription?.endDate ?? null) : null),
+    [subscription?.endDate, isSubscriptionActive]
+  );
 
   const handleStartCheckout = async (plan: SubscriptionPlan) => {
     if (plan.priceCents <= 0) {
@@ -873,9 +878,11 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
           ? "Active"
           : "Free member";
 
-      const currentPrice = subscription?.currentPriceCents
-        ? formatCurrencyFromCents(subscription.currentPriceCents)
-        : null;
+      // ⬇️ Only show a price if the subscription is ACTIVE
+      const currentPrice =
+        isSubscriptionActive && subscription?.currentPriceCents
+          ? formatCurrencyFromCents(subscription.currentPriceCents)
+          : null;
 
       return (
         <div className="akadeo-dashboard__settings-grid">
