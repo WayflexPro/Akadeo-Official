@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { LAUNCH_DISCOUNT, plans as sitePlans, type Plan as SitePlan } from "@/content/siteContent";
 import { cn } from "../lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { useAuth } from "../features/auth/AuthContext";
+import { fetchPlans, startCheckout, type Plan as SubscriptionPlan } from "../features/subscriptions/api";
+import { useSubscription } from "../features/subscriptions/SubscriptionContext";
 import "./AkadeoDashboard.css";
 
 const NAV_ITEMS = [
@@ -51,14 +52,13 @@ const classesFeatureList = [
   "Organization Dashboard",
 ];
 
-const comingSoonPages: Record<Exclude<PageId, "overview" | "classes" | "plans" | "themes">, string> = {
+const comingSoonPages: Record<Exclude<PageId, "overview" | "classes" | "plans" | "themes" | "settings">, string> = {
   "smart-planner": "Plan differentiated instruction with AI suggestions tailored to each class.",
   notifications: "All of your class, student, and platform alerts will surface here soon.",
   templates: "Reusable lesson, quiz, and communication templates are on the way.",
   "file-management": "Organize handouts, media, and AI resources in a central library.",
   "learning-insights": "Deep insights into mastery, pacing, and student sentiment are in progress.",
   "ai-co-teacher": "Your AI co-teacher will help orchestrate lessons and personalize support.",
-  settings: "Manage your profile, security, integrations, and more—coming soon.",
 };
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -67,17 +67,6 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-type DashboardPlan = Pick<SitePlan, "id" | "name" | "tagline" | "badge" | "monthlyPrice" | "annualPrice" | "features">;
-
-const plans: DashboardPlan[] = sitePlans.map((plan) => ({
-  id: plan.id,
-  name: plan.name,
-  tagline: plan.tagline,
-  badge: plan.badge,
-  monthlyPrice: plan.monthlyPrice,
-  annualPrice: plan.annualPrice,
-  features: plan.features,
-}));
 
 type ThemeDefinition = {
   id: string;
@@ -473,22 +462,38 @@ const sidebarHover = {
   hover: { y: -1, scale: 1.01 },
 };
 
-const getPlanCtaLabel = (planId: SitePlan["id"]): string => {
-  if (planId === "free") {
-    return "Start for free";
+const getPlanCtaLabel = (plan: SubscriptionPlan, isCurrent: boolean): string => {
+  if (isCurrent) {
+    return "Current plan";
   }
-  if (planId === "enterprise") {
-    return "Contact sales";
+  if (plan.priceCents <= 0) {
+    return "Talk with us";
   }
-  if (LAUNCH_DISCOUNT.active) {
-    return `Choose plan – ${LAUNCH_DISCOUNT.percent}% OFF`;
+  if (plan.discountActive && plan.discountPercent) {
+    return `Choose plan – ${plan.discountPercent}% OFF`;
   }
   return "Choose plan";
 };
 
 export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
   const { logout } = useAuth();
-  const [activePage, setActivePage] = useState<PageId>("overview");
+  const { subscription, loading: subscriptionLoading, cancel, canceling, cancelError } = useSubscription();
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+  const [plansError, setPlansError] = useState<string | null>(null);
+  const [checkoutPlanId, setCheckoutPlanId] = useState<number | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [activePage, setActivePage] = useState<PageId>(() => {
+    if (typeof window === "undefined") {
+      return "overview";
+    }
+    const stored = window.sessionStorage.getItem("akadeo-dashboard-target-page");
+    if (stored && NAV_ITEMS.some((item) => item.id === stored)) {
+      window.sessionStorage.removeItem("akadeo-dashboard-target-page");
+      return stored as PageId;
+    }
+    return "overview";
+  });
   const [navOpen, setNavOpen] = useState(false);
   const displayName = userName?.trim().length ? userName : "there";
   const [signingOut, setSigningOut] = useState(false);
@@ -528,10 +533,111 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     window.localStorage.setItem(THEME_STORAGE_KEY, activeTheme);
   }, [activeTheme]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPlans = async () => {
+      setPlansLoading(true);
+      setPlansError(null);
+      try {
+        const response = await fetchPlans();
+        if (!cancelled) {
+          setPlans(response.data.plans);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          setPlansError(err?.message || "We couldn\'t load the plans.");
+        }
+      } finally {
+        if (!cancelled) {
+          setPlansLoading(false);
+        }
+      }
+    };
+
+    loadPlans();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const currentNav = useMemo(
     () => NAV_ITEMS.find((item) => item.id === activePage) ?? NAV_ITEMS[0],
     [activePage]
   );
+
+  const anyPlanHasDiscount = useMemo(() => plans.some((plan) => plan.discountActive), [plans]);
+
+  const currentPlanId = subscription?.planId ?? null;
+  const isSubscriptionActive = subscription?.isActive ?? false;
+
+  const currentPlanLabel = useMemo(() => {
+    if (subscriptionLoading) {
+      return "Loading…";
+    }
+    if (!subscription || !subscription.isActive) {
+      return "Free";
+    }
+    return subscription.planName || "Free";
+  }, [subscription, subscriptionLoading]);
+
+  const formatCurrencyFromCents = (value: number) => currencyFormatter.format(value / 100);
+
+  const formatDateDisplay = (iso: string | null) => {
+    if (!iso) {
+      return null;
+    }
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return date.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+  };
+
+  const nextBillingDate = useMemo(() => formatDateDisplay(subscription?.endDate ?? null), [subscription?.endDate]);
+
+  const handleStartCheckout = async (plan: SubscriptionPlan) => {
+    if (plan.priceCents <= 0) {
+      return;
+    }
+
+    setCheckoutError(null);
+    setCheckoutPlanId(plan.id);
+
+    try {
+      const response = await startCheckout(plan.id);
+      const url = response.data.url;
+      if (url) {
+        window.location.href = url;
+        return;
+      }
+      setCheckoutError("We couldn\'t start the checkout session. Please try again in a moment.");
+    } catch (err: any) {
+      setCheckoutError(err?.message || "We couldn\'t start the checkout session. Please try again.");
+    } finally {
+      setCheckoutPlanId(null);
+    }
+  };
+
+  const handleCancelMembership = async () => {
+    if (!subscription?.isActive) {
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const confirmed = window.confirm(
+        "Cancel your membership? Your workspace will immediately revert to the Free plan."
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+    try {
+      await cancel();
+    } catch {
+      // Errors are exposed via cancelError state.
+    }
+  };
 
   const handleThemeSelect = (themeId: ThemeDefinition["id"]) => {
     setActiveTheme(themeId);
@@ -676,69 +782,152 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     }
 
     if (activePage === "plans") {
+      const renderPlans = () => {
+        if (plansLoading) {
+          return <p className="akadeo-dashboard__text-muted">Loading plans…</p>;
+        }
+        if (plansError) {
+          return <p className="akadeo-dashboard__plan-error">{plansError}</p>;
+        }
+        if (!plans.length) {
+          return <p className="akadeo-dashboard__text-muted">Plans will be available soon.</p>;
+        }
+
+        return (
+          <div className="akadeo-dashboard__plans-grid">
+            {plans.map((plan) => {
+              const isCurrent = isSubscriptionActive && currentPlanId === plan.id;
+              const isContactOnly = plan.priceCents <= 0;
+              const priceLabel = isContactOnly ? "Contact us" : formatCurrencyFromCents(plan.currentPriceCents);
+              const originalPrice =
+                !isContactOnly && plan.discountActive && plan.currentPriceCents !== plan.priceCents
+                  ? formatCurrencyFromCents(plan.priceCents)
+                  : null;
+
+              return (
+                <motion.div key={plan.id} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 280, damping: 26 }}>
+                  <Card
+                    className={cn(
+                      "akadeo-dashboard__plan-card",
+                      isCurrent && "akadeo-dashboard__plan-card--current",
+                      plan.discountActive && "akadeo-dashboard__plan-card--discount"
+                    )}
+                  >
+                    <CardHeader>
+                      <div className="akadeo-dashboard__plan-header">
+                        <CardTitle className="akadeo-dashboard__plan-title">{plan.name}</CardTitle>
+                        {plan.discountActive && plan.discountPercent ? (
+                          <span className="akadeo-dashboard__plan-badge">Save {plan.discountPercent}%</span>
+                        ) : null}
+                      </div>
+                      <CardDescription className="akadeo-dashboard__plan-tagline">{plan.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="akadeo-dashboard__plan-pricing">
+                        <p className="akadeo-dashboard__plan-price">
+                          {priceLabel}
+                          {!isContactOnly && <small>/mo</small>}
+                        </p>
+                        {originalPrice ? (
+                          <span className="akadeo-dashboard__plan-price-original">{originalPrice}/mo</span>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        className="akadeo-dashboard__plan-button"
+                        onClick={() => handleStartCheckout(plan)}
+                        disabled={isContactOnly || isCurrent || checkoutPlanId === plan.id}
+                      >
+                        {checkoutPlanId === plan.id ? "Redirecting…" : getPlanCtaLabel(plan, isCurrent)}
+                      </button>
+                      {isCurrent ? (
+                        <p className="akadeo-dashboard__plan-note">This is your current membership.</p>
+                      ) : null}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+        );
+      };
+
       return (
         <>
           <div>
             <h2 className="akadeo-dashboard__heading-lg">Plans</h2>
             <p className="akadeo-dashboard__text-lead">
-              Choose the Akadeo plan that fits your classroom or institution. Monthly pricing shown—switching to annual
-              unlocks extra savings.
+              Choose the Akadeo plan that fits your classroom or institution. Discounts apply automatically when available.
             </p>
           </div>
-          <div className="akadeo-dashboard__plans-grid">
-            {plans.map((plan) => (
-              <motion.div
-                key={plan.id}
-                whileHover={{ y: -4 }}
-                transition={{ type: "spring", stiffness: 280, damping: 26 }}
-              >
-                <Card
-                  className={cn(
-                    "akadeo-dashboard__plan-card",
-                    plan.id === "starter" && "akadeo-dashboard__plan-card--highlight"
-                  )}
-                >
-                  <CardHeader>
-                    <div className="akadeo-dashboard__plan-header">
-                      <CardTitle className="akadeo-dashboard__plan-title">{plan.name}</CardTitle>
-                      <span className="akadeo-dashboard__plan-badge">{plan.badge}</span>
-                    </div>
-                    <CardDescription className="akadeo-dashboard__plan-tagline">{plan.tagline}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="akadeo-dashboard__plan-pricing">
-                      <p className="akadeo-dashboard__plan-price">
-                        {plan.monthlyPrice === null ? "Custom" : currencyFormatter.format(plan.monthlyPrice)}
-                        {plan.monthlyPrice !== null && <small>/mo</small>}
-                      </p>
-                      {plan.monthlyPrice !== null && plan.id !== "free" && LAUNCH_DISCOUNT.active && (
-                        <span className="akadeo-dashboard__plan-discount">
-                          {LAUNCH_DISCOUNT.percent}% OFF launch
-                        </span>
-                      )}
-                      {plan.annualPrice !== null && (
-                        <p className="akadeo-dashboard__plan-annual">
-                          Annual: {currencyFormatter.format(plan.annualPrice / 12)}/mo equivalent
-                        </p>
-                      )}
-                    </div>
-                    <ul className="akadeo-dashboard__plan-features">
-                      {plan.features.slice(0, 3).map((feature) => (
-                        <li key={feature}>
-                          <span className="akadeo-dashboard__plan-feature-dot" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <button type="button" className="akadeo-dashboard__plan-button">
-                      {getPlanCtaLabel(plan.id)}
-                    </button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          {checkoutError ? <p className="akadeo-dashboard__plan-error">{checkoutError}</p> : null}
+          {renderPlans()}
         </>
+      );
+    }
+
+    if (activePage === "settings") {
+      const statusLabel = subscriptionLoading
+        ? "Checking status…"
+        : isSubscriptionActive
+          ? "Active"
+          : "Free member";
+
+      const currentPrice = subscription?.currentPriceCents
+        ? formatCurrencyFromCents(subscription.currentPriceCents)
+        : null;
+
+      return (
+        <div className="akadeo-dashboard__settings-grid">
+          <Card className="akadeo-dashboard__card--frost">
+            <CardHeader>
+              <CardTitle className="akadeo-dashboard__heading-lg">Account &amp; billing</CardTitle>
+              <CardDescription className="akadeo-dashboard__text-lead">
+                Review your current membership, update billing preferences, or cancel when you no longer need the paid
+                workspace.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="akadeo-dashboard__plan-summary">
+                <div>
+                  <p className="akadeo-dashboard__plan-summary-label">Current plan</p>
+                  <p className="akadeo-dashboard__plan-summary-name">{currentPlanLabel}</p>
+                  <p className="akadeo-dashboard__plan-summary-status">Status: {statusLabel}</p>
+                  {currentPrice ? (
+                    <p className="akadeo-dashboard__plan-summary-price">{currentPrice}/mo</p>
+                  ) : null}
+                  {nextBillingDate ? (
+                    <p className="akadeo-dashboard__plan-summary-note">Renews on {nextBillingDate}</p>
+                  ) : (
+                    <p className="akadeo-dashboard__plan-summary-note">
+                      Billing details will appear here once your membership is active.
+                    </p>
+                  )}
+                </div>
+                <div className="akadeo-dashboard__plan-actions">
+                  <button
+                    type="button"
+                    className="akadeo-dashboard__button"
+                    onClick={() => setActivePage("plans")}
+                  >
+                    Change plan
+                  </button>
+                  {isSubscriptionActive ? (
+                    <button
+                      type="button"
+                      className="akadeo-dashboard__button akadeo-dashboard__button--danger"
+                      onClick={handleCancelMembership}
+                      disabled={canceling}
+                    >
+                      {canceling ? "Canceling…" : "Cancel membership"}
+                    </button>
+                  ) : null}
+                </div>
+                {cancelError ? <p className="akadeo-dashboard__plan-error">{cancelError}</p> : null}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       );
     }
 
@@ -895,6 +1084,13 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                   <p className="akadeo-dashboard__brand-greeting">Hello, {displayName}</p>
                 </div>
               </div>
+              <div className="akadeo-dashboard__plan-indicator" role="status">
+                <span className="akadeo-dashboard__plan-indicator-label">Plan</span>
+                <strong className="akadeo-dashboard__plan-indicator-name">{currentPlanLabel}</strong>
+                <small className="akadeo-dashboard__plan-indicator-status">
+                  {subscriptionLoading ? "Loading" : isSubscriptionActive ? "Active" : "Free tier"}
+                </small>
+              </div>
               <div className="akadeo-dashboard__header-actions">
                 <motion.button
                   type="button"
@@ -950,9 +1146,9 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                         aria-current={isActive ? "page" : undefined}
                       >
                         <span>{item.label}</span>
-                        {item.id === "plans" && LAUNCH_DISCOUNT.active ? (
+                        {item.id === "plans" && anyPlanHasDiscount ? (
                           <span className="akadeo-dashboard__nav-discount">
-                            {LAUNCH_DISCOUNT.percent}% OFF
+                          Save now
                           </span>
                         ) : null}
                       </button>
@@ -986,9 +1182,9 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                         />
                       )}
                       <span className="akadeo-dashboard__sidebar-label">{item.label}</span>
-                      {item.id === "plans" && LAUNCH_DISCOUNT.active ? (
+                      {item.id === "plans" && anyPlanHasDiscount ? (
                         <span className="akadeo-dashboard__nav-discount">
-                          {LAUNCH_DISCOUNT.percent}% OFF
+                          Save now
                         </span>
                       ) : null}
                     </motion.button>

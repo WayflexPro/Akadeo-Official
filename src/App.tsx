@@ -17,6 +17,9 @@ import DebugPanel from "./components/DebugPanel";
 import { useAuth } from "./features/auth/AuthContext";
 import { getSession } from "./features/auth/api";
 import AkadeoDashboard from "./dashboard/AkadeoDashboard";
+import PaymentSuccessPage from "./dashboard/pages/PaymentSuccess";
+import PaymentFailedPage from "./dashboard/pages/PaymentFailed";
+import { SubscriptionProvider } from "./features/subscriptions/SubscriptionContext";
 
 const NAV_PAGES = ["home", "about", "features", "pricing", "faq", "blog", "contact"] as const;
 const LEGAL_PAGES = ["terms", "privacy"] as const;
@@ -497,7 +500,47 @@ function DashboardRoute() {
     return <Navigate to="/setup" replace />;
   }
 
-  return <AkadeoDashboard userName={userName} />;
+  return (
+    <SubscriptionProvider>
+      <AkadeoDashboard userName={userName} />
+    </SubscriptionProvider>
+  );
+}
+
+function DashboardPaymentSuccessRoute() {
+  const { state } = useAuth();
+
+  if (!state.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (state.requiresSetup) {
+    return <Navigate to="/setup" replace />;
+  }
+
+  return (
+    <SubscriptionProvider>
+      <PaymentSuccessPage />
+    </SubscriptionProvider>
+  );
+}
+
+function DashboardPaymentFailedRoute() {
+  const { state } = useAuth();
+
+  if (!state.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (state.requiresSetup) {
+    return <Navigate to="/setup" replace />;
+  }
+
+  return (
+    <SubscriptionProvider>
+      <PaymentFailedPage />
+    </SubscriptionProvider>
+  );
 }
 
 export default function App() {
@@ -508,6 +551,8 @@ export default function App() {
         <Route path="/" element={<RootRoute />} />
         <Route path="/setup" element={<SetupRoute />} />
         <Route path="/dashboard" element={<DashboardRoute />} />
+        <Route path="/dashboard/payment-success" element={<DashboardPaymentSuccessRoute />} />
+        <Route path="/dashboard/payment-failed" element={<DashboardPaymentFailedRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

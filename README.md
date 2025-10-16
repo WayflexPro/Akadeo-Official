@@ -31,17 +31,68 @@ If you are serving the compiled assets from a PHP host, make sure the React dash
 
 ## Environment variables
 
-The backend expects the following variables (identical to the former PHP implementation):
+The backend expects the following variables:
 
 - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 - `SESSION_SECRET` (used to sign the session cookie)
 - `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`
 - `APP_URL` (used for verification links)
+- `STRIPE_SECRET_KEY` (server-side API key for creating checkout sessions and managing subscriptions)
+- `STRIPE_WEBHOOK_SECRET` (signature secret for `/api/stripe/webhook`)
+- `APP_BASE_URL` (optional override for building success/cancel URLs; defaults to the incoming request origin)
 
 When running locally without Brevo credentials, the server logs the verification
 code to the console and skips the email request so you can complete the
 onboarding flow. In production, the credentials must be configured and missing
 values will cause the setup to fail.
+
+## Database tables for memberships
+
+Railway’s managed MySQL offering only supports `Serial`, `Integer`, and `Text`
+columns, so uniqueness and foreign-key checks must live in the application
+layer. Create the following tables before enabling paid memberships:
+
+```sql
+CREATE TABLE IF NOT EXISTS plans (
+  id Serial PRIMARY KEY,
+  name Text NOT NULL,
+  price_cents Integer NOT NULL,
+  discount_percent Integer,
+  discount_end_date Text,
+  description Text,
+  created_at Text,
+  updated_at Text
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id Serial PRIMARY KEY,
+  user_id Integer NOT NULL,
+  plan_id Integer NOT NULL,
+  status Text NOT NULL,
+  start_date Text NOT NULL,
+  end_date Text,
+  stripe_subscription_id Text
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+  id Serial PRIMARY KEY,
+  user_id Integer NOT NULL,
+  plan_id Integer NOT NULL,
+  stripe_session_id Text NOT NULL,
+  status Text NOT NULL,
+  amount_paid_cents Integer NOT NULL,
+  created_at Text NOT NULL
+);
+```
+
+Populate `plans` with the memberships you offer. The server applies any active
+discount (`discount_percent` until `discount_end_date`) when creating Stripe
+checkout sessions. The webhook handler records successful payments, updates the
+`subscriptions` table, and marks failed invoices as canceled so the dashboard
+reverts the user to the Free plan.
+
+Expose the webhook endpoint `POST /api/stripe/webhook` in Stripe’s dashboard
+and supply the signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 ## Deploying to Railway
 
