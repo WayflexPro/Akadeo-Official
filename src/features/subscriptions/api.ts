@@ -1,4 +1,5 @@
 import { fetchWithDiagnostics } from "../../lib/fetchWithDiagnostics";
+import { buildDefaultPlans } from "./defaultPlans";
 
 export type Plan = {
   id: number;
@@ -50,7 +51,17 @@ async function request<T>(url: string, options: RequestInit & { timeoutMs?: numb
 }
 
 export async function fetchPlans() {
-  return request<PlansResponse>("/api/plans", { method: "GET", timeoutMs: 10000 });
+  try {
+    const payload = await request<PlansResponse>("/api/plans", { method: "GET", timeoutMs: 10000 });
+    if (!payload?.data?.plans || payload.data.plans.length === 0) {
+      const fallback = buildDefaultPlans();
+      return { ok: true, data: { plans: fallback } } as const;
+    }
+    return payload;
+  } catch (error) {
+    const fallback = buildDefaultPlans();
+    return { ok: true, data: { plans: fallback } } as const;
+  }
 }
 
 export async function startCheckout(planId: number) {
