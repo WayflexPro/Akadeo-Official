@@ -798,9 +798,20 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
           return <p className="akadeo-dashboard__text-muted">Plans will be available soon.</p>;
         }
 
+        // Ensure consistent visual order:
+        // 1) Free (id=1), 2) paid by ascending price, 3) contact-only (price<=0 && id!==1) last.
+        const sortedPlans = [...plans].sort((a, b) => {
+          const weight = (p: SubscriptionPlan) => (p.priceCents <= 0 && p.id !== 1 ? 1 : 0);
+          const wa = weight(a);
+          const wb = weight(b);
+          if (wa !== wb) return wa - wb; // paid before contact-only
+          if (a.priceCents !== b.priceCents) return a.priceCents - b.priceCents; // cheaper first
+          return a.id - b.id; // stable, deterministic tie-break
+        });
+
         return (
           <div className="akadeo-dashboard__plans-grid">
-            {plans.map((plan) => {
+            {sortedPlans.map((plan) => {
               const isCurrent = isSubscriptionActive && currentPlanId === plan.id;
               const isContactOnly = plan.priceCents <= 0;
               const priceLabel = isContactOnly ? "Contact us" : formatCurrencyFromCents(plan.currentPriceCents);
