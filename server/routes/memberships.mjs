@@ -4,6 +4,7 @@ import { getPool } from '../db.mjs';
 import { optionalEnv, requireEnv } from '../env.mjs';
 import { HttpError, asyncHandler, jsonOk, methodNotAllowed } from '../utils.mjs';
 import { requireAuthenticatedUser } from '../lib/session.mjs';
+import { getDefaultPlanRows } from '../lib/defaultPlans.mjs';
 import {
   calculatePlanPricing,
   normalisePlanRow,
@@ -50,12 +51,16 @@ async function fetchPlan(connection, planId) {
     'SELECT id, name, price_cents, discount_percent, discount_end_date, description FROM plans WHERE id = ? LIMIT 1',
     [planId]
   );
-  if (!Array.isArray(rows) || rows.length === 0) {
-    throw new HttpError(404, 'NOT_FOUND', 'The selected plan could not be found.', {
-      code: 'E_PLAN_NOT_FOUND',
-    });
+  if (Array.isArray(rows) && rows.length > 0) {
+    return rows[0];
   }
-  return rows[0];
+  const fallback = getDefaultPlanRows().find((p) => p.id === planId);
+  if (fallback) {
+    return fallback;
+  }
+  throw new HttpError(404, 'NOT_FOUND', 'The selected plan could not be found.', {
+    code: 'E_PLAN_NOT_FOUND',
+  });
 }
 
 async function fetchUser(connection, userId) {
@@ -90,8 +95,12 @@ membershipsRouter.get(
       const [rows] = await connection.execute(
         'SELECT id, name, price_cents, discount_percent, discount_end_date, description FROM plans ORDER BY price_cents ASC, id ASC'
       );
+      let planRows = Array.isArray(rows) ? rows : [];
+      if (planRows.length === 0) {
+        planRows = getDefaultPlanRows();
+      }
       const now = new Date();
-      const plans = Array.isArray(rows) ? rows.map((row) => normalisePlanRow(row, now)) : [];
+      const plans = planRows.map((row) => normalisePlanRow(row, now));
       jsonOk(res, { plans });
     } finally {
       connection.release();
