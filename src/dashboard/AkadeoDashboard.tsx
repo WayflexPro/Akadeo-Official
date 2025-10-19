@@ -68,6 +68,57 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 
+const PLAN_FEATURES: Record<number, string[]> = {
+  1: [
+    "Up to 3 courses",
+    "Up to 50 students per course",
+    "Basic analytics",
+    "Standard support",
+  ],
+  2: [
+    "Up to 10 courses",
+    "Up to 200 students",
+    "Advanced analytics",
+    "Priority support",
+  ],
+  3: [
+    "Unlimited courses",
+    "Shared access for schools",
+    "Enhanced reporting",
+    "Custom domain option",
+  ],
+  4: [
+    "Dedicated account manager",
+    "Enterprise security",
+    "Custom integrations",
+    "24/7 premium support",
+  ],
+};
+
+const PLAN_DISPLAY_ORDER = [1, 2, 3, 4] as const;
+
+type ToastOptions = {
+  description: string;
+};
+
+const toast = ({ description }: ToastOptions) => {
+  if (typeof window !== "undefined") {
+    const maybeToast = (window as typeof window & {
+      toast?: (options: ToastOptions) => void;
+    }).toast;
+
+    if (typeof maybeToast === "function") {
+      maybeToast({ description });
+      return;
+    }
+
+    window.alert(description);
+  }
+};
+
+const showFeatureNotAvailableToast = () => toast({ description: "Feature not yet available." });
+
+
 type ThemeDefinition = {
   id: string;
   name: string;
@@ -466,7 +517,7 @@ const getPlanCtaLabel = (plan: SubscriptionPlan, isCurrent: boolean): string => 
   if (isCurrent) {
     return "Current plan";
   }
-  if (plan.priceCents <= 0) {
+  if (plan.priceCents <= 0 && plan.id !== 1) {
     return "Talk with us";
   }
   if (plan.discountActive && plan.discountPercent) {
@@ -625,7 +676,7 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
     }
   };
 
-  const handleCancelMembership = async () => {
+  const handleCancelSubscription = async () => {
     if (!subscription?.isActive) {
       return;
     }
@@ -798,27 +849,34 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
           return <p className="akadeo-dashboard__text-muted">Plans will be available soon.</p>;
         }
 
-        // Ensure consistent visual order:
-        // 1) Free (id=1), 2) paid by ascending price, 3) contact-only (price<=0 && id!==1) last.
         const sortedPlans = [...plans].sort((a, b) => {
-          const weight = (p: SubscriptionPlan) => (p.priceCents <= 0 && p.id !== 1 ? 1 : 0);
-          const wa = weight(a);
-          const wb = weight(b);
-          if (wa !== wb) return wa - wb; // paid before contact-only
-          if (a.priceCents !== b.priceCents) return a.priceCents - b.priceCents; // cheaper first
-          return a.id - b.id; // stable, deterministic tie-break
+          const getOrderIndex = (planId: number) => {
+            const index = PLAN_DISPLAY_ORDER.indexOf(planId as (typeof PLAN_DISPLAY_ORDER)[number]);
+            return index === -1 ? PLAN_DISPLAY_ORDER.length + planId : index;
+          };
+
+          return getOrderIndex(a.id) - getOrderIndex(b.id);
         });
 
         return (
           <div className="akadeo-dashboard__plans-grid">
             {sortedPlans.map((plan) => {
-              const isCurrent = isSubscriptionActive && currentPlanId === plan.id;
-              const isContactOnly = plan.priceCents <= 0;
-              const priceLabel = isContactOnly ? "Contact us" : formatCurrencyFromCents(plan.currentPriceCents);
+              const isFreePlan = plan.id === 1;
+              const isContactOnly = plan.priceCents <= 0 && !isFreePlan;
+              const isCurrent = isSubscriptionActive ? currentPlanId === plan.id : isFreePlan;
+              const priceLabel = isContactOnly
+                ? "Contact us"
+                : formatCurrencyFromCents(plan.currentPriceCents);
               const originalPrice =
                 !isContactOnly && plan.discountActive && plan.currentPriceCents !== plan.priceCents
                   ? formatCurrencyFromCents(plan.priceCents)
                   : null;
+              const planFeatures = PLAN_FEATURES[plan.id] ?? [];
+              const shouldDisableCheckout =
+                isContactOnly ||
+                isCurrent ||
+                checkoutPlanId === plan.id ||
+                (isFreePlan && plan.priceCents <= 0);
 
               return (
                 <motion.div key={plan.id} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 280, damping: 26 }}>
@@ -848,11 +906,20 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                           <span className="akadeo-dashboard__plan-price-original">{originalPrice}/mo</span>
                         ) : null}
                       </div>
+                      {planFeatures.length ? (
+                        <ul className="akadeo-dashboard__plan-features">
+                          {planFeatures.map((feature) => (
+                            <li key={feature} className="akadeo-dashboard__plan-feature-item">
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                       <button
                         type="button"
                         className="akadeo-dashboard__plan-button"
                         onClick={() => handleStartCheckout(plan)}
-                        disabled={isContactOnly || isCurrent || checkoutPlanId === plan.id}
+                        disabled={shouldDisableCheckout}
                       >
                         {checkoutPlanId === plan.id ? "Redirecting…" : getPlanCtaLabel(plan, isCurrent)}
                       </button>
@@ -934,12 +1001,40 @@ export default function AkadeoDashboard({ userName }: AkadeoDashboardProps) {
                     <button
                       type="button"
                       className="akadeo-dashboard__button akadeo-dashboard__button--danger"
-                      onClick={handleCancelMembership}
+                      onClick={handleCancelSubscription}
                       disabled={canceling}
                     >
-                      {canceling ? "Canceling…" : "Cancel membership"}
+                      {canceling ? "Canceling…" : "Cancel subscription"}
                     </button>
                   ) : null}
+                  <button
+                    type="button"
+                    className="akadeo-dashboard__button"
+                    onClick={showFeatureNotAvailableToast}
+                  >
+                    Update Payment Method
+                  </button>
+                  <button
+                    type="button"
+                    className="akadeo-dashboard__button"
+                    onClick={showFeatureNotAvailableToast}
+                  >
+                    View Invoices
+                  </button>
+                  <button
+                    type="button"
+                    className="akadeo-dashboard__button"
+                    onClick={showFeatureNotAvailableToast}
+                  >
+                    Pause Subscription
+                  </button>
+                  <button
+                    type="button"
+                    className="akadeo-dashboard__button"
+                    onClick={showFeatureNotAvailableToast}
+                  >
+                    Redeem Coupon
+                  </button>
                 </div>
                 {cancelError ? <p className="akadeo-dashboard__plan-error">{cancelError}</p> : null}
               </div>

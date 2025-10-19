@@ -703,6 +703,20 @@
   text-decoration: line-through;
 }
 
+.akadeo-dashboard__plan-features {
+  margin: 18px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.akadeo-dashboard__plan-feature-item::marker {
+  color: rgba(124, 240, 255, 0.78);
+}
+
 .akadeo-dashboard__plan-button {
   margin-top: 24px;
   width: 100%;
