@@ -22,7 +22,9 @@ export default function PaymentFailedPage() {
     navigate("/dashboard", { replace: true });
   };
 
-  const planName = subscription?.planName ?? "Free";
+  // If there is no active subscription, treat the current plan as "Free".
+  const planName =
+    subscription?.isActive ? (subscription?.planName ?? "Free") : "Free";
 
   return (
     <div className="payment-status payment-status--error">
